@@ -1,0 +1,247 @@
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1f35 0%, #0f1425 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  font-family: 'Arial', sans-serif;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 500px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 2px solid #4a5568;
+}
+
+.login-description {
+  text-align: center;
+  color: #2d3748;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.login-form {
+  margin-bottom: 2rem;
+}
+
+.input-section {
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-group:last-child {
+  margin-bottom: 0;
+}
+
+.input-label {
+  font-weight: bold;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  color: #2d3748;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.login-input::placeholder {
+  color: #a0aec0;
+}
+
+.error-message {
+  background: #fed7d7;
+  border: 1px solid #feb2b2;
+  color: #c53030;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.login-actions {
+  text-align: center;
+}
+
+.login-button {
+  background: linear-gradient(135deg, #2b6cb0, #2c5282);
+  color: white;
+  border: none;
+  padding: 1rem 3rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.login-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2c5282, #2a4365);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.test-section {
+  border-top: 2px dashed #cbd5e0;
+  padding-top: 2rem;
+}
+
+.test-title {
+  font-weight: bold;
+  color: #2d3748;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.test-accounts {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.test-account-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #edf2f7;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.test-login {
+  font-weight: bold;
+  color: #2d3748;
+  font-size: 0.9rem;
+}
+
+.test-role {
+  color: #718096;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.quick-login-button {
+  background: #48bb78;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quick-login-button:hover:not(:disabled) {
+  background: #38a169;
+  transform: translateY(-1px);
+}
+
+.quick-login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.test-note {
+  text-align: center;
+  color: #718096;
+  font-size: 0.9rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .login-page {
+    padding: 1rem;
+  }
+  
+  .login-title {
+    font-size: 2.5rem;
+  }
+  
+  .login-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .test-account-group {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .input-section {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-title {
+    font-size: 2rem;
+  }
+  
+  .login-card {
+    padding: 1.5rem 1rem;
+  }
+}

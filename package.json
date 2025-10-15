@@ -1,0 +1,34 @@
+{
+  "name": "wotturnamentsss",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server/simple-server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/simple-server.js",
+    "dev:backend": "nodemon server/simple-server.js",
+    "dev:frontend": "vite",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "init-db": "node server/init-db.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-session": "^1.18.2",
+    "path": "^0.12.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.15.0",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.0.4",
+    "concurrently": "^7.6.0",
+    "nodemon": "^3.0.1",
+    "vite": "^4.4.5"
+  }
+}

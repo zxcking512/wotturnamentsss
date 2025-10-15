@@ -1,0 +1,367 @@
+.my-team-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  padding: 2rem 0;
+}
+
+.my-team-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.my-team-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.page-subtitle {
+  font-size: 1.2rem;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.team-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-radius: 12px;
+}
+
+.stat-info h3 {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0 0 0.25rem 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0;
+}
+
+.current-task-section {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.task-rarity-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rarity-epic {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+}
+
+.rarity-rare {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.rarity-common {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: white;
+}
+
+.active-task-card {
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  position: relative;
+  background: white;
+}
+
+.task-reward {
+  position: absolute;
+  top: -1rem;
+  right: 1.5rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  font-weight: bold;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.task-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+}
+
+.task-description {
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.task-status {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.status-in_progress {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.status-waiting_moderation {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.task-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-complete {
+  flex: 2;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-complete:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-complete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-cancel {
+  flex: 1;
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.moderation-notice {
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
+  color: #1e40af;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.cancellation-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.no-task-card {
+  text-align: center;
+  padding: 3rem 2rem;
+  border: 2px dashed #d1d5db;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+}
+
+.no-task-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.no-task-card h3 {
+  font-size: 1.5rem;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.no-task-card p {
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+.btn-take-task {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-take-task:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.quick-actions {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+}
+
+.action-btn.secondary {
+  background: #f1f5f9;
+  color: #475569;
+  border: 2px solid #e2e8f0;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  color: white;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .team-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .task-actions {
+    flex-direction: column;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+  }
+}
