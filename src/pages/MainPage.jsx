@@ -258,7 +258,7 @@ const MainPage = () => {
       return;
     }
 
-    const newBalance = teamData.balance - 10000;
+    const newBalance = teamData.balance - 5000;
     if (newBalance < 0) {
       alert('Недостаточно средств для замены карточек!');
       return;
@@ -271,7 +271,7 @@ const MainPage = () => {
     setSelectedCard(null);
     setShowTeamSelect(false);
     
-    alert('Карточки заменены! Спиcано 10 000 руб.');
+    alert('Карточки заменены! Спиcано 5 000 руб.');
   };
 
   const formatBalance = (balance) => {
@@ -292,7 +292,7 @@ const MainPage = () => {
     return (
       <div className="active-task-notification">
         <div className="notification-content">
-          <h2>ЗАДАНИЕ ПРИНЯТО!</h2>
+          <h2>У ВАС УЖЕ ЕСТЬ АКТИВНОЕ ЗАДАНИЕ!</h2>
           <p>Отметить как выполненное или отменить текущее задание вы можете на странице "Моя команда"</p>
           
           <button
@@ -317,7 +317,7 @@ const MainPage = () => {
           {cards.map((card, index) => (
             <div
               key={card.id}
-              className={`card ${card.isOpen ? 'flipped' : ''} ${getRarityColor(card.rarity)}`}
+              className={`card ${card.isOpen ? 'flipped' : ''} ${getRarityColor(card.rarity)} ${index === 1 ? 'middle-card' : ''}`}
               onClick={() => !card.isOpen && handleCardClick(index)}
             >
               <div className="card-inner">
@@ -349,17 +349,18 @@ const MainPage = () => {
         </div>
 
         {!hasActiveTask && (
-          <div className="replace-cards-center">
+          <div className="replace-section">
             <button 
               onClick={handleReplaceCards}
-              className="replace-cards-btn"
-              disabled={teamData.balance < 10000}
+              className="replace-btn"
+              disabled={teamData.balance < 5000}
             >
-              ЗАМЕНИТЬ КАРТОЧКИ
+              <span className="replace-text">Заменить карты*</span>
             </button>
-            <p className="replace-cost-center">
-              *Стоимость каждой замены карт испытаний: 10 000 руб.
-            </p>
+            <div className="replace-cost">
+              <span className="cost-text">*Стоимость каждой замены карт испытаний</span>
+              <span className="cost-amount">-5 000 руб.</span>
+            </div>
           </div>
         )}
 
@@ -408,62 +409,66 @@ const MainPage = () => {
 
   return (
     <div className="main-page">
-      {/* Header УДАЛЕН - он теперь в App.jsx */}
-      
       <div className="main-container">
-        <div className="content-wrapper">
-          <div className="left-sidebar">
-            <div className="balance-section">
-              <h1>БАЛАНС КОМАНДЫ: {formatBalance(teamData.balance)}</h1>
+        
+        {/* Левая колонка - Карты и действия */}
+        <div className="left-column">
+          <div className="cards-actions-block">
+            <div className="block-title">КАРТЫ И ДЕЙСТВИЯ</div>
+            
+            <div className="card-type">
+              <div className="card-name">ЭПИЧЕСКОЕ БЕЗУМСТВО</div>
+              <div className="card-reward">+50 000 руб.</div>
             </div>
             
-            <div className="card-types">
-              <h3>ВИДЫ КАРТ:</h3>
-              <div className="card-type-item">
-                <span className="type-name">Эпическое безумство</span>
-                <span className="type-reward">+50 000 руб.</span>
-              </div>
-              <div className="card-type-item">
-                <span className="type-name">Дерзкий вызов</span>
-                <span className="type-reward">+25 000 руб.</span>
-              </div>
-              <div className="card-type-item">
-                <span className="type-name">Простая шалость</span>
-                <span className="type-reward">+5 000 руб.</span>
-              </div>
-              <div className="card-type-item">
-                <span className="type-name">Пакость (другой команде)</span>
-                <span className="type-reward">-10 000 руб.</span>
-              </div>
+            <div className="card-type">
+              <div className="card-name">ПРОСТАЯ ШАЛОСТЬ</div>
+              <div className="card-reward">+25 000 руб.</div>
+            </div>
+            
+            <div className="card-type">
+              <div className="card-name">ПАКОСТЬ ПРОТИВНИКУ</div>
+              <div className="card-reward">-10 000 руб.</div>
+            </div>
+            
+            <div className="card-type">
+              <div className="card-name">ЗАМЕНА КАРТ</div>
+              <div className="card-reward">-5 000 руб.</div>
             </div>
           </div>
+        </div>
 
-          <div className="center-content">
-            {renderCardsSection()}
-          </div>
+        {/* Центральная колонка - Карты заданий */}
+        <div className="center-column">
+          {renderCardsSection()}
+        </div>
 
-          <div className="right-sidebar">
-            <div className="tournament-table">
-              <h3>ТУРНИРНАЯ ТАБЛИЦА:</h3>
-              <div className="team-rank">
-                <span className="team-name">RECRENT</span>
-                <span className="team-balance">200 000 руб.</span>
+        {/* Правая колонка - Котлы команд */}
+        <div className="right-column">
+          <div className="rating-block">
+            <div className="rating-title">КОТЛЫ КОМАНД</div>
+            
+            <div className="teams-list">
+              <div className="team-item">
+                <div className="team-name">RECRENT</div>
+                <div className="team-balance">200 000 руб.</div>
               </div>
-              <div className="team-rank">
-                <span className="team-name">BRATISHKINOFF</span>
-                <span className="team-balance">150 000 руб.</span>
+              <div className="team-item">
+                <div className="team-name">BRATISHKOFF</div>
+                <div className="team-balance">150 000 руб.</div>
               </div>
-              <div className="team-rank">
-                <span className="team-name">SHADOWKEK</span>
-                <span className="team-balance">100 000 руб.</span>
+              <div className="team-item">
+                <div className="team-name">SHADOWKEKW</div>
+                <div className="team-balance">100 000 руб.</div>
               </div>
-              <div className="team-rank">
-                <span className="team-name">LEVSHA</span>
-                <span className="team-balance">30 000 руб.</span>
+              <div className="team-item">
+                <div className="team-name">LEVSHA</div>
+                <div className="team-balance">50 000 руб.</div>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

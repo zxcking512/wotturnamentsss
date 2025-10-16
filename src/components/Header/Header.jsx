@@ -6,7 +6,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const teamName = localStorage.getItem('teamName') || 'RECRENT';
-  const balance = localStorage.getItem('balance') || '200 000';
+  const balance = parseInt(localStorage.getItem('balance')) || 200000;
 
   const handleLogout = () => {
     localStorage.clear();
@@ -17,14 +17,20 @@ const Header = () => {
     return location.pathname === path;
   };
 
+  const formatBalance = (balance) => {
+    return new Intl.NumberFormat('ru-RU').format(balance) + ' руб.';
+  };
+
   return (
     <header className="header">
       <div className="header-content">
         
+        {/* Логотип МИР ТАНКОВ */}
         <div className="logo">
           <div className="game-logo">МИР ТАНКОВ</div>
         </div>
 
+        {/* Навигация */}
         <nav className="navigation">
           <button 
             className={`nav-button ${isActive('/main') ? 'active' : ''}`}
@@ -46,15 +52,20 @@ const Header = () => {
           </button>
         </nav>
 
+        {/* Информация о команде */}
         <div className="team-info">
           <div className="team-name">Команда {teamName}</div>
           <button className="logout-button" onClick={handleLogout}>
-            Выйти из профиля
+            <span className="logout-text">Выйти из профиля</span>
+            <svg className="logout-icon" width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path fillRule="evenodd" clipRule="evenodd" d="M0.375 1.95833C0.375 1.0875 1.0875 0.375 1.95833 0.375C1.95833 0.375 4.06944 0.375 8.29167 0.375V1.95833H1.95833V13.0417H8.29167V14.625C4.06944 14.625 1.95833 14.625 1.95833 14.625C1.0875 14.625 0.375 13.9125 0.375 13.0417C0.375 5.61869 0.375 1.95833 0.375 1.95833ZM11.5975 6.70833L9.5902 4.70104L10.7098 3.58145L14.6283 7.5L10.7098 11.4186L9.5902 10.299L11.5975 8.29167H6.38375V6.70833H11.5975Z" fill="white"/>
+            </svg>
           </button>
         </div>
 
       </div>
 
+      {/* Котел команды */}
       <div className="team-balance-container">
         <svg 
           className="balance-svg" 
@@ -83,7 +94,7 @@ const Header = () => {
           </defs>
         </svg>
         <div className="team-balance">
-          КОТЁЛ КОМАНДЫ: {balance} РУБ.
+          КОТЁЛ КОМАНДЫ: {formatBalance(balance)}
         </div>
       </div>
     </header>
