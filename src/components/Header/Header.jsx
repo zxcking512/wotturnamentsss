@@ -1,99 +1,90 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './Header.css';
 
 const Header = () => {
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
+  const teamName = localStorage.getItem('teamName') || 'RECRENT';
+  const balance = localStorage.getItem('balance') || '200 000';
 
-  const handleLogout = async () => {
-    try {
-      // Очищаем localStorage
-      localStorage.removeItem('token');
-      localStorage.removeItem('teamName');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('role');
-      localStorage.removeItem('balance');
-      localStorage.removeItem('completedTasks');
-      
-      // Вызываем logout на сервере
-      await fetch('http://localhost:3000/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
-      
-      // Принудительный редирект на логин
-      window.location.href = '/login';
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Даже если ошибка - все равно редиректим
-      window.location.href = '/login';
-    }
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/login');
   };
 
-  const getPageTitle = () => {
-    const role = localStorage.getItem('role');
-    switch (location.pathname) {
-      case '/':
-        return role === 'moderator' ? 'Панель модератора' : 'Выбор задания';
-      case '/my-team':
-        return 'Моя команда';
-      case '/moderator':
-        return 'Панель модератора';
-      default:
-        return 'WoT Турнир';
-    }
+  const isActive = (path) => {
+    return location.pathname === path;
   };
-
-  const teamName = localStorage.getItem('teamName');
-  const role = localStorage.getItem('role');
 
   return (
     <header className="header">
-      <div className="header-left">
-        <div className="logo">WoT ТУРНИР</div>
-        <div className="page-title">{getPageTitle()}</div>
-      </div>
-
-      <div className="header-right">
-        {teamName && role !== 'moderator' && (
-          <div className="team-info">
-            <span className="team-name">{teamName}</span>
-          </div>
-        )}
+      <div className="header-content">
         
-        <nav className="nav-menu">
-          {role !== 'moderator' ? (
-            <>
-              <button 
-                className={`nav-button ${location.pathname === '/' ? 'active' : ''}`}
-                onClick={() => navigate('/')}
-              >
-                ВЫБОР ЗАДАНИЯ
-              </button>
-              <button 
-                className={`nav-button ${location.pathname === '/my-team' ? 'active' : ''}`}
-                onClick={() => navigate('/my-team')}
-              >
-                МОЯ КОМАНДА
-              </button>
-            </>
-          ) : (
-            <button 
-              className={`nav-button ${location.pathname === '/moderator' ? 'active' : ''}`}
-              onClick={() => navigate('/moderator')}
-            >
-              ПАНЕЛЬ МОДЕРАТОРА
-            </button>
-          )}
+        <div className="logo">
+          <div className="game-logo">МИР ТАНКОВ</div>
+        </div>
 
+        <nav className="navigation">
           <button 
-            className="nav-button logout-button"
-            onClick={handleLogout}
+            className={`nav-button ${isActive('/main') ? 'active' : ''}`}
+            onClick={() => navigate('/main')}
           >
-            ВЫЙТИ ИЗ ПРОФИЛЯ
+            Главная страница
+          </button>
+          <button 
+            className={`nav-button ${isActive('/main') ? 'active' : ''}`}
+            onClick={() => navigate('/main')}
+          >
+            Взять задание
+          </button>
+          <button 
+            className={`nav-button ${isActive('/my-team') ? 'active' : ''}`}
+            onClick={() => navigate('/my-team')}
+          >
+            Моя команда
           </button>
         </nav>
+
+        <div className="team-info">
+          <div className="team-name">Команда {teamName}</div>
+          <button className="logout-button" onClick={handleLogout}>
+            Выйти из профиля
+          </button>
+        </div>
+
+      </div>
+
+      <div className="team-balance-container">
+        <svg 
+          className="balance-svg" 
+          width="744" 
+          height="84" 
+          viewBox="0 0 744 84" 
+          fill="none"
+        >
+          <path 
+            d="M0 0H744L714 84H30L0 0Z" 
+            fill="url(#paint0_linear_445_327)" 
+            fillOpacity="0.5"
+          />
+          <defs>
+            <linearGradient 
+              id="paint0_linear_445_327" 
+              x1="356.5" 
+              y1="84" 
+              x2="356.5" 
+              y2="-1.07347e-06" 
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stopColor="white"/>
+              <stop offset="1" stopColor="#454545"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div className="team-balance">
+          КОТЁЛ КОМАНДЫ: {balance} РУБ.
+        </div>
       </div>
     </header>
   );

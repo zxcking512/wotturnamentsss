@@ -40,7 +40,6 @@ const LoginPage = () => {
       const data = await response.json();
 
       if (data.success) {
-        // Сохраняем данные в localStorage
         localStorage.setItem('token', 'authenticated');
         localStorage.setItem('teamName', data.user.team_name || data.user.login);
         localStorage.setItem('userId', data.user.id);
@@ -48,11 +47,10 @@ const LoginPage = () => {
         localStorage.setItem('balance', '0');
         localStorage.setItem('completedTasks', '0');
         
-        // Редирект
         if (data.user.role === 'moderator') {
           window.location.href = '/moderator';
         } else {
-          window.location.href = '/';
+          window.location.href = '/main';
         }
         
       } else {
@@ -79,51 +77,42 @@ const LoginPage = () => {
   return (
     <div className="login-page">
       <div className="login-container">
-        <div className="login-header">
-          <h1 className="login-title">МИР ТАНКОВ</h1>
-        </div>
-
         <div className="login-card">
-          <div className="login-description">
-            Используйте логин и пароль, который выдал вам организатор турнира
+          
+          <div className="login-header">
+            <div className="game-title">МИР ТАНКОВ</div>
+          </div>
+
+          <div className="login-subtitle">
+            Используйте логин и пароль, который выдал вам модератор ресурса
           </div>
 
           <form onSubmit={handleLogin} className="login-form">
-            <div className="input-section">
-              <div className="input-group">
-                <div className="input-label">ВАШ ЛОГИН</div>
-                <input
-                  name="username"
-                  type="text"
-                  value={formData.username}
-                  onChange={handleChange}
-                  placeholder="Введите ваш логин"
-                  className="login-input"
-                  required
-                  autoComplete="username"
-                />
-              </div>
-
-              <div className="input-group">
-                <div className="input-label">ПАРОЛЬ</div>
-                <input
-                  name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Введите ваш пароль"
-                  className="login-input"
-                  required
-                  autoComplete="current-password"
-                />
-              </div>
+            <div className="input-group">
+              <input
+                name="username"
+                type="text"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="Ваш логин"
+                className="login-input"
+                required
+                autoComplete="username"
+              />
             </div>
 
-            {error && (
-              <div className="error-message">
-                {error}
-              </div>
-            )}
+            <div className="input-group">
+              <input
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Пароль"
+                className="login-input"
+                required
+                autoComplete="current-password"
+              />
+            </div>
 
             <div className="login-actions">
               <button 
@@ -131,9 +120,15 @@ const LoginPage = () => {
                 className="login-button"
                 disabled={loading}
               >
-                {loading ? 'ВХОД...' : 'ВОЙТИ'}
+                {loading ? 'ВХОД...' : 'Войти'}
               </button>
             </div>
+
+            {error && (
+              <div className="error-message">
+                Вы ввели неверный логин или пароль. Попробуйте еще раз
+              </div>
+            )}
           </form>
 
           <div className="test-section">
@@ -141,8 +136,7 @@ const LoginPage = () => {
             
             <div className="test-accounts">
               <div className="test-account-group">
-                <div className="test-login">captain1 / captain123</div>
-                <div className="test-role">(Капитан)</div>
+                <div className="test-login">captain1 / captain123 (Капитан)</div>
                 <button 
                   onClick={() => handleQuickLogin('captain1', 'captain123')}
                   className="quick-login-button"
@@ -154,8 +148,7 @@ const LoginPage = () => {
               </div>
 
               <div className="test-account-group">
-                <div className="test-login">moderator / moderator123</div>
-                <div className="test-role">(Модератор)</div>
+                <div className="test-login">moderator / moderator123 (Модератор)</div>
                 <button 
                   onClick={() => handleQuickLogin('moderator', 'moderator123')}
                   className="quick-login-button"
@@ -165,10 +158,6 @@ const LoginPage = () => {
                   БЫСТРЫЙ ВХОД
                 </button>
               </div>
-            </div>
-
-            <div className="test-note">
-              <strong>Для теста:</strong>
             </div>
           </div>
         </div>

@@ -5,236 +5,117 @@ import './MyTeamPage.css';
 const MyTeamPage = () => {
   const navigate = useNavigate();
   const [teamData, setTeamData] = useState({
-    name: '',
-    balance: 0,
-    completedTasks: 0,
-    position: 0,
-    freeCancellations: 3
+    name: 'КОМАНДА RECRENT',
+    balance: '200 000',
+    place: '#2',
+    completedTasks: '10',
+    freeCancellations: '1/3'
   });
-  const [currentTask, setCurrentTask] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadTeamData();
-  }, []);
+  const [currentTask, setCurrentTask] = useState({
+    type: 'ЭПИЧЕСКОЕ БЕЗУМСТВО',
+    reward: '+50 000 РУБ.',
+    title: 'БЕЗУМНЫЙ ТАНКИСТ',
+    description: 'Вывод должен провести бой на карте "Процедурам" зі таких адресів типа (магазину, також на містах лестниць на темблозі). Музею одержуть тайбуд.',
+    status: 'В процессе'
+  });
 
-  const loadTeamData = () => {
-    const teamName = localStorage.getItem('teamName') || 'Команда';
-    const balance = parseInt(localStorage.getItem('balance')) || 0;
-    const completedTasks = parseInt(localStorage.getItem('completedTasks')) || 0;
-    const freeCancellations = parseInt(localStorage.getItem('freeCancellations')) || 3;
-
-    setTeamData({
-      name: teamName,
-      balance: balance,
-      completedTasks: completedTasks,
-      position: 1,
-      freeCancellations: freeCancellations
-    });
-
-    const activeTask = localStorage.getItem('activeTask');
-    if (activeTask) {
-      setCurrentTask(JSON.parse(activeTask));
-    }
-
-    setLoading(false);
-  };
+  const [leaderboard, setLeaderboard] = useState([
+    { team: 'квитанкогг', completed: 10, balance: '200 000 руб.' },
+    { team: 'кскект', completed: 8, balance: '140 000 руб.' },
+    { team: 'знаспекк', completed: 6, balance: '60 000 руб.' },
+    { team: 'цзка', completed: 4, balance: '20 000 руб.' }
+  ]);
 
   const handleTaskComplete = () => {
-    if (!currentTask) return;
-
-    const updatedTask = {
-      ...currentTask,
-      status: 'waiting_moderation'
-    };
-    
-    setCurrentTask(updatedTask);
-    localStorage.setItem('activeTask', JSON.stringify(updatedTask));
-    
-    alert('Задание отправлено на проверку модератору!');
+    // Логика выполнения задания
+    console.log('Задание выполнено');
   };
 
   const handleTaskCancel = () => {
-    if (!currentTask) return;
-
-    const cancellationsLeft = teamData.freeCancellations;
-    let penalty = 0;
-
-    if (cancellationsLeft > 0) {
-      setTeamData(prev => ({
-        ...prev,
-        freeCancellations: prev.freeCancellations - 1
-      }));
-      localStorage.setItem('freeCancellations', (cancellationsLeft - 1).toString());
-    } else {
-      penalty = Math.floor(currentTask.reward * 0.2);
-      const newBalance = teamData.balance - penalty;
-      
-      setTeamData(prev => ({
-        ...prev,
-        balance: newBalance
-      }));
-      localStorage.setItem('balance', newBalance.toString());
-    }
-
-    setCurrentTask(null);
-    localStorage.removeItem('activeTask');
-
-    alert(
-      cancellationsLeft > 0 
-        ? `Задание отменено. Осталось бесплатных отмен: ${cancellationsLeft - 1}`
-        : `Задание отменено. Начислен штраф: -${penalty} руб.`
-    );
+    // Логика отмены задания
+    console.log('Задание отменено');
   };
-
-  const formatBalance = (balance) => {
-    return new Intl.NumberFormat('ru-RU').format(balance) + ' руб.';
-  };
-
-  const getRarityColor = (rarity) => {
-    switch (rarity) {
-      case 'Эпическое безумство': return 'rarity-epic';
-      case 'Дерзкий вызов': return 'rarity-rare';
-      case 'Простая шалость': return 'rarity-common';
-      default: return 'rarity-common';
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="loading-spinner"></div>
-        <p>Загрузка данных команды...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="my-team-page">
       <div className="my-team-container">
-        <div className="my-team-header">
-          <h1 className="page-title">МОЯ КОМАНДА</h1>
-          <p className="page-subtitle">Управление вашими заданиями и статистика</p>
+        
+        {/* Заголовок */}
+        <div className="team-header">
+          <h1 className="team-title">{teamData.name}</h1>
+          <div className="team-subtitle">ТЕКУЩЕЕ ЗАДАНИЕ:</div>
         </div>
 
-        <div className="team-stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">💰</div>
-            <div className="stat-info">
-              <h3>БАЛАНС</h3>
-              <p className="stat-value">{formatBalance(teamData.balance)}</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">🏆</div>
-            <div className="stat-info">
-              <h3>МЕСТО В ТАБЛИЦЕ</h3>
-              <p className="stat-value">#{teamData.position}</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">✅</div>
-            <div className="stat-info">
-              <h3>ВЫПОЛНЕНО ЗАДАНИЙ</h3>
-              <p className="stat-value">{teamData.completedTasks}</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">🔄</div>
-            <div className="stat-info">
-              <h3>БЕСПЛАТНЫЕ ОТМЕНЫ</h3>
-              <p className="stat-value">{teamData.freeCancellations}/3</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="current-task-section">
-          <h2 className="section-title">
-            ТЕКУЩЕЕ ЗАДАНИЕ
-            {currentTask && (
-              <span className={`task-rarity-badge ${getRarityColor(currentTask.rarity)}`}>
-                {currentTask.rarity}
-              </span>
-            )}
-          </h2>
-
-          {currentTask ? (
-            <div className="active-task-card">
-              <div className="task-reward">+{formatBalance(currentTask.reward)}</div>
-              <h3 className="task-title">{currentTask.title}</h3>
-              <p className="task-description">{currentTask.description}</p>
+        <div className="team-content">
+          
+          {/* Левая колонка - Текущее задание */}
+          <div className="left-column">
+            <div className="current-task-card">
+              <div className="task-type">{currentTask.type}</div>
+              <div className="task-reward">{currentTask.reward}</div>
+              <div className="task-title">{currentTask.title}</div>
+              <div className="task-description">{currentTask.description}</div>
               
-              <div className="task-status">
-                Статус: <span className={`status-${currentTask.status}`}>
-                  {currentTask.status === 'in_progress' && 'В процессе'}
-                  {currentTask.status === 'waiting_moderation' && 'На модерации'}
-                </span>
-              </div>
-
               <div className="task-actions">
-                <button
-                  onClick={handleTaskComplete}
-                  className="btn-complete"
-                  disabled={currentTask.status === 'waiting_moderation'}
-                >
-                  {currentTask.status === 'waiting_moderation' ? 'ОЖИДАЕТ ПРОВЕРКИ' : 'ЗАДАНИЕ ВЫПОЛНЕНО'}
+                <button className="btn-complete" onClick={handleTaskComplete}>
+                  Задание выполнено
                 </button>
-                
-                <button
-                  onClick={handleTaskCancel}
-                  className="btn-cancel"
-                >
-                  ОТМЕНИТЬ ЗАДАНИЕ
+                <button className="btn-cancel" onClick={handleTaskCancel}>
+                  Отменить
                 </button>
               </div>
-
-              {currentTask.status === 'waiting_moderation' && (
-                <div className="moderation-notice">
-                  ⏳ Задание проверяется модератором. Ожидайте решения.
-                </div>
-              )}
 
               <div className="cancellation-info">
-                {teamData.freeCancellations > 0 ? (
-                  <p>Бесплатных отмен осталось: <strong>{teamData.freeCancellations}</strong></p>
-                ) : (
-                  <p>Следующая отмена: <strong>-20% от награды</strong></p>
-                )}
+                <div className="free-cancels">
+                  Бесплатных отмен осталось: <span>{teamData.freeCancellations}</span>
+                </div>
+                <div className="penalty-info">
+                  Отмена последующих заданий: <span>-10 000 руб.</span>
+                </div>
               </div>
             </div>
-          ) : (
-            <div className="no-task-card">
-              <div className="no-task-icon">🎯</div>
-              <h3>Нет активных заданий</h3>
-              <p>Возьмите задание на главной странице чтобы начать зарабатывать!</p>
-              <button
-                onClick={() => navigate('/tasks')}
-                className="btn-take-task"
-              >
-                ВЗЯТЬ ЗАДАНИЕ
-              </button>
-            </div>
-          )}
-        </div>
+          </div>
 
-        <div className="quick-actions">
-          <h2 className="section-title">БЫСТРЫЕ ДЕЙСТВИЯ</h2>
-          <div className="action-buttons">
-            <button
-              onClick={() => navigate('/tasks')}
-              className="action-btn primary"
-            >
-              📋 Взять новое задание
-            </button>
-            <button
-              onClick={() => navigate('/leaderboard')}
-              className="action-btn secondary"
-            >
-              📊 Посмотреть таблицу
-            </button>
+          {/* Правая колонка - Статистика и таблица */}
+          <div className="right-column">
+            
+            {/* Блок баланса */}
+            <div className="balance-card">
+              <div className="balance-title">БАЛАНС КОМАНДЫ:</div>
+              <div className="balance-amount">{teamData.balance} РУБ.</div>
+            </div>
+
+            {/* Блок статистики */}
+            <div className="stats-card">
+              <div className="stat-item">
+                <div className="stat-label">МЕСТО В ТАБЛИЦЕ:</div>
+                <div className="stat-value">{teamData.place}</div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-label">Выполнено заданий:</div>
+                <div className="stat-value">{teamData.completedTasks}</div>
+              </div>
+            </div>
+
+            {/* Турнирная таблица */}
+            <div className="leaderboard-card">
+              <div className="leaderboard-title">ТУРНИРНАЯ ТАБЛИЦА:</div>
+              <div className="leaderboard-header">
+                <div className="header-team">Команда</div>
+                <div className="header-completed">Выполнено</div>
+                <div className="header-balance">Баланс</div>
+              </div>
+              <div className="leaderboard-list">
+                {leaderboard.map((item, index) => (
+                  <div key={index} className="leaderboard-item">
+                    <div className="item-team">{item.team}</div>
+                    <div className="item-completed">{item.completed}</div>
+                    <div className="item-balance">{item.balance}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
