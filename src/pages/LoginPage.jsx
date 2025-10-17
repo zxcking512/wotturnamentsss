@@ -50,7 +50,7 @@ const LoginPage = () => {
         if (data.user.role === 'moderator') {
           window.location.href = '/moderator';
         } else {
-          window.location.href = '/main';
+          window.location.href = '/';
         }
         
       } else {
@@ -79,14 +79,17 @@ const LoginPage = () => {
       <div className="login-container">
         <div className="login-card">
           
+          {/* Заголовок МИР ТАНКОВ */}
           <div className="login-header">
             <div className="game-title">МИР ТАНКОВ</div>
           </div>
 
+          {/* Подзаголовок */}
           <div className="login-subtitle">
             Используйте логин и пароль, который выдал вам модератор ресурса
           </div>
 
+          {/* Форма авторизации */}
           <form onSubmit={handleLogin} className="login-form">
             <div className="input-group">
               <input
@@ -124,6 +127,7 @@ const LoginPage = () => {
               </button>
             </div>
 
+            {/* Сообщение об ошибке под кнопкой */}
             {error && (
               <div className="error-message">
                 Вы ввели неверный логин или пароль. Попробуйте еще раз
@@ -131,6 +135,7 @@ const LoginPage = () => {
             )}
           </form>
 
+          {/* Тестовые доступы */}
           <div className="test-section">
             <div className="test-title">Тестовые доступы:</div>
             

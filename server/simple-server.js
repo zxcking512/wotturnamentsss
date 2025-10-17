@@ -122,8 +122,8 @@ function initDB(db) {
         // Insert default probabilities
         db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES 
             ('epic_probability', '10'),
-            ('rare_probability', '20'),
-            ('common_probability', '65'),
+            ('rare_probability', '25'),
+            ('common_probability', '60'),
             ('troll_probability', '5')
         `);
 
@@ -430,6 +430,7 @@ app.get('/api/moderator/teams', (req, res) => {
     db.all(`SELECT t.*, 
                    uc.status as challenge_status,
                    c.title as challenge_title,
+                   c.reward as challenge_reward,
                    u.login as captain_login
             FROM teams t
             LEFT JOIN users u ON t.id = u.team_id AND u.role = 'captain'
@@ -458,26 +459,65 @@ app.post('/api/moderator/update-team', (req, res) => {
         }
 
         if (challenge_status) {
-            const userId = req.session.user.id;
-            db.run(`UPDATE user_challenges SET status = ? WHERE user_id = ? AND status IN ('active', 'pending')`, 
-                [challenge_status, userId]);
-
-            // If completed, add reward
-            if (challenge_status === 'completed') {
-                db.get(`SELECT uc.challenge_id, c.reward FROM user_challenges uc 
-                        JOIN challenges c ON uc.challenge_id = c.id 
-                        WHERE uc.user_id = ? AND uc.status = 'completed'`, 
-                    [userId], (err, result) => {
-                    if (result && result.reward) {
-                        db.run(`UPDATE teams SET balance = balance + ?, completed_challenges = completed_challenges + 1 WHERE id = ?`, 
-                            [result.reward, teamId]);
-                    }
-                });
-            }
+            // Find user for this team
+            db.get(`SELECT id FROM users WHERE team_id = ? AND role = 'captain'`, [teamId], (err, user) => {
+                if (user) {
+                    db.run(`UPDATE user_challenges SET status = ? WHERE user_id = ? AND status IN ('active', 'pending')`, 
+                        [challenge_status, user.id]);
+                }
+            });
         }
     });
 
     res.json({ success: true });
+});
+
+// Вероятности выпадения
+app.get('/api/moderator/probabilities', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'moderator') {
+        return res.status(403).json({ error: 'Access denied' });
+    }
+
+    db.all(`SELECT key, value FROM settings WHERE key LIKE '%probability'`, (err, settings) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+
+        const probabilities = {};
+        settings.forEach(setting => {
+            const key = setting.key.replace('_probability', '');
+            probabilities[key] = parseInt(setting.value);
+        });
+
+        res.json(probabilities);
+    });
+});
+
+app.post('/api/moderator/probabilities', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'moderator') {
+        return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const { epic, rare, common, troll } = req.body;
+
+    db.serialize(() => {
+        db.run(`UPDATE settings SET value = ? WHERE key = ?`, [epic, 'epic_probability']);
+        db.run(`UPDATE settings SET value = ? WHERE key = ?`, [rare, 'rare_probability']);
+        db.run(`UPDATE settings SET value = ? WHERE key = ?`, [common, 'common_probability']);
+        db.run(`UPDATE settings SET value = ? WHERE key = ?`, [troll, 'troll_probability']);
+    });
+
+    res.json({ success: true });
+});
+
+// Сброс истории заданий
+app.post('/api/moderator/reset-challenges', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'moderator') {
+        return res.status(403).json({ error: 'Access denied' });
+    }
+
+    db.run(`DELETE FROM used_challenges`, (err) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json({ success: true });
+    });
 });
 
 // Serve HTML for root route

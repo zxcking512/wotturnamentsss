@@ -113,5 +113,32 @@ export const moderatorAPI = {
             body: JSON.stringify({ teamId, ...updates }),
         });
         return await response.json();
+    },
+
+    async getProbabilities() {
+        const response = await fetch(`${API_BASE}/moderator/probabilities`, {
+            credentials: 'include',
+        });
+        return await response.json();
+    },
+
+    async updateProbabilities(probabilities) {
+        const response = await fetch(`${API_BASE}/moderator/probabilities`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(probabilities),
+        });
+        return await response.json();
+    },
+
+    async resetChallenges() {
+        const response = await fetch(`${API_BASE}/moderator/reset-challenges`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+        return await response.json();
     }
 };

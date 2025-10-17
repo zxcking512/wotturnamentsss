@@ -1,124 +1,170 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../contexts/AuthContext";
+import { teamsAPI } from "../services/api";
 import './MyTeamPage.css';
 
 const MyTeamPage = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [teamData, setTeamData] = useState({
-    name: 'КОМАНДА RECRENT',
-    balance: '200 000',
-    place: '#2',
-    completedTasks: '10',
-    freeCancellations: '1/3'
-  });
+  const [teamData, setTeamData] = useState(null);
+  const [activeChallenge, setActiveChallenge] = useState(null);
+  const [cancelCount, setCancelCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const [currentTask, setCurrentTask] = useState({
-    type: 'ЭПИЧЕСКОЕ БЕЗУМСТВО',
-    reward: '+50 000 РУБ.',
-    title: 'БЕЗУМНЫЙ ТАНКИСТ',
-    description: 'Вывод должен провести бой на карте "Процедурам" зі таких адресів типа (магазину, також на містах лестниць на темблозі). Музею одержуть тайбуд.',
-    status: 'В процессе'
-  });
+  useEffect(() => {
+    loadTeamData();
+  }, []);
 
-  const [leaderboard, setLeaderboard] = useState([
-    { team: 'квитанкогг', completed: 10, balance: '200 000 руб.' },
-    { team: 'кскект', completed: 8, balance: '140 000 руб.' },
-    { team: 'знаспекк', completed: 6, balance: '60 000 руб.' },
-    { team: 'цзка', completed: 4, balance: '20 000 руб.' }
-  ]);
-
-  const handleTaskComplete = () => {
-    // Логика выполнения задания
-    console.log('Задание выполнено');
+  const loadTeamData = async () => {
+    try {
+      const response = await teamsAPI.getMyTeam();
+      setTeamData(response.team);
+      setActiveChallenge(response.activeChallenge);
+      setCancelCount(response.cancelCount || 0);
+    } catch (error) {
+      setError('Ошибка загрузки данных команды');
+      console.error('Load team data error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleTaskCancel = () => {
-    // Логика отмены задания
-    console.log('Задание отменено');
+  const handleCompleteChallenge = async () => {
+    try {
+      const response = await teamsAPI.completeChallenge();
+      if (response.success) {
+        alert('Задание отправлено на модерацию!');
+        await loadTeamData();
+      }
+    } catch (error) {
+      setError('Ошибка при завершении задания');
+      console.error('Complete challenge error:', error);
+    }
   };
+
+  const handleCancelChallenge = async () => {
+    if (!activeChallenge) return;
+
+    const freeCancelsLeft = Math.max(0, 3 - cancelCount);
+    const penaltyAmount = freeCancelsLeft > 0 ? 0 : Math.round(activeChallenge.reward * 0.2);
+
+    let message = `Вы уверены, что хотите отменить задание?\n\n`;
+    message += `Бесплатных отмен осталось: ${freeCancelsLeft}\n`;
+    if (penaltyAmount > 0) {
+      message += `Будет списан штраф: ${penaltyAmount} руб.`;
+    }
+
+    if (!window.confirm(message)) {
+      return;
+    }
+
+    try {
+      const response = await teamsAPI.cancelChallenge();
+      if (response.success) {
+        if (response.penaltyApplied) {
+          alert(`Задание отменено. Списано ${response.penaltyAmount} руб. штрафа`);
+        } else {
+          alert('Задание отменено');
+        }
+        await loadTeamData();
+        
+        // Если отмена прошла успешно, переходим на страницу заданий
+        navigate('/main');
+      }
+    } catch (error) {
+      setError('Ошибка при отмене задания');
+      console.error('Cancel challenge error:', error);
+    }
+  };
+
+  const getCancelStatus = () => {
+    const freeCancelsLeft = Math.max(0, 3 - cancelCount);
+    
+    if (freeCancelsLeft === 3) {
+      return { text: '3 бесплатные отмены', color: 'green' };
+    } else if (freeCancelsLeft > 0) {
+      return { text: `Осталось ${freeCancelsLeft} бесплатных отмен`, color: 'orange' };
+    } else {
+      return { text: 'Бесплатные отмены закончились. Следующая отмена: -20% от награды', color: 'red' };
+    }
+  };
+
+  if (loading) {
+    return <div className="page-container">Загрузка...</div>;
+  }
+
+  const cancelStatus = getCancelStatus();
 
   return (
     <div className="my-team-page">
-      <div className="my-team-container">
-        
-        {/* Заголовок */}
-        <div className="team-header">
-          <h1 className="team-title">{teamData.name}</h1>
-          <div className="team-subtitle">ТЕКУЩЕЕ ЗАДАНИЕ:</div>
-        </div>
-
-        <div className="team-content">
-          
-          {/* Левая колонка - Текущее задание */}
-          <div className="left-column">
-            <div className="current-task-card">
-              <div className="task-type">{currentTask.type}</div>
-              <div className="task-reward">{currentTask.reward}</div>
-              <div className="task-title">{currentTask.title}</div>
-              <div className="task-description">{currentTask.description}</div>
-              
-              <div className="task-actions">
-                <button className="btn-complete" onClick={handleTaskComplete}>
-                  Задание выполнено
-                </button>
-                <button className="btn-cancel" onClick={handleTaskCancel}>
-                  Отменить
-                </button>
-              </div>
-
-              <div className="cancellation-info">
-                <div className="free-cancels">
-                  Бесплатных отмен осталось: <span>{teamData.freeCancellations}</span>
-                </div>
-                <div className="penalty-info">
-                  Отмена последующих заданий: <span>-10 000 руб.</span>
-                </div>
-              </div>
-            </div>
+      {error && <div className="error-message">{error}</div>}
+      
+      <div className="team-header">
+        <h1>МОЯ КОМАНДА</h1>
+        <div className="team-stats">
+          <div className="stat">
+            <span className="stat-label">Команда:</span>
+            <span className="stat-value">{teamData?.name}</span>
           </div>
-
-          {/* Правая колонка - Статистика и таблица */}
-          <div className="right-column">
-            
-            {/* Блок баланса */}
-            <div className="balance-card">
-              <div className="balance-title">БАЛАНС КОМАНДЫ:</div>
-              <div className="balance-amount">{teamData.balance} РУБ.</div>
-            </div>
-
-            {/* Блок статистики */}
-            <div className="stats-card">
-              <div className="stat-item">
-                <div className="stat-label">МЕСТО В ТАБЛИЦЕ:</div>
-                <div className="stat-value">{teamData.place}</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-label">Выполнено заданий:</div>
-                <div className="stat-value">{teamData.completedTasks}</div>
-              </div>
-            </div>
-
-            {/* Турнирная таблица */}
-            <div className="leaderboard-card">
-              <div className="leaderboard-title">ТУРНИРНАЯ ТАБЛИЦА:</div>
-              <div className="leaderboard-header">
-                <div className="header-team">Команда</div>
-                <div className="header-completed">Выполнено</div>
-                <div className="header-balance">Баланс</div>
-              </div>
-              <div className="leaderboard-list">
-                {leaderboard.map((item, index) => (
-                  <div key={index} className="leaderboard-item">
-                    <div className="item-team">{item.team}</div>
-                    <div className="item-completed">{item.completed}</div>
-                    <div className="item-balance">{item.balance}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="stat">
+            <span className="stat-label">Баланс:</span>
+            <span className="stat-value">{new Intl.NumberFormat('ru-RU').format(teamData?.balance || 0)} руб.</span>
+          </div>
+          <div className="stat">
+            <span className="stat-label">Выполнено заданий:</span>
+            <span className="stat-value">{teamData?.completed_challenges || 0}</span>
           </div>
         </div>
       </div>
+
+      <div className="cancel-info" style={{ color: cancelStatus.color }}>
+        <strong>Статус отмен:</strong> {cancelStatus.text}
+      </div>
+
+      {activeChallenge ? (
+        <div className="active-challenge">
+          <h2>ТЕКУЩЕЕ ЗАДАНИЕ</h2>
+          <div className="challenge-card">
+            <div className="challenge-rarity">{activeChallenge.rarity}</div>
+            <div className="challenge-reward">+{new Intl.NumberFormat('ru-RU').format(activeChallenge.reward)} руб.</div>
+            <h3 className="challenge-title">{activeChallenge.title}</h3>
+            <p className="challenge-description">{activeChallenge.description}</p>
+            <div className="challenge-actions">
+              <button 
+                onClick={handleCompleteChallenge}
+                className="btn-complete"
+                disabled={activeChallenge.status === 'pending'}
+              >
+                {activeChallenge.status === 'pending' ? 'ОЖИДАЕТ МОДЕРАЦИИ' : 'ЗАДАНИЕ ВЫПОЛНЕНО'}
+              </button>
+              <button 
+                onClick={handleCancelChallenge}
+                className="btn-cancel"
+              >
+                ОТМЕНИТЬ ЗАДАНИЕ
+              </button>
+            </div>
+            {activeChallenge.status === 'pending' && (
+              <div className="moderation-notice">
+                Задание находится на модерации. Ожидайте проверки.
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="no-active-challenge">
+          <h2>АКТИВНЫХ ЗАДАНИЙ НЕТ</h2>
+          <p>Перейдите на страницу "Взять задание" чтобы выбрать новое задание</p>
+          <button 
+            onClick={() => navigate('/main')}
+            className="btn-take-challenge"
+          >
+            ВЗЯТЬ ЗАДАНИЕ
+          </button>
+        </div>
+      )}
     </div>
   );
 };

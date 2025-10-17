@@ -1,206 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../contexts/AuthContext";
+import { challengesAPI, teamsAPI, moderatorAPI } from "../services/api";
 import './MainPage.css';
 
 const MainPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [cards, setCards] = useState([]);
   const [selectedCard, setSelectedCard] = useState(null);
-  const [teamData, setTeamData] = useState({
-    balance: 0,
-    completedTasks: 0
-  });
   const [showTeamSelect, setShowTeamSelect] = useState(false);
   const [selectedTeamForMischief, setSelectedTeamForMischief] = useState('');
+  const [teamsData, setTeamsData] = useState([]);
   const [hasActiveTask, setHasActiveTask] = useState(false);
-  const [activeTaskStatus, setActiveTaskStatus] = useState('');
-
-  const allTasks = [
-    {
-      id: 1,
-      title: 'БЕЗУМНЫЙ ТАНКИСТ',
-      description: 'Взвод должен провести бой на карте "Проворная" на танках одного типа. Нужно одержать победу.',
-      rarity: 'Эпическое безумство',
-      reward: 50000,
-      type: 'task'
-    },
-    {
-      id: 2,
-      title: 'ПЕРЕВОЗКА',
-      description: 'Взвод должен провести бой на карте "Проворная" на тяжёлых танках.',
-      rarity: 'Эпическое безумство',
-      reward: 50000,
-      type: 'task'
-    },
-    {
-      id: 3,
-      title: 'ПОСЛЕДНИЙ ШАНС',
-      description: 'Взвод должен провести бой, в котором все участники должны использовать только последний доступный снаряд.',
-      rarity: 'Дерзкий вызов',
-      reward: 25000,
-      type: 'task'
-    },
-    {
-      id: 4,
-      title: 'СНАЙПЕР',
-      description: 'Команда должна провести бой, в котором каждый участник должен сделать не менее 5 точных выстрелов.',
-      rarity: 'Дерзкий вызов',
-      reward: 25000,
-      type: 'task'
-    },
-    {
-      id: 5,
-      title: 'ОНО ЖИВОЕ!',
-      description: 'Команда должна провести 3 боя, в котором каждый участник команды должен остаться в живых.',
-      rarity: 'Простая шалость',
-      reward: 5000,
-      type: 'task'
-    },
-    {
-      id: 6,
-      title: 'ТАНКОВЫЙ ЗАЕЗД',
-      description: 'Взвод должен провести 5 боёв на лёгких танках.',
-      rarity: 'Простая шалость',
-      reward: 5000,
-      type: 'task'
-    },
-    {
-      id: 7,
-      title: 'ШТУРМ',
-      description: 'Взвод должен провести бой на карте "Уайтшип-Роуд" на средних танках.',
-      rarity: 'Простая шалость',
-      reward: 5000,
-      type: 'task'
-    },
-    {
-      id: 8,
-      title: 'ОБОРОНА',
-      description: 'Команда должна провести бой, в котором каждый участник должен заблокировать не менее 1000 урона.',
-      rarity: 'Дерзкий вызов',
-      reward: 25000,
-      type: 'task'
-    },
-    {
-      id: 9,
-      title: 'ПАКОСТЬ',
-      description: 'Выберите команду, у которой будет списано 10 000 рублей.',
-      rarity: 'Пакость',
-      reward: -10000,
-      type: 'mischief'
-    }
-  ];
+  const [activeTask, setActiveTask] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    loadTeamData();
-    checkActiveTask();
-    initializeBacklog();
+    loadChallenges();
+    loadTeamsData();
   }, []);
 
-  const loadTeamData = () => {
-    const balance = parseInt(localStorage.getItem('balance')) || 200000;
-    const completedTasks = parseInt(localStorage.getItem('completedTasks')) || 10;
-    
-    setTeamData({
-      balance: balance,
-      completedTasks: completedTasks
-    });
-  };
-
-  const checkActiveTask = () => {
-    const activeTask = localStorage.getItem('activeTask');
-    if (activeTask) {
-      const taskData = JSON.parse(activeTask);
-      setHasActiveTask(true);
-      setActiveTaskStatus(taskData.status);
-    } else {
-      setHasActiveTask(false);
-      setActiveTaskStatus('');
-      generateCards();
-    }
-  };
-
-  const initializeBacklog = () => {
-    if (!localStorage.getItem('taskBacklog')) {
-      const initialBacklog = allTasks.filter(task => task.type !== 'mischief').map(task => task.id);
-      localStorage.setItem('taskBacklog', JSON.stringify(initialBacklog));
-    }
-  };
-
-  const getCurrentBacklog = () => {
-    const backlog = localStorage.getItem('taskBacklog');
-    return backlog ? JSON.parse(backlog) : [];
-  };
-
-  const updateBacklog = (usedTaskIds) => {
-    let currentBacklog = getCurrentBacklog();
-    currentBacklog = currentBacklog.filter(id => !usedTaskIds.includes(id));
-    
-    if (currentBacklog.length <= 3) {
-      currentBacklog = allTasks.filter(task => task.type !== 'mischief').map(task => task.id);
-    }
-    
-    localStorage.setItem('taskBacklog', JSON.stringify(currentBacklog));
-    return currentBacklog;
-  };
-
-  const getRandomTasks = () => {
-    const currentBacklog = getCurrentBacklog();
-    const availableTasks = allTasks.filter(task => 
-      currentBacklog.includes(task.id) || task.type === 'mischief'
-    );
-    
-    const selectedTasks = [];
-    const usedTaskIds = [];
-    
-    let hasEpic = false;
-    let hasMischief = false;
-    
-    for (let i = 0; i < 3; i++) {
-      if (availableTasks.length === 0) break;
+  const loadChallenges = async () => {
+    try {
+      setLoading(true);
+      const response = await challengesAPI.getAvailableChallenges();
       
-      const filteredTasks = availableTasks.filter(task => {
-        if (task.rarity === 'Эпическое безумство' && hasEpic) return false;
-        if (task.type === 'mischief' && hasMischief) return false;
-        return true;
-      });
-
-      if (filteredTasks.length === 0) break;
-      
-      const randomIndex = Math.floor(Math.random() * filteredTasks.length);
-      const selectedTask = filteredTasks[randomIndex];
-      
-      if (selectedTask.rarity === 'Эпическое безумство') hasEpic = true;
-      if (selectedTask.type === 'mischief') hasMischief = true;
-      
-      selectedTasks.push({
-        ...selectedTask,
-        isOpen: false
-      });
-
-      if (selectedTask.type !== 'mischief') {
-        usedTaskIds.push(selectedTask.id);
+      if (response.hasActiveChallenge) {
+        setHasActiveTask(true);
+        setActiveTask(response.activeChallenge);
+      } else {
+        setHasActiveTask(false);
+        setCards(response.challenges || []);
       }
-      
-      const originalIndex = availableTasks.findIndex(t => t.id === selectedTask.id);
-      if (originalIndex !== -1) {
-        availableTasks.splice(originalIndex, 1);
-      }
+    } catch (error) {
+      setError('Ошибка загрузки заданий');
+      console.error('Load challenges error:', error);
+    } finally {
+      setLoading(false);
     }
-    
-    if (usedTaskIds.length > 0) {
-      updateBacklog(usedTaskIds);
-    }
-    
-    return selectedTasks;
   };
 
-  const generateCards = () => {
-    const newCards = getRandomTasks();
-    setCards(newCards);
+  const loadTeamsData = async () => {
+    try {
+      // Для капитана получаем данные через модераторский API
+      if (user?.role === 'captain') {
+        const response = await moderatorAPI.getTeams();
+        setTeamsData(response.map(team => ({
+          id: team.id,
+          name: team.name,
+          balance: new Intl.NumberFormat('ru-RU').format(team.balance) + ' руб.'
+        })).filter(team => team.id !== user.team_id)); // Исключаем свою команду
+      }
+    } catch (error) {
+      console.error('Load teams error:', error);
+      // Fallback данные
+      setTeamsData([
+        { id: 1, name: 'RECRENT', balance: '150 000 руб.' },
+        { id: 2, name: 'BRATISHKOFF', balance: '150 000 руб.' },
+        { id: 3, name: 'SHADOWKEKW', balance: '100 000 руб.' },
+        { id: 4, name: 'LEVSHA', balance: '50 000 руб.' }
+      ]);
+    }
   };
 
   const handleCardClick = (cardIndex) => {
-    if (hasActiveTask) return;
+    if (hasActiveTask || loading) return;
     
     const updatedCards = [...cards];
     updatedCards[cardIndex].isOpen = true;
@@ -208,70 +74,82 @@ const MainPage = () => {
     setSelectedCard(updatedCards[cardIndex]);
   };
 
-  const handleTakeTask = (card) => {
-    if (!card || hasActiveTask) return;
+  const handleTakeTask = async (card) => {
+    if (!card || hasActiveTask || loading) return;
 
-    if (card.type === 'mischief') {
-      setShowTeamSelect(true);
-      return;
+    try {
+      if (card.rarity === 'troll') {
+        setShowTeamSelect(true);
+        return;
+      }
+
+      const response = await challengesAPI.selectChallenge(card.id);
+      if (response.success) {
+        setHasActiveTask(true);
+        alert(`Задание "${card.title}" принято!`);
+        navigate('/my-team');
+      }
+    } catch (error) {
+      setError('Ошибка при выборе задания');
+      console.error('Take task error:', error);
     }
-
-    const activeTask = {
-      ...card,
-      status: 'in_progress',
-      takenAt: new Date().toISOString()
-    };
-
-    localStorage.setItem('activeTask', JSON.stringify(activeTask));
-    setHasActiveTask(true);
-    setActiveTaskStatus('in_progress');
-    
-    alert(`Задание "${card.title}" принято!`);
-    navigate('/my-team');
   };
 
-  const handleMischiefConfirm = () => {
+  const handleMischiefConfirm = async () => {
     if (!selectedTeamForMischief) {
       alert('Выберите команду для пакости!');
       return;
     }
 
-    const currentTeamName = localStorage.getItem('currentTeam') || 'RECRENT';
-    
-    if (selectedTeamForMischief === currentTeamName) {
-      const newBalance = teamData.balance - 10000;
-      setTeamData(prev => ({ ...prev, balance: newBalance }));
-      localStorage.setItem('balance', newBalance.toString());
-    }
+    try {
+      // Находим выбранную команду
+      const targetTeam = teamsData.find(team => team.name === selectedTeamForMischief);
+      if (!targetTeam) {
+        throw new Error('Команда не найдена');
+      }
 
-    alert(`Пакость совершена! Команда ${selectedTeamForMischief} теряет 10 000 руб.`);
-    
-    setShowTeamSelect(false);
-    setSelectedTeamForMischief('');
-    setSelectedCard(null);
-    generateCards();
+      // Выполняем пакость через API
+      const response = await challengesAPI.selectChallenge(selectedCard.id);
+      if (response.success) {
+        // Обновляем баланс команды через модераторский API
+        await moderatorAPI.updateTeam(targetTeam.id, {
+          balance: parseInt(targetTeam.balance.replace(/\D/g, '')) - 10000
+        });
+
+        alert(`Пакость совершена! Команда ${selectedTeamForMischief} теряет 10 000 руб.`);
+        
+        setShowTeamSelect(false);
+        setSelectedTeamForMischief('');
+        setSelectedCard(null);
+        await loadChallenges();
+        await loadTeamsData(); // Обновляем данные команд
+      }
+    } catch (error) {
+      setError('Ошибка при выполнении пакости');
+      console.error('Mischief error:', error);
+    }
   };
 
-  const handleReplaceCards = () => {
-    if (hasActiveTask) {
+  const handleReplaceCards = async () => {
+    if (hasActiveTask || loading) {
       alert('Нельзя заменять карточки при активном задании!');
       return;
     }
 
-    const newBalance = teamData.balance - 5000;
-    if (newBalance < 0) {
-      alert('Недостаточно средств для замены карточек!');
-      return;
+    try {
+      const response = await challengesAPI.replaceChallenges();
+      if (response.success) {
+        await loadChallenges();
+        alert('Карточки заменены! Спиcано 10 000 руб.');
+      }
+    } catch (error) {
+      if (error.message.includes('Недостаточно средств')) {
+        alert('Недостаточно средств для замены карточек!');
+      } else {
+        setError('Ошибка при замене карточек');
+        console.error('Replace cards error:', error);
+      }
     }
-
-    setTeamData(prev => ({ ...prev, balance: newBalance }));
-    localStorage.setItem('balance', newBalance.toString());
-
-    generateCards();
-    setSelectedCard(null);
-    setShowTeamSelect(false);
-    
-    alert('Карточки заменены! Спиcано 5 000 руб.');
   };
 
   const formatBalance = (balance) => {
@@ -280,11 +158,21 @@ const MainPage = () => {
 
   const getRarityColor = (rarity) => {
     switch (rarity) {
-      case 'Эпическое безумство': return 'epic';
-      case 'Дерзкий вызов': return 'rare';
-      case 'Простая шалость': return 'common';
-      case 'Пакость': return 'mischief';
+      case 'epic': return 'epic';
+      case 'rare': return 'rare';
+      case 'common': return 'common';
+      case 'troll': return 'mischief';
       default: return 'common';
+    }
+  };
+
+  const getRarityName = (rarity) => {
+    switch (rarity) {
+      case 'epic': return 'ЭПИЧЕСКОЕ БЕЗУМСТВО';
+      case 'rare': return 'ДЕРЗКИЙ ВЫЗОВ';
+      case 'common': return 'ПРОСТАЯ ШАЛОСТЬ';
+      case 'troll': return 'ПАКОСТЬ';
+      default: return rarity;
     }
   };
 
@@ -307,6 +195,10 @@ const MainPage = () => {
   };
 
   const renderCardsSection = () => {
+    if (loading) {
+      return <div className="loading">Загрузка заданий...</div>;
+    }
+
     if (hasActiveTask) {
       return renderActiveTaskBlock();
     }
@@ -327,9 +219,9 @@ const MainPage = () => {
                   </div>
                 </div>
                 <div className="card-back">
-                  <div className="card-rarity">{card.rarity}</div>
+                  <div className="card-rarity">{getRarityName(card.rarity)}</div>
                   <div className="card-reward">
-                    {card.type === 'mischief' ? '-10 000 руб.' : `+${formatBalance(card.reward)}`}
+                    {card.rarity === 'troll' ? '-10 000 руб.' : `+${formatBalance(card.reward)}`}
                   </div>
                   <h3 className="card-title">{card.title}</h3>
                   <p className="card-description">{card.description}</p>
@@ -340,7 +232,7 @@ const MainPage = () => {
                     }}
                     className="take-task-btn"
                   >
-                    {card.type === 'mischief' ? 'СДЕЛАТЬ ПАКОСТЬ' : 'ВЗЯТЬ ЗАДАНИЕ'}
+                    {card.rarity === 'troll' ? 'СДЕЛАТЬ ПАКОСТЬ' : 'ВЗЯТЬ ЗАДАНИЕ'}
                   </button>
                 </div>
               </div>
@@ -348,18 +240,18 @@ const MainPage = () => {
           ))}
         </div>
 
-        {!hasActiveTask && (
+        {!hasActiveTask && cards.length > 0 && (
           <div className="replace-section">
             <button 
               onClick={handleReplaceCards}
               className="replace-btn"
-              disabled={teamData.balance < 5000}
+              disabled={loading}
             >
               <span className="replace-text">Заменить карты*</span>
             </button>
             <div className="replace-cost">
               <span className="cost-text">*Стоимость каждой замены карт испытаний</span>
-              <span className="cost-amount">-5 000 руб.</span>
+              <span className="cost-amount">-10 000 руб.</span>
             </div>
           </div>
         )}
@@ -371,16 +263,16 @@ const MainPage = () => {
               <p>Баланс выбранной команды уменьшится на 10 000 руб.</p>
               
               <div className="team-select">
-                {['RECRENT', 'BRATISHKINOFF', 'SHADOWKEK', 'LEVSHA'].map(team => (
-                  <label key={team} className="team-option">
+                {teamsData.map(team => (
+                  <label key={team.id} className="team-option">
                     <input
                       type="radio"
                       name="targetTeam"
-                      value={team}
-                      checked={selectedTeamForMischief === team}
+                      value={team.name}
+                      checked={selectedTeamForMischief === team.name}
                       onChange={(e) => setSelectedTeamForMischief(e.target.value)}
                     />
-                    <span className="team-name">{team}</span>
+                    <span className="team-name">{team.name} ({team.balance})</span>
                   </label>
                 ))}
               </div>
@@ -409,6 +301,7 @@ const MainPage = () => {
 
   return (
     <div className="main-page">
+      {error && <div className="error-message">{error}</div>}
       <div className="main-container">
         
         {/* Левая колонка - Карты и действия */}
@@ -433,7 +326,7 @@ const MainPage = () => {
             
             <div className="card-type">
               <div className="card-name">ЗАМЕНА КАРТ</div>
-              <div className="card-reward">-5 000 руб.</div>
+              <div className="card-reward">-10 000 руб.</div>
             </div>
           </div>
         </div>
@@ -449,22 +342,17 @@ const MainPage = () => {
             <div className="rating-title">КОТЛЫ КОМАНД</div>
             
             <div className="teams-list">
-              <div className="team-item">
-                <div className="team-name">RECRENT</div>
-                <div className="team-balance">200 000 руб.</div>
-              </div>
-              <div className="team-item">
-                <div className="team-name">BRATISHKOFF</div>
-                <div className="team-balance">150 000 руб.</div>
-              </div>
-              <div className="team-item">
-                <div className="team-name">SHADOWKEKW</div>
-                <div className="team-balance">100 000 руб.</div>
-              </div>
-              <div className="team-item">
-                <div className="team-name">LEVSHA</div>
-                <div className="team-balance">50 000 руб.</div>
-              </div>
+              {teamsData.map((team) => (
+                <div key={team.id} className="team-row">
+                  <div className="team-icon">
+                    <svg width="29" height="38" viewBox="0 0 29 38" fill="none">
+                      <path d="M0 26.0217L14.7101 38L29 26.0217V5.78261L25.8478 2.89131L17.8518 14.725H23.1685L8.42681 28.5L14.7101 14.725H8.91015L17.8518 0L7.14493 4.13358e-06L0 5.78261V26.0217Z" fill="#FF5000"/>
+                    </svg>
+                  </div>
+                  <div className="team-name">{team.name}</div>
+                  <div className="team-balance">{team.balance}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

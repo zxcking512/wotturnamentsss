@@ -1,15 +1,15 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from "../../contexts/AuthContext";
 import './Header.css';
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const teamName = localStorage.getItem('teamName') || 'RECRENT';
-  const balance = parseInt(localStorage.getItem('balance')) || 200000;
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.clear();
+    logout();
     navigate('/login');
   };
 
@@ -50,11 +50,19 @@ const Header = () => {
           >
             Моя команда
           </button>
+          {user?.role === 'moderator' && (
+            <button 
+              className={`nav-button ${isActive('/moderator') ? 'active' : ''}`}
+              onClick={() => navigate('/moderator')}
+            >
+              Панель модератора
+            </button>
+          )}
         </nav>
 
         {/* Информация о команде */}
         <div className="team-info">
-          <div className="team-name">Команда {teamName}</div>
+          <div className="team-name">Команда {user?.team_name || user?.username}</div>
           <button className="logout-button" onClick={handleLogout}>
             <span className="logout-text">Выйти из профиля</span>
             <svg className="logout-icon" width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -66,37 +74,39 @@ const Header = () => {
       </div>
 
       {/* Котел команды */}
-      <div className="team-balance-container">
-        <svg 
-          className="balance-svg" 
-          width="744" 
-          height="84" 
-          viewBox="0 0 744 84" 
-          fill="none"
-        >
-          <path 
-            d="M0 0H744L714 84H30L0 0Z" 
-            fill="url(#paint0_linear_445_327)" 
-            fillOpacity="0.5"
-          />
-          <defs>
-            <linearGradient 
-              id="paint0_linear_445_327" 
-              x1="356.5" 
-              y1="84" 
-              x2="356.5" 
-              y2="-1.07347e-06" 
-              gradientUnits="userSpaceOnUse"
-            >
-              <stop stopColor="white"/>
-              <stop offset="1" stopColor="#454545"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <div className="team-balance">
-          КОТЁЛ КОМАНДЫ: {formatBalance(balance)}
+      {user?.role === 'captain' && (
+        <div className="team-balance-container">
+          <svg 
+            className="balance-svg" 
+            width="744" 
+            height="84" 
+            viewBox="0 0 744 84" 
+            fill="none"
+          >
+            <path 
+              d="M0 0H744L714 84H30L0 0Z" 
+              fill="url(#paint0_linear_445_327)" 
+              fillOpacity="0.5"
+            />
+            <defs>
+              <linearGradient 
+                id="paint0_linear_445_327" 
+                x1="356.5" 
+                y1="84" 
+                x2="356.5" 
+                y2="-1.07347e-06" 
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stopColor="white"/>
+                <stop offset="1" stopColor="#454545"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div className="team-balance">
+            КОТЁЛ КОМАНДЫ: {formatBalance(user?.balance || 0)}
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 };

@@ -1,13 +1,17 @@
 /* Убираем горизонтальный скролл */
 body {
   overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  background: #121212;
+  font-family: "MT Sans LC Test 3 VF", sans-serif;
 }
 
 .main-page {
-  min-height: calc(100vh - 184px); /* Учитываем шапку + котел */
+  min-height: calc(100vh - 184px);
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   padding: 2rem;
-  padding-top: 0; /* Убрали отступ, т.к. котел теперь в шапке */
+  padding-top: 0;
   overflow-x: hidden;
 }
 
@@ -17,8 +21,9 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   align-items: flex-start;
+  justify-content: center;
   overflow-x: hidden;
-  margin-top: 2rem; /* Добавляем отступ от котла */
+  margin-top: 2rem;
 }
 
 /* Левая колонка */
@@ -29,26 +34,24 @@ body {
 
 .cards-actions-block {
   width: 285px;
-  min-height: 360px;
-  padding: 30px 20px;
+  height: 360px;
+  padding: 40px;
   border: 1px solid #FFF;
   background: linear-gradient(0deg, rgba(255, 255, 255, 0.30) 0%, rgba(69, 69, 69, 0.30) 100%);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  box-sizing: border-box;
+  gap: 20px;
 }
 
 .block-title {
-  width: 100%;
+  width: 205px;
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF";
   font-size: 23px;
-  font-style: normal;
   font-weight: 350;
-  line-height: normal;
-  margin-bottom: 15px;
-  text-align: center;
+  line-height: 110%;
+  margin-bottom: 10px;
 }
 
 .card-type {
@@ -59,25 +62,19 @@ body {
 }
 
 .card-name {
-  width: 100%;
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF";
-  font-size: 14px;
-  font-style: normal;
+  font-size: 16px;
   font-weight: 350;
   line-height: 110%;
-  word-wrap: break-word;
 }
 
 .card-reward {
-  width: 100%;
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF";
-  font-size: 14px;
-  font-style: normal;
+  font-size: 16px;
   font-weight: 100;
   line-height: 110%;
-  word-wrap: break-word;
 }
 
 /* Центральная колонка */
@@ -87,12 +84,13 @@ body {
   flex-direction: column;
   align-items: center;
   min-width: 0;
+  max-width: 800px;
 }
 
-/* Карточки - УМЕНЬШАЕМ РАЗМЕРЫ */
+/* Карточки */
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 280px); /* Уменьшили с 342px */
+  grid-template-columns: repeat(3, 240px);
   gap: 1.5rem;
   margin-bottom: 2rem;
   justify-content: center;
@@ -100,12 +98,11 @@ body {
 }
 
 .card {
-  width: 280px; /* Уменьшили с 342px */
-  height: 420px; /* Уменьшили с 526px */
+  width: 240px;
+  height: 360px;
   perspective: 1000px;
   cursor: pointer;
-  border-radius: 24px; /* Немного уменьшили */
-  background: lightgray 50% / cover no-repeat;
+  border-radius: 20px;
 }
 
 .card.middle-card {
@@ -119,7 +116,7 @@ body {
   height: 100%;
   transition: transform 0.6s;
   transform-style: preserve-3d;
-  border-radius: 24px;
+  border-radius: 20px;
 }
 
 .card.flipped .card-inner {
@@ -132,14 +129,15 @@ body {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  border-radius: 24px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .card-front {
   background: linear-gradient(135deg, #374151, #1f2937);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border: 2px solid #4b5563;
 }
 
@@ -150,46 +148,45 @@ body {
 }
 
 .card-back-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: bold;
   color: #fbbf24;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  word-wrap: break-word;
 }
 
 .card-back {
   background: white;
   padding: 1.5rem;
   transform: rotateY(180deg);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: 24px;
+  text-align: center;
 }
 
 .card.epic .card-back {
   border: 2px solid #8b5cf6;
+  background: linear-gradient(135deg, #f3e8ff, #ddd6fe);
 }
 
 .card.rare .card-back {
   border: 2px solid #f59e0b;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
 }
 
 .card.common .card-back {
   border: 2px solid #6b7280;
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
 }
 
 .card.mischief .card-back {
   border: 2px solid #ef4444;
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
 }
 
 .card-rarity {
   font-size: 0.9rem;
   font-weight: bold;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
   margin-bottom: 0.8rem;
-  word-wrap: break-word;
+  text-align: center;
 }
 
 .card.epic .card-rarity {
@@ -209,29 +206,38 @@ body {
 }
 
 .card-reward {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: bold;
-  color: #059669;
   margin-bottom: 0.8rem;
-  word-wrap: break-word;
+  text-align: center;
+}
+
+.card.epic .card-reward,
+.card.rare .card-reward,
+.card.common .card-reward {
+  color: #059669;
+}
+
+.card.mischief .card-reward {
+  color: #dc2626;
 }
 
 .card-title {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: bold;
   color: #1f2937;
   margin: 0 0 0.8rem 0;
   line-height: 1.2;
-  word-wrap: break-word;
+  text-align: center;
 }
 
 .card-description {
   color: #6b7280;
-  line-height: 1.4;
-  margin-bottom: 1.5rem;
-  flex-grow: 1;
+  line-height: 1.3;
+  margin-bottom: 1.2rem;
   font-size: 0.8rem;
-  word-wrap: break-word;
+  text-align: center;
+  max-height: 80px;
   overflow-y: auto;
 }
 
@@ -239,18 +245,17 @@ body {
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
   border: none;
-  padding: 0.8rem 1.5rem;
+  padding: 0.7rem 1.2rem;
   border-radius: 0.5rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
-  word-wrap: break-word;
+  font-size: 0.85rem;
+  width: 90%;
+  margin: 0 auto;
 }
 
-.take-task-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+.card.mischief .take-task-btn {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
 }
 
 /* Блок замены карт */
@@ -260,77 +265,57 @@ body {
   align-items: center;
   gap: 0.5rem;
   margin-top: 2rem;
+  width: 100%;
 }
 
 .replace-btn {
-  width: 280px; /* Уменьшили пропорционально картам */
-  height: 55px; /* Уменьшили пропорционально */
+  width: 320px;
+  height: 60px;
   border: 1px solid #FF5000;
   background: #FF5000;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
   border-radius: 8px;
 }
 
-.replace-btn:hover:not(:disabled) {
-  background: #e04600;
-  transform: translateY(-2px);
-}
-
-.replace-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .replace-text {
-  width: 132px;
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF";
   font-size: 20px;
-  font-style: normal;
   font-weight: 100;
-  line-height: normal;
-  text-align: center;
 }
 
 .replace-cost {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
+  gap: 1rem;
+  width: 320px;
+  justify-content: center;
 }
 
 .cost-text {
-  width: 150px;
-  height: 40px;
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF";
-  font-size: 16px;
-  font-style: normal;
+  font-size: 14px;
   font-weight: 100;
-  line-height: normal;
   text-align: center;
 }
 
 .cost-amount {
   color: #FD9A33;
   font-family: "MT Sans LC Test 3 VF";
-  font-size: 32px;
-  font-style: normal;
+  font-size: 24px;
   font-weight: 350;
-  line-height: normal;
 }
 
+/* Активное задание */
 .active-task-notification {
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
   border-radius: 1rem;
   padding: 3rem;
   margin: 2rem 0;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   border: 3px solid #3b82f6;
   text-align: center;
   width: 100%;
@@ -341,7 +326,6 @@ body {
   color: #1e40af;
   margin-bottom: 1rem;
   font-size: 1.8rem;
-  word-wrap: break-word;
 }
 
 .notification-content p {
@@ -349,7 +333,6 @@ body {
   line-height: 1.6;
   margin-bottom: 2rem;
   font-size: 1.1rem;
-  word-wrap: break-word;
 }
 
 .go-to-team-btn {
@@ -361,15 +344,9 @@ body {
   font-weight: 600;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  word-wrap: break-word;
 }
 
-.go-to-team-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
+/* Модальное окно пакости */
 .mischief-modal {
   position: fixed;
   top: 0;
@@ -396,14 +373,6 @@ body {
   color: #dc2626;
   margin-bottom: 1rem;
   font-size: 1.5rem;
-  word-wrap: break-word;
-}
-
-.mischief-content p {
-  color: #6b7280;
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
-  word-wrap: break-word;
 }
 
 .team-select {
@@ -421,32 +390,20 @@ body {
   border: 2px solid #e5e7eb;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.team-option:hover {
-  border-color: #3b82f6;
-  background: #f8fafc;
-}
-
-.team-option input[type="radio"] {
-  width: 20px;
-  height: 20px;
 }
 
 .team-name {
   font-weight: 600;
   color: #1f2937;
-  word-wrap: break-word;
 }
 
 .mischief-actions {
   display: flex;
   gap: 1rem;
+  justify-content: center;
 }
 
 .btn-confirm {
-  flex: 2;
   background: #dc2626;
   color: white;
   border: none;
@@ -454,21 +411,10 @@ body {
   border-radius: 0.5rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-confirm:hover:not(:disabled) {
-  background: #b91c1c;
-  transform: translateY(-1px);
-}
-
-.btn-confirm:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  min-width: 200px;
 }
 
 .btn-cancel {
-  flex: 1;
   background: #6b7280;
   color: white;
   border: none;
@@ -476,179 +422,128 @@ body {
   border-radius: 0.5rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  min-width: 100px;
 }
 
-.btn-cancel:hover {
-  background: #4b5563;
-  transform: translateY(-1px);
-}
-
-/* Правая колонка */
+/* ПРАВЫЙ БЛОК - ИСПРАВЛЕННЫЙ */
 .right-column {
-  width: 280px;
+  width: 285px;
   flex-shrink: 0;
 }
 
 .rating-block {
-  background: rgba(255, 255, 255, 0.1);
+  width: 285px;
+  height: 360px;
+  padding: 40px;
   border: 1px solid #FFF;
-  border-radius: 8px;
-  padding: 1.2rem;
-  min-height: 200px;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.30) 0%, rgba(69, 69, 69, 0.30) 100%);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .rating-title {
+  width: 205px;
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF";
-  font-size: 16px;
+  font-size: 23px;
   font-weight: 350;
-  margin-bottom: 1rem;
+  line-height: 110%;
+  margin-bottom: 10px;
   text-align: center;
-  word-wrap: break-word;
 }
 
 .teams-list {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 15px;
+  width: 100%;
 }
 
-.team-item {
+.team-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.4rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  word-wrap: break-word;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 0;
 }
 
-.team-item:last-child {
-  border-bottom: none;
+.team-icon {
+  width: 29px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .team-name {
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF";
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 350;
-  word-wrap: break-word;
+  line-height: 110%;
+  flex: 1;
 }
 
 .team-balance {
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF";
-  font-size: 12px;
-  font-weight: 350;
-  word-wrap: break-word;
+  font-size: 16px;
+  font-weight: 100;
+  line-height: 110%;
+  white-space: nowrap;
 }
 
+/* Адаптивность */
 @media (max-width: 1200px) {
   .main-container {
-    gap: 1.5rem;
-  }
-  
-  .left-column {
-    width: 260px;
-  }
-  
-  .cards-actions-block {
-    width: 260px;
-    padding: 25px 15px;
-  }
-  
-  .right-column {
-    width: 250px;
+    gap: 1rem;
+    padding: 0 1rem;
   }
   
   .cards-grid {
-    grid-template-columns: repeat(3, 250px);
-    gap: 1rem;
+    grid-template-columns: repeat(3, 220px);
   }
   
   .card {
-    width: 250px;
-    height: 380px;
+    width: 220px;
+    height: 330px;
   }
 }
 
 @media (max-width: 1024px) {
   .main-container {
-    flex-direction: column;
-    align-items: center;
+    flex-wrap: wrap;
   }
   
   .left-column,
   .right-column {
-    width: 100%;
-    max-width: 400px;
-  }
-  
-  .cards-actions-block {
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-  
-  .cards-grid {
-    grid-template-columns: repeat(2, 280px);
-    max-width: 600px;
+    width: 250px;
   }
   
   .center-column {
+    order: -1;
     width: 100%;
+    margin-bottom: 2rem;
+  }
+  
+  .cards-actions-block,
+  .rating-block {
+    width: 100%;
+    max-width: 250px;
+    height: 320px;
+    padding: 30px 20px;
   }
 }
 
 @media (max-width: 768px) {
-  .cards-grid {
-    grid-template-columns: 1fr;
-    max-width: 280px;
-  }
-  
   .main-page {
     padding: 1rem;
-    padding-top: 0;
-  }
-  
-  .card {
-    width: 280px;
-    height: 420px;
-  }
-}
-
-@media (max-width: 480px) {
-  .main-container {
-    gap: 1rem;
-  }
-  
-  .cards-actions-block {
-    padding: 20px 15px;
-    gap: 12px;
-  }
-  
-  .block-title {
-    font-size: 20px;
-    margin-bottom: 12px;
-  }
-  
-  .card-name,
-  .card-reward {
-    font-size: 12px;
   }
   
   .cards-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .card {
-    width: 100%;
-    max-width: 280px;
-    height: 420px;
-  }
-  
-  .replace-btn {
-    width: 100%;
-    max-width: 280px;
+    grid-template-columns: repeat(2, 240px);
   }
 }
