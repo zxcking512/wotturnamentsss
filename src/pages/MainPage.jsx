@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../contexts/AuthContext";
-import { challengesAPI, teamsAPI, moderatorAPI } from "../services/api";
+import api from '../services/api';
 import './MainPage.css';
 
 const MainPage = () => {
@@ -25,7 +25,7 @@ const MainPage = () => {
   const loadChallenges = async () => {
     try {
       setLoading(true);
-      const response = await challengesAPI.getAvailableChallenges();
+      const response = await api.getAvailableChallenges();
       
       if (response.hasActiveChallenge) {
         setHasActiveTask(true);
@@ -46,7 +46,7 @@ const MainPage = () => {
     try {
       // Для капитана получаем данные через модераторский API
       if (user?.role === 'captain') {
-        const response = await moderatorAPI.getTeams();
+        const response = await api.getTeams();
         setTeamsData(response.map(team => ({
           id: team.id,
           name: team.name,
@@ -83,7 +83,7 @@ const MainPage = () => {
         return;
       }
 
-      const response = await challengesAPI.selectChallenge(card.id);
+      const response = await api.selectChallenge(card.id);
       if (response.success) {
         setHasActiveTask(true);
         alert(`Задание "${card.title}" принято!`);
@@ -109,10 +109,10 @@ const MainPage = () => {
       }
 
       // Выполняем пакость через API
-      const response = await challengesAPI.selectChallenge(selectedCard.id);
+      const response = await api.selectChallenge(selectedCard.id);
       if (response.success) {
         // Обновляем баланс команды через модераторский API
-        await moderatorAPI.updateTeam(targetTeam.id, {
+        await api.updateTeam(targetTeam.id, {
           balance: parseInt(targetTeam.balance.replace(/\D/g, '')) - 10000
         });
 
@@ -137,7 +137,7 @@ const MainPage = () => {
     }
 
     try {
-      const response = await challengesAPI.replaceChallenges();
+      const response = await api.replaceChallenges();
       if (response.success) {
         await loadChallenges();
         alert('Карточки заменены! Спиcано 10 000 руб.');

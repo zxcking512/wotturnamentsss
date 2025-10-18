@@ -1,0 +1,125 @@
+.card {
+  border: 3px solid;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.card--selected {
+  transform: scale(1.05);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.card--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.card--disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.75rem;
+}
+
+.card__rarity {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card__reward {
+  font-size: 0.875rem;
+}
+
+.card__content {
+  padding: 16px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card__title {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #1f2937;
+  line-height: 1.4;
+}
+
+.card__description {
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.card__footer {
+  padding: 12px 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.card__button {
+  width: 100%;
+  padding: 8px 16px;
+  border: 2px solid #3b82f6;
+  border-radius: 6px;
+  background: white;
+  color: #3b82f6;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card__button:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.card__button--selected {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+.card__button:disabled {
+  background: #9ca3af;
+  border-color: #9ca3af;
+  color: white;
+  cursor: not-allowed;
+}
+
+/* Специфичные стили для разных редкостей */
+.card--epic .card__header {
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+}
+
+.card--rare .card__header {
+  background: linear-gradient(135deg, #4cc9f0, #4361ee);
+}
+
+.card--common .card__header {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+}
+
+.card--troll .card__header {
+  background: linear-gradient(135deg, #f72585, #b5179e);
+}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { moderatorAPI } from '../services/api';
+import api from '../services/api';
 import './ModeratorPage.css';
 
 const ModeratorPage = () => {
@@ -24,8 +24,8 @@ const ModeratorPage = () => {
     try {
       setLoading(true);
       const [teamsResponse, probResponse] = await Promise.all([
-        moderatorAPI.getTeams(),
-        moderatorAPI.getProbabilities()
+        api.getTeams(),
+        api.getProbabilities()
       ]);
       
       setTeams(teamsResponse);
@@ -43,7 +43,7 @@ const ModeratorPage = () => {
   const handleTeamUpdate = async (teamId, field, value) => {
     try {
       const updates = { [field]: value };
-      await moderatorAPI.updateTeam(teamId, updates);
+      await api.updateTeam(teamId, updates);
       
       // Обновляем локальное состояние
       setTeams(prevTeams => 
@@ -62,7 +62,7 @@ const ModeratorPage = () => {
 
   const handleChallengeStatusUpdate = async (teamId, newStatus) => {
     try {
-      await moderatorAPI.updateTeam(teamId, { challenge_status: newStatus });
+      await api.updateTeam(teamId, { challenge_status: newStatus });
       
       if (newStatus === 'completed') {
         // Обновляем баланс и счетчик выполненных заданий
@@ -71,7 +71,7 @@ const ModeratorPage = () => {
           const newBalance = team.balance + team.challenge_reward;
           const newCompleted = team.completed_challenges + 1;
           
-          await moderatorAPI.updateTeam(teamId, { 
+          await api.updateTeam(teamId, { 
             balance: newBalance,
             completed_challenges: newCompleted
           });
@@ -106,7 +106,7 @@ const ModeratorPage = () => {
   const handleProbabilityUpdate = async (newProbabilities) => {
     try {
       setSaving(true);
-      await moderatorAPI.updateProbabilities(newProbabilities);
+      await api.updateProbabilities(newProbabilities);
       setProbabilities(newProbabilities);
       setMessage('Вероятности обновлены');
       setTimeout(() => setMessage(''), 3000);
@@ -125,7 +125,7 @@ const ModeratorPage = () => {
 
     try {
       setSaving(true);
-      await moderatorAPI.resetChallenges();
+      await api.resetChallenges();
       setMessage('История заданий сброшена для всех команд');
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {

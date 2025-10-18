@@ -122,20 +122,24 @@ function initDB(db) {
         // Insert default probabilities
         db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES 
             ('epic_probability', '10'),
-            ('rare_probability', '25'),
-            ('common_probability', '60'),
-            ('troll_probability', '5')
+            ('rare_probability', '30'),
+            ('common_probability', '50'),
+            ('troll_probability', '10')
         `);
 
         // Insert sample challenges
         const sampleChallenges = [
             {title: 'Эпическое безумство 1', description: 'Выиграть 5 боев подряд с уроном выше 3000', rarity: 'epic', reward: 50000},
             {title: 'Эпическое безумство 2', description: 'Уничтожить 3 танка за 1 минуту боя', rarity: 'epic', reward: 50000},
+            {title: 'Эпическое безумство 3', description: 'Занять 1 место в рейтинге команды', rarity: 'epic', reward: 15000},
             {title: 'Дерзкий вызов 1', description: 'Выиграть бой с уроном 4000+', rarity: 'rare', reward: 25000},
             {title: 'Дерзкий вызов 2', description: 'Уничтожить 5 танков за бой', rarity: 'rare', reward: 25000},
+            {title: 'Дерзкий вызов 3', description: 'Победить в 3 боях подряд', rarity: 'rare', reward: 12000},
             {title: 'Простая шалость 1', description: 'Выиграть 3 боя', rarity: 'common', reward: 5000},
             {title: 'Простая шалость 2', description: 'Нанести 2000 урона за бой', rarity: 'common', reward: 5000},
-            {title: 'Пакость', description: 'Забрать 10000 рублей у другой команды', rarity: 'troll', reward: -10000}
+            {title: 'Простая шалость 3', description: 'Сбить 1000 урона за один бой', rarity: 'common', reward: 3000},
+            {title: 'Пакость', description: 'Забрать 10000 рублей у другой команды', rarity: 'troll', reward: -10000},
+            {title: 'Пакость 2', description: 'Использовать способность 5 раз за бой', rarity: 'troll', reward: 2000}
         ];
 
         const insertChallenge = db.prepare(`INSERT OR IGNORE INTO challenges (title, description, rarity, reward) VALUES (?, ?, ?, ?)`);
@@ -312,6 +316,71 @@ app.post('/api/challenges/replace', (req, res) => {
                 [teamId, -cost, 'card_replace', 'Замена карт заданий']);
 
             res.json({ success: true, newBalance: team.balance - cost });
+        });
+    });
+});
+
+// Новый API для получения текущих карточек
+app.get('/api/cards/current', (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Not authorized' });
+    }
+
+    const userId = req.session.user.id;
+
+    // Проверяем есть ли активные карточки
+    db.all(`SELECT uc.*, c.title, c.description, c.rarity, c.reward 
+            FROM used_challenges uc
+            JOIN challenges c ON uc.challenge_id = c.id
+            WHERE uc.user_id = ? AND uc.replaced = 0
+            ORDER BY uc.created_at DESC LIMIT 3`, 
+        [userId], (err, cards) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+
+        res.json({ cards: cards });
+    });
+});
+
+// Новый API для генерации карточек
+app.post('/api/cards/generate', (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Not authorized' });
+    }
+
+    const userId = req.session.user.id;
+
+    // Проверяем нет ли уже активных карточек
+    db.all(`SELECT COUNT(*) as count FROM used_challenges WHERE user_id = ? AND replaced = 0`, 
+        [userId], (err, result) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+
+        if (result.count > 0) {
+            return res.status(400).json({ error: 'У вас уже есть активные карточки' });
+        }
+
+        // Генерируем новые карточки
+        db.all(`SELECT key, value FROM settings WHERE key LIKE '%probability'`, (err, settings) => {
+            if (err) return res.status(500).json({ error: 'Database error' });
+
+            const probabilities = {};
+            settings.forEach(setting => {
+                probabilities[setting.key] = parseInt(setting.value);
+            });
+
+            db.all(`SELECT * FROM challenges WHERE is_active = 1`, (err, allChallenges) => {
+                if (err) return res.status(500).json({ error: 'Database error' });
+
+                const selectedChallenges = generateChallengeSet(allChallenges, probabilities);
+                
+                // Сохраняем выбранные карточки
+                const stmt = db.prepare(`INSERT INTO used_challenges (user_id, challenge_id) VALUES (?, ?)`);
+                selectedChallenges.forEach(challenge => {
+                    stmt.run([userId, challenge.id]);
+                });
+                stmt.finalize();
+
+                res.json({ success: true, challenges: selectedChallenges });
+            });
         });
     });
 });
@@ -525,7 +594,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// Helper function
+// Helper function - УЛУЧШЕННАЯ логика генерации карточек
 function generateChallengeSet(allChallenges, probabilities) {
     const challengesByRarity = {
         epic: allChallenges.filter(c => c.rarity === 'epic'),
@@ -537,29 +606,50 @@ function generateChallengeSet(allChallenges, probabilities) {
     const selected = [];
     const usedIds = new Set();
 
+    // Ограничения: не более 1 эпической и 1 пакости в наборе
     const maxEpic = 1, maxTroll = 1;
 
     for (let i = 0; i < 3; i++) {
         let availableRarities = [];
 
+        // Проверяем текущие количества
         const currentEpic = selected.filter(c => c.rarity === 'epic').length;
         const currentTroll = selected.filter(c => c.rarity === 'troll').length;
 
+        // Определяем доступные редкости с учетом ограничений
         if (currentEpic < maxEpic) availableRarities.push('epic');
         if (currentTroll < maxTroll) availableRarities.push('troll');
         availableRarities.push('rare', 'common');
 
-        let availableChallenges = [];
+        // Собираем доступные задания с учетом вероятностей
+        let weightedChallenges = [];
+        
         availableRarities.forEach(rarity => {
-            availableChallenges = availableChallenges.concat(
-                challengesByRarity[rarity].filter(c => !usedIds.has(c.id))
-            );
+            const probKey = `${rarity}_probability`;
+            const probability = probabilities[probKey] || 0;
+            
+            challengesByRarity[rarity].forEach(challenge => {
+                if (!usedIds.has(challenge.id)) {
+                    // Добавляем задание несколько раз в зависимости от вероятности
+                    const count = Math.max(1, Math.floor(probability / 10));
+                    for (let j = 0; j < count; j++) {
+                        weightedChallenges.push(challenge);
+                    }
+                }
+            });
         });
 
-        if (availableChallenges.length === 0) break;
+        if (weightedChallenges.length === 0) {
+            // Если нет доступных заданий, берем любое
+            const allAvailable = Object.values(challengesByRarity).flat();
+            weightedChallenges = allAvailable.filter(c => !usedIds.has(c.id));
+        }
 
-        const randomIndex = Math.floor(Math.random() * availableChallenges.length);
-        const selectedChallenge = availableChallenges[randomIndex];
+        if (weightedChallenges.length === 0) break;
+
+        // Выбираем случайное задание из взвешенного списка
+        const randomIndex = Math.floor(Math.random() * weightedChallenges.length);
+        const selectedChallenge = weightedChallenges[randomIndex];
         
         selected.push(selectedChallenge);
         usedIds.add(selectedChallenge.id);

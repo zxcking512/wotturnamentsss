@@ -63,17 +63,6 @@ const LoginPage = () => {
     }
   };
 
-  const handleQuickLogin = (username, password) => {
-    setFormData({ username, password });
-    
-    setTimeout(() => {
-      const form = document.querySelector('form');
-      if (form) {
-        form.requestSubmit();
-      }
-    }, 100);
-  };
-
   return (
     <div className="login-page">
       <div className="login-container">
@@ -135,36 +124,6 @@ const LoginPage = () => {
             )}
           </form>
 
-          {/* Тестовые доступы */}
-          <div className="test-section">
-            <div className="test-title">Тестовые доступы:</div>
-            
-            <div className="test-accounts">
-              <div className="test-account-group">
-                <div className="test-login">captain1 / captain123 (Капитан)</div>
-                <button 
-                  onClick={() => handleQuickLogin('captain1', 'captain123')}
-                  className="quick-login-button"
-                  type="button"
-                  disabled={loading}
-                >
-                  БЫСТРЫЙ ВХОД
-                </button>
-              </div>
-
-              <div className="test-account-group">
-                <div className="test-login">moderator / moderator123 (Модератор)</div>
-                <button 
-                  onClick={() => handleQuickLogin('moderator', 'moderator123')}
-                  className="quick-login-button"
-                  type="button"
-                  disabled={loading}
-                >
-                  БЫСТРЫЙ ВХОД
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
