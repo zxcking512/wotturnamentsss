@@ -46,6 +46,17 @@ const api = {
     return await response.json();
   },
 
+  // НОВЫЙ МЕТОД: Выбор цели для пакости
+  async selectMischiefTarget(challengeId, targetTeamId) {
+    const response = await fetch(`${API_BASE}/challenges/select-mischief-target`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ challengeId, targetTeamId }),
+    });
+    return await response.json();
+  },
+
   async replaceChallenges() {
     const response = await fetch(`${API_BASE}/challenges/replace`, {
       method: 'POST',
@@ -71,24 +82,16 @@ const api = {
   },
 
   // Teams methods
-  
-async completeChallenge() {
-  const response = await fetch(`${API_BASE}/teams/complete-challenge`, {
-    method: 'POST',
-    credentials: 'include',
-  });
-  return await response.json();
-},
-
-async cancelChallenge() {
-  const response = await fetch(`${API_BASE}/teams/cancel-challenge`, {
-    method: 'POST',
-    credentials: 'include',
-  });
-  return await response.json();
-},
   async getMyTeam() {
     const response = await fetch(`${API_BASE}/teams/my-team`, {
+      credentials: 'include',
+    });
+    return await response.json();
+  },
+
+  // НОВЫЙ МЕТОД: Получить список команд для пакости
+  async getTeamsForMischief() {
+    const response = await fetch(`${API_BASE}/teams/for-mischief`, {
       credentials: 'include',
     });
     return await response.json();
@@ -160,4 +163,43 @@ async cancelChallenge() {
   }
 };
 
+// Named exports для обратной совместимости
+export const authAPI = {
+  login: api.login,
+  logout: api.logout,
+  check: api.checkAuth
+};
+
+export const challengesAPI = {
+  getAvailable: api.getAvailableChallenges,
+  select: api.selectChallenge,
+  selectMischiefTarget: api.selectMischiefTarget,
+  replace: api.replaceChallenges
+};
+
+export const teamsAPI = {
+  getMyTeam: api.getMyTeam,
+  getForMischief: api.getTeamsForMischief,
+  completeChallenge: api.completeChallenge,
+  cancelChallenge: api.cancelChallenge
+};
+
+export const cardsAPI = {
+  getCurrent: api.getCurrentCards,
+  generate: api.generateCards
+};
+
+export const leaderboardAPI = {
+  get: api.getLeaderboard
+};
+
+export const moderatorAPI = {
+  getTeams: api.getTeams,
+  updateTeam: api.updateTeam,
+  getProbabilities: api.getProbabilities,
+  updateProbabilities: api.updateProbabilities,
+  resetChallenges: api.resetChallenges
+};
+
+// Default export
 export default api;

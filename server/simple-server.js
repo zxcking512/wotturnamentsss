@@ -12,13 +12,11 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS для React dev server
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true
 }));
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
@@ -32,10 +30,8 @@ app.use(session({
     }
 }));
 
-// Serve static files from public directory
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Database initialization
 const db = new sqlite3.Database('./server/database.sqlite', (err) => {
     if (err) {
         console.error('Error opening database:', err);
@@ -45,10 +41,8 @@ const db = new sqlite3.Database('./server/database.sqlite', (err) => {
     }
 });
 
-// Initialize database tables
 function initDB(db) {
     db.serialize(() => {
-        // Users table
         db.run(`CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             login TEXT UNIQUE NOT NULL,
@@ -58,7 +52,6 @@ function initDB(db) {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
-        // Teams table
         db.run(`CREATE TABLE IF NOT EXISTS teams (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE NOT NULL,
@@ -67,7 +60,6 @@ function initDB(db) {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
-        // Challenges table
         db.run(`CREATE TABLE IF NOT EXISTS challenges (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
@@ -78,7 +70,6 @@ function initDB(db) {
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
-        // User challenges table
         db.run(`CREATE TABLE IF NOT EXISTS user_challenges (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -90,7 +81,6 @@ function initDB(db) {
             FOREIGN KEY (challenge_id) REFERENCES challenges (id)
         )`);
 
-        // Used challenges table
         db.run(`CREATE TABLE IF NOT EXISTS used_challenges (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -101,7 +91,6 @@ function initDB(db) {
             FOREIGN KEY (challenge_id) REFERENCES challenges (id)
         )`);
 
-        // Transactions table
         db.run(`CREATE TABLE IF NOT EXISTS transactions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             team_id INTEGER NOT NULL,
@@ -112,14 +101,23 @@ function initDB(db) {
             FOREIGN KEY (team_id) REFERENCES teams (id)
         )`);
 
-        // Settings table
+        db.run(`CREATE TABLE IF NOT EXISTS mischief_targets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            challenge_id INTEGER NOT NULL,
+            target_team_id INTEGER NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id),
+            FOREIGN KEY (challenge_id) REFERENCES challenges (id),
+            FOREIGN KEY (target_team_id) REFERENCES teams (id)
+        )`);
+
         db.run(`CREATE TABLE IF NOT EXISTS settings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             key TEXT UNIQUE NOT NULL,
             value TEXT NOT NULL
         )`);
 
-        // Insert default probabilities
         db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES 
             ('epic_probability', '10'),
             ('rare_probability', '30'),
@@ -127,7 +125,6 @@ function initDB(db) {
             ('troll_probability', '10')
         `);
 
-        // Insert sample challenges
         const sampleChallenges = [
             {title: 'Эпическое безумство 1', description: 'Выиграть 5 боев подряд с уроном выше 3000', rarity: 'epic', reward: 50000},
             {title: 'Эпическое безумство 2', description: 'Уничтожить 3 танка за 1 минуту боя', rarity: 'epic', reward: 50000},
@@ -148,25 +145,170 @@ function initDB(db) {
         });
         insertChallenge.finalize();
 
-        // Create default moderator account
-        const moderatorPassword = bcrypt.hashSync('moderator123', 10);
-        db.run(`INSERT OR IGNORE INTO users (login, password_hash, role) VALUES (?, ?, ?)`, 
-            ['moderator', moderatorPassword, 'moderator']);
+        // Сначала создаем команды и получаем их ID
+        const teams = [
+            { name: 'Bratishkinoff', balance: 100000 },
+            { name: 'Shadowkek', balance: 100000 },
+            { name: 'Levsha', balance: 100000 },
+            { name: 'Recrent', balance: 100000 }
+        ];
 
-        // Create sample team and captain
-        db.run(`INSERT OR IGNORE INTO teams (name, balance) VALUES (?, ?)`, ['StreamerTeam1', 100000]);
-        const captainPassword = bcrypt.hashSync('captain123', 10);
-        db.run(`INSERT OR IGNORE INTO users (login, password_hash, role, team_id) VALUES (?, ?, ?, ?)`, 
-            ['captain1', captainPassword, 'captain', 1]);
+        // Удаляем старые данные чтобы пересоздать правильно
+        db.run(`DELETE FROM users`);
+        db.run(`DELETE FROM teams`);
 
-        console.log('Database initialized successfully');
-        console.log('Test accounts:');
-        console.log('Moderator: moderator / moderator123');
-        console.log('Captain: captain1 / captain123');
+        const teamInsert = db.prepare(`INSERT INTO teams (name, balance) VALUES (?, ?)`);
+        teams.forEach(team => {
+            teamInsert.run([team.name, team.balance]);
+        });
+        teamInsert.finalize();
+
+        // Ждем пока команды создадутся и получаем их ID
+        db.all(`SELECT id, name FROM teams ORDER BY id`, (err, teamRows) => {
+            if (err) {
+                console.error('Error getting team IDs:', err);
+                return;
+            }
+
+            console.log('Created teams:', teamRows);
+
+            const teamMap = {};
+            teamRows.forEach(team => {
+                teamMap[team.name] = team.id;
+            });
+
+            const moderatorPassword = bcrypt.hashSync('moderator123', 10);
+            db.run(`INSERT OR IGNORE INTO users (login, password_hash, role) VALUES (?, ?, ?)`, 
+                ['moderator', moderatorPassword, 'moderator']);
+
+            // Создаем капитанов с правильными team_id
+            const captains = [
+                { login: 'bratishkin', password: 'bratishkin123', teamName: 'Bratishkinoff' },
+                { login: 'shadow', password: 'shadow123', teamName: 'Shadowkek' },
+                { login: 'levsha', password: 'levsha123', teamName: 'Levsha' },
+                { login: 'recrent', password: 'recrent123', teamName: 'Recrent' }
+            ];
+
+            const captainInsert = db.prepare(`INSERT INTO users (login, password_hash, role, team_id) VALUES (?, ?, ?, ?)`);
+            captains.forEach(captain => {
+                const teamId = teamMap[captain.teamName];
+                if (teamId) {
+                    const hashedPassword = bcrypt.hashSync(captain.password, 10);
+                    captainInsert.run([captain.login, hashedPassword, 'captain', teamId]);
+                    console.log(`Created captain: ${captain.login} for team: ${captain.teamName} (ID: ${teamId})`);
+                } else {
+                    console.error(`Team not found for captain: ${captain.login}, team: ${captain.teamName}`);
+                }
+            });
+            captainInsert.finalize();
+
+            console.log('Database initialized successfully');
+            console.log('Test accounts:');
+            console.log('Moderator: moderator / moderator123');
+            captains.forEach(captain => {
+                console.log(`${captain.login} / ${captain.password} (Team: ${captain.teamName})`);
+            });
+        });
     });
 }
 
-// Auth routes
+function getAvailableChallengesCount(userId, callback) {
+    db.get("SELECT COUNT(*) as total FROM challenges WHERE is_active = 1", (err, totalRow) => {
+        if (err) return callback(err);
+        
+        // ИСКЛЮЧАЕМ ТОЛЬКО НЕ-ПАКОСТИ из used_challenges
+        db.get(`SELECT COUNT(DISTINCT uc.challenge_id) as used 
+                FROM used_challenges uc 
+                JOIN challenges c ON uc.challenge_id = c.id 
+                WHERE uc.user_id = ? AND uc.replaced = 0 AND c.rarity != 'troll'`, 
+            [userId], (err, usedRow) => {
+            if (err) return callback(err);
+            
+            const availableCount = totalRow.total - usedRow.used;
+            callback(null, availableCount, totalRow.total);
+        });
+    });
+}
+
+// Новый API для получения списка команд для пакости
+app.get('/api/teams/for-mischief', (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Not authorized' });
+    }
+
+    const currentTeamId = req.session.user.team_id;
+
+    db.all(`SELECT id, name, balance FROM teams WHERE id != ? ORDER BY name`, [currentTeamId], (err, teams) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json(teams);
+    });
+});
+
+// Новый API для выбора цели пакости
+app.post('/api/challenges/select-mischief-target', (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Not authorized' });
+    }
+
+    const { challengeId, targetTeamId } = req.body;
+    const userId = req.session.user.id;
+    const userTeamId = req.session.user.team_id;
+
+    if (!challengeId || !targetTeamId) {
+        return res.status(400).json({ error: 'Challenge ID and target team ID required' });
+    }
+
+    // Проверяем что выбранная команда не своя
+    if (targetTeamId == userTeamId) {
+        return res.status(400).json({ error: 'Нельзя выбрать свою команду как цель пакости' });
+    }
+
+    db.serialize(() => {
+        // Сохраняем выбранную цель
+        db.run(`INSERT INTO mischief_targets (user_id, challenge_id, target_team_id) VALUES (?, ?, ?)`, 
+            [userId, challengeId, targetTeamId]);
+
+        // Активируем задание
+        db.run(`INSERT INTO user_challenges (user_id, challenge_id, status) VALUES (?, ?, 'active')`, 
+            [userId, challengeId]);
+
+        // Получаем информацию о пакости
+        db.get(`SELECT * FROM challenges WHERE id = ?`, [challengeId], (err, challenge) => {
+            if (challenge && challenge.rarity === 'troll' && challenge.reward < 0) {
+                // Немедленно выполняем пакость - списываем деньги у цели
+                const stolenAmount = Math.abs(challenge.reward);
+                
+                // Списываем у цели
+                db.run(`UPDATE teams SET balance = balance - ? WHERE id = ?`, [stolenAmount, targetTeamId]);
+                db.run(`INSERT INTO transactions (team_id, amount, type, description) VALUES (?, ?, ?, ?)`,
+                    [targetTeamId, -stolenAmount, 'mischief_stolen', `Пакость: украдено командой ${req.session.user.team_name}`]);
+
+                // Начисляем себе
+                db.run(`UPDATE teams SET balance = balance + ? WHERE id = ?`, [stolenAmount, userTeamId]);
+                db.run(`INSERT INTO transactions (team_id, amount, type, description) VALUES (?, ?, ?, ?)`,
+                    [userTeamId, stolenAmount, 'mischief_gained', `Пакость: украдено у команды ${targetTeamId}`]);
+
+                // Помечаем задание выполненным
+                db.run(`UPDATE user_challenges SET status = 'completed' WHERE user_id = ? AND challenge_id = ?`, 
+                    [userId, challengeId]);
+
+                // Получаем обновленные балансы
+                db.get(`SELECT balance FROM teams WHERE id = ?`, [userTeamId], (err, userTeam) => {
+                    db.get(`SELECT name FROM teams WHERE id = ?`, [targetTeamId], (err, targetTeam) => {
+                        res.json({ 
+                            success: true, 
+                            message: `Пакость выполнена! Украдено ${stolenAmount} руб у команды ${targetTeam.name}`,
+                            newBalance: userTeam.balance
+                        });
+                    });
+                });
+            } else {
+                res.json({ success: true });
+            }
+        });
+    });
+});
+
 app.post('/api/auth/login', (req, res) => {
     const { login, password } = req.body;
 
@@ -174,9 +316,13 @@ app.post('/api/auth/login', (req, res) => {
         return res.status(400).json({ error: 'Login and password required' });
     }
 
-    db.get('SELECT users.*, teams.name as team_name FROM users LEFT JOIN teams ON users.team_id = teams.id WHERE login = ?', 
+    db.get(`SELECT users.*, teams.name as team_name, teams.id as team_id 
+            FROM users 
+            LEFT JOIN teams ON users.team_id = teams.id 
+            WHERE users.login = ?`, 
         [login], (err, user) => {
         if (err) {
+            console.error('Login error:', err);
             return res.status(500).json({ error: 'Database error' });
         }
 
@@ -187,6 +333,13 @@ app.post('/api/auth/login', (req, res) => {
         if (!bcrypt.compareSync(password, user.password_hash)) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
+
+        console.log('Login successful:', { 
+            login: user.login, 
+            role: user.role, 
+            team_id: user.team_id, 
+            team_name: user.team_name 
+        });
 
         req.session.user = {
             id: user.id,
@@ -216,7 +369,6 @@ app.get('/api/auth/check', (req, res) => {
     }
 });
 
-// Challenges routes
 app.get('/api/challenges/available', (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ error: 'Not authorized' });
@@ -232,36 +384,69 @@ app.get('/api/challenges/available', (req, res) => {
             return res.json({ hasActiveChallenge: true, activeChallenge });
         }
 
-        db.all(`SELECT key, value FROM settings WHERE key LIKE '%probability'`, (err, settings) => {
+        getAvailableChallengesCount(userId, (err, availableCount, totalCount) => {
             if (err) return res.status(500).json({ error: 'Database error' });
 
-            const probabilities = {};
-            settings.forEach(setting => {
-                probabilities[setting.key] = parseInt(setting.value);
-            });
-
-            db.all(`SELECT challenge_id FROM used_challenges WHERE user_id = ? AND replaced = 0`, 
-                [userId], (err, usedChallenges) => {
-                if (err) return res.status(500).json({ error: 'Database error' });
-
-                const usedIds = usedChallenges.map(uc => uc.challenge_id);
-                let excludeCondition = '';
-                if (usedIds.length > 0) {
-                    excludeCondition = `AND id NOT IN (${usedIds.join(',')})`;
-                }
-
-                db.all(`SELECT * FROM challenges WHERE is_active = 1 ${excludeCondition}`, 
-                    (err, allChallenges) => {
+            let excludeCondition = '';
+            
+            if (availableCount > 6) {
+                // ИСКЛЮЧАЕМ ТОЛЬКО НЕ-ПАКОСТИ из used_challenges
+                db.all(`SELECT uc.challenge_id, c.rarity 
+                        FROM used_challenges uc 
+                        JOIN challenges c ON uc.challenge_id = c.id 
+                        WHERE uc.user_id = ? AND uc.replaced = 0 AND c.rarity != 'troll'`, 
+                    [userId], (err, usedNonTrollChallenges) => {
                     if (err) return res.status(500).json({ error: 'Database error' });
 
-                    const selectedChallenges = generateChallengeSet(allChallenges, probabilities);
-                    res.json({ hasActiveChallenge: false, challenges: selectedChallenges });
+                    const usedNonTrollIds = usedNonTrollChallenges.map(uc => uc.challenge_id);
+                    if (usedNonTrollIds.length > 0) {
+                        excludeCondition = `AND id NOT IN (${usedNonTrollIds.join(',')})`;
+                    }
+
+                    generateChallengesForUser(userId, excludeCondition, res);
                 });
-            });
+            } else {
+                db.run(`UPDATE used_challenges SET replaced = 1 WHERE user_id = ?`, [userId], (err) => {
+                    if (err) return res.status(500).json({ error: 'Database error' });
+                    generateChallengesForUser(userId, '', res);
+                });
+            }
         });
     });
 });
 
+function generateChallengesForUser(userId, excludeCondition, res) {
+    db.all(`SELECT key, value FROM settings WHERE key LIKE '%probability'`, (err, settings) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+
+        const probabilities = {};
+        settings.forEach(setting => {
+            probabilities[setting.key] = parseInt(setting.value);
+        });
+
+        db.all(`SELECT * FROM challenges WHERE is_active = 1 ${excludeCondition}`, 
+            (err, allChallenges) => {
+            if (err) return res.status(500).json({ error: 'Database error' });
+
+            const selectedChallenges = generateChallengeSet(allChallenges, probabilities);
+            
+            // НЕ ЗАПИСЫВАЕМ ПАКОСТИ в used_challenges (они могут выпадать повторно)
+            const nonTrollChallenges = selectedChallenges.filter(challenge => challenge.rarity !== 'troll');
+            
+            if (nonTrollChallenges.length > 0) {
+                const stmt = db.prepare(`INSERT INTO used_challenges (user_id, challenge_id) VALUES (?, ?)`);
+                nonTrollChallenges.forEach(challenge => {
+                    stmt.run([userId, challenge.id]);
+                });
+                stmt.finalize();
+            }
+
+            res.json({ hasActiveChallenge: false, challenges: selectedChallenges });
+        });
+    });
+}
+
+// Обновленная функция выбора задания - для пакости требует выбора цели
 app.post('/api/challenges/select', (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ error: 'Not authorized' });
@@ -269,28 +454,37 @@ app.post('/api/challenges/select', (req, res) => {
 
     const { challengeId } = req.body;
     const userId = req.session.user.id;
-    const teamId = req.session.user.team_id;
 
     if (!challengeId) {
         return res.status(400).json({ error: 'Challenge ID required' });
     }
 
-    db.serialize(() => {
-        db.run(`INSERT INTO user_challenges (user_id, challenge_id, status) VALUES (?, ?, 'active')`, 
-            [userId, challengeId]);
+    db.get(`SELECT * FROM challenges WHERE id = ?`, [challengeId], (err, challenge) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
 
-        db.run(`INSERT INTO used_challenges (user_id, challenge_id) VALUES (?, ?)`, 
-            [userId, challengeId]);
+        if (challenge.rarity === 'troll' && challenge.reward < 0) {
+            // Для пакости возвращаем информацию что нужно выбрать цель
+            return res.json({ 
+                success: true, 
+                requiresTarget: true,
+                challengeId: challengeId,
+                message: 'Выберите команду для пакости'
+            });
+        }
 
-        db.get(`SELECT * FROM challenges WHERE id = ?`, [challengeId], (err, challenge) => {
+        // Для обычных заданий активируем сразу
+        db.serialize(() => {
+            db.run(`INSERT INTO user_challenges (user_id, challenge_id, status) VALUES (?, ?, 'active')`, 
+                [userId, challengeId]);
+
             if (challenge && challenge.rarity === 'troll') {
                 db.run(`UPDATE user_challenges SET status = 'completed' WHERE user_id = ? AND challenge_id = ?`, 
                     [userId, challengeId]);
             }
         });
-    });
 
-    res.json({ success: true });
+        res.json({ success: true, requiresTarget: false });
+    });
 });
 
 app.post('/api/challenges/replace', (req, res) => {
@@ -302,25 +496,54 @@ app.post('/api/challenges/replace', (req, res) => {
     const teamId = req.session.user.team_id;
     const cost = 10000;
 
+    console.log('Replace request:', { userId, teamId, cost });
+
+    if (!teamId) {
+        return res.status(400).json({ error: 'Команда не найдена для пользователя' });
+    }
+
     db.get(`SELECT balance FROM teams WHERE id = ?`, [teamId], (err, team) => {
-        if (err) return res.status(500).json({ error: 'Database error' });
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        if (!team) {
+            console.error('Team not found for ID:', teamId);
+            return res.status(400).json({ error: 'Команда не найдена' });
+        }
+        
+        console.log('Team balance:', team.balance);
+        
         if (team.balance < cost) {
             return res.status(400).json({ error: 'Недостаточно средств для замены карт' });
         }
 
         db.run(`UPDATE used_challenges SET replaced = 1 WHERE user_id = ?`, [userId], function(err) {
-            if (err) return res.status(500).json({ error: 'Database error' });
+            if (err) {
+                console.error('Error updating used_challenges:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
 
-            db.run(`UPDATE teams SET balance = balance - ? WHERE id = ?`, [cost, teamId]);
-            db.run(`INSERT INTO transactions (team_id, amount, type, description) VALUES (?, ?, ?, ?)`,
-                [teamId, -cost, 'card_replace', 'Замена карт заданий']);
+            db.run(`UPDATE teams SET balance = balance - ? WHERE id = ?`, [cost, teamId], function(err) {
+                if (err) {
+                    console.error('Error updating team balance:', err);
+                    return res.status(500).json({ error: 'Database error' });
+                }
 
-            res.json({ success: true, newBalance: team.balance - cost });
+                db.run(`INSERT INTO transactions (team_id, amount, type, description) VALUES (?, ?, ?, ?)`,
+                    [teamId, -cost, 'card_replace', 'Замена карт заданий'], function(err) {
+                    if (err) {
+                        console.error('Error inserting transaction:', err);
+                    }
+
+                    res.json({ success: true, newBalance: team.balance - cost });
+                });
+            });
         });
     });
 });
 
-// Новый API для получения текущих карточек
 app.get('/api/cards/current', (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ error: 'Not authorized' });
@@ -328,7 +551,6 @@ app.get('/api/cards/current', (req, res) => {
 
     const userId = req.session.user.id;
 
-    // Проверяем есть ли активные карточки
     db.all(`SELECT uc.*, c.title, c.description, c.rarity, c.reward 
             FROM used_challenges uc
             JOIN challenges c ON uc.challenge_id = c.id
@@ -341,7 +563,6 @@ app.get('/api/cards/current', (req, res) => {
     });
 });
 
-// Новый API для генерации карточек
 app.post('/api/cards/generate', (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ error: 'Not authorized' });
@@ -349,7 +570,6 @@ app.post('/api/cards/generate', (req, res) => {
 
     const userId = req.session.user.id;
 
-    // Проверяем нет ли уже активных карточек
     db.all(`SELECT COUNT(*) as count FROM used_challenges WHERE user_id = ? AND replaced = 0`, 
         [userId], (err, result) => {
         if (err) return res.status(500).json({ error: 'Database error' });
@@ -358,34 +578,68 @@ app.post('/api/cards/generate', (req, res) => {
             return res.status(400).json({ error: 'У вас уже есть активные карточки' });
         }
 
-        // Генерируем новые карточки
-        db.all(`SELECT key, value FROM settings WHERE key LIKE '%probability'`, (err, settings) => {
+        getAvailableChallengesCount(userId, (err, availableCount, totalCount) => {
             if (err) return res.status(500).json({ error: 'Database error' });
 
-            const probabilities = {};
-            settings.forEach(setting => {
-                probabilities[setting.key] = parseInt(setting.value);
-            });
+            let excludeCondition = '';
+            
+            if (availableCount > 6) {
+                // ИСКЛЮЧАЕМ ТОЛЬКО НЕ-ПАКОСТИ из used_challenges
+                db.all(`SELECT uc.challenge_id, c.rarity 
+                        FROM used_challenges uc 
+                        JOIN challenges c ON uc.challenge_id = c.id 
+                        WHERE uc.user_id = ? AND uc.replaced = 0 AND c.rarity != 'troll'`, 
+                    [userId], (err, usedNonTrollChallenges) => {
+                    if (err) return res.status(500).json({ error: 'Database error' });
 
-            db.all(`SELECT * FROM challenges WHERE is_active = 1`, (err, allChallenges) => {
-                if (err) return res.status(500).json({ error: 'Database error' });
+                    const usedNonTrollIds = usedNonTrollChallenges.map(uc => uc.challenge_id);
+                    if (usedNonTrollIds.length > 0) {
+                        excludeCondition = `AND id NOT IN (${usedNonTrollIds.join(',')})`;
+                    }
 
-                const selectedChallenges = generateChallengeSet(allChallenges, probabilities);
-                
-                // Сохраняем выбранные карточки
-                const stmt = db.prepare(`INSERT INTO used_challenges (user_id, challenge_id) VALUES (?, ?)`);
-                selectedChallenges.forEach(challenge => {
-                    stmt.run([userId, challenge.id]);
+                    generateInitialChallenges(userId, excludeCondition, res);
                 });
-                stmt.finalize();
-
-                res.json({ success: true, challenges: selectedChallenges });
-            });
+            } else {
+                db.run(`UPDATE used_challenges SET replaced = 1 WHERE user_id = ?`, [userId], (err) => {
+                    if (err) return res.status(500).json({ error: 'Database error' });
+                    generateInitialChallenges(userId, '', res);
+                });
+            }
         });
     });
 });
 
-// Teams routes
+function generateInitialChallenges(userId, excludeCondition, res) {
+    db.all(`SELECT key, value FROM settings WHERE key LIKE '%probability'`, (err, settings) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+
+        const probabilities = {};
+        settings.forEach(setting => {
+            probabilities[setting.key] = parseInt(setting.value);
+        });
+
+        db.all(`SELECT * FROM challenges WHERE is_active = 1 ${excludeCondition}`, 
+            (err, allChallenges) => {
+            if (err) return res.status(500).json({ error: 'Database error' });
+
+            const selectedChallenges = generateChallengeSet(allChallenges, probabilities);
+            
+            // НЕ ЗАПИСЫВАЕМ ПАКОСТИ в used_challenges (они могут выпадать повторно)
+            const nonTrollChallenges = selectedChallenges.filter(challenge => challenge.rarity !== 'troll');
+            
+            if (nonTrollChallenges.length > 0) {
+                const stmt = db.prepare(`INSERT INTO used_challenges (user_id, challenge_id) VALUES (?, ?)`);
+                nonTrollChallenges.forEach(challenge => {
+                    stmt.run([userId, challenge.id]);
+                });
+                stmt.finalize();
+            }
+
+            res.json({ success: true, challenges: selectedChallenges });
+        });
+    });
+}
+
 app.get('/api/teams/my-team', (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ error: 'Not authorized' });
@@ -394,8 +648,16 @@ app.get('/api/teams/my-team', (req, res) => {
     const userId = req.session.user.id;
     const teamId = req.session.user.team_id;
 
+    if (!teamId) {
+        return res.status(400).json({ error: 'Команда не найдена для пользователя' });
+    }
+
     db.get(`SELECT * FROM teams WHERE id = ?`, [teamId], (err, team) => {
         if (err) return res.status(500).json({ error: 'Database error' });
+
+        if (!team) {
+            return res.status(400).json({ error: 'Команда не найдена' });
+        }
 
         db.get(`SELECT uc.*, c.title, c.description, c.rarity, c.reward 
                 FROM user_challenges uc 
@@ -406,7 +668,6 @@ app.get('/api/teams/my-team', (req, res) => {
             
             if (err) return res.status(500).json({ error: 'Database error' });
 
-            // Get cancel count
             db.get(`SELECT COUNT(*) as cancel_count FROM user_challenges WHERE user_id = ? AND status = 'cancelled'`, 
                 [userId], (err, result) => {
                 
@@ -459,7 +720,6 @@ app.post('/api/teams/cancel-challenge', (req, res) => {
         if (err) return res.status(500).json({ error: 'Database error' });
         if (!challenge) return res.status(400).json({ error: 'No active challenge' });
 
-        // Get cancel count to check if penalty applies
         db.get(`SELECT COUNT(*) as cancel_count FROM user_challenges WHERE user_id = ? AND status = 'cancelled'`, 
             [userId], (err, result) => {
             
@@ -467,7 +727,6 @@ app.post('/api/teams/cancel-challenge', (req, res) => {
             let penalty = 0;
 
             if (cancelCount >= 3) {
-                // Apply 20% penalty
                 penalty = Math.round(challenge.reward * 0.2);
                 db.run(`UPDATE teams SET balance = balance - ? WHERE id = ?`, [penalty, teamId]);
                 db.run(`INSERT INTO transactions (team_id, amount, type, description) VALUES (?, ?, ?, ?)`,
@@ -482,15 +741,6 @@ app.post('/api/teams/cancel-challenge', (req, res) => {
     });
 });
 
-// Leaderboard routes
-app.get('/api/leaderboard', (req, res) => {
-    db.all(`SELECT name, balance, completed_challenges FROM teams ORDER BY balance DESC`, (err, teams) => {
-        if (err) return res.status(500).json({ error: 'Database error' });
-        res.json(teams);
-    });
-});
-
-// Moderator routes
 app.get('/api/moderator/teams', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'moderator') {
         return res.status(403).json({ error: 'Access denied' });
@@ -528,11 +778,22 @@ app.post('/api/moderator/update-team', (req, res) => {
         }
 
         if (challenge_status) {
-            // Find user for this team
             db.get(`SELECT id FROM users WHERE team_id = ? AND role = 'captain'`, [teamId], (err, user) => {
                 if (user) {
                     db.run(`UPDATE user_challenges SET status = ? WHERE user_id = ? AND status IN ('active', 'pending')`, 
                         [challenge_status, user.id]);
+                    
+                    if (challenge_status === 'completed') {
+                        db.get(`SELECT reward FROM user_challenges uc 
+                               JOIN challenges c ON uc.challenge_id = c.id 
+                               WHERE uc.user_id = ? AND uc.status = 'completed'`, 
+                            [user.id], (err, challenge) => {
+                            if (challenge) {
+                                db.run(`UPDATE teams SET balance = balance + ?, completed_challenges = completed_challenges + 1 WHERE id = ?`, 
+                                    [challenge.reward, teamId]);
+                            }
+                        });
+                    }
                 }
             });
         }
@@ -541,7 +802,6 @@ app.post('/api/moderator/update-team', (req, res) => {
     res.json({ success: true });
 });
 
-// Вероятности выпадения
 app.get('/api/moderator/probabilities', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'moderator') {
         return res.status(403).json({ error: 'Access denied' });
@@ -566,6 +826,11 @@ app.post('/api/moderator/probabilities', (req, res) => {
     }
 
     const { epic, rare, common, troll } = req.body;
+    const total = epic + rare + common + troll;
+
+    if (total !== 100) {
+        return res.status(400).json({ error: 'Сумма вероятностей должна быть 100%' });
+    }
 
     db.serialize(() => {
         db.run(`UPDATE settings SET value = ? WHERE key = ?`, [epic, 'epic_probability']);
@@ -577,87 +842,10 @@ app.post('/api/moderator/probabilities', (req, res) => {
     res.json({ success: true });
 });
 
-// Сброс истории заданий
 app.post('/api/moderator/reset-challenges', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'moderator') {
         return res.status(403).json({ error: 'Access denied' });
     }
 
     db.run(`DELETE FROM used_challenges`, (err) => {
-        if (err) return res.status(500).json({ error: 'Database error' });
-        res.json({ success: true });
-    });
-});
-
-// Serve HTML for root route
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-});
-
-// Helper function - УЛУЧШЕННАЯ логика генерации карточек
-function generateChallengeSet(allChallenges, probabilities) {
-    const challengesByRarity = {
-        epic: allChallenges.filter(c => c.rarity === 'epic'),
-        rare: allChallenges.filter(c => c.rarity === 'rare'),
-        common: allChallenges.filter(c => c.rarity === 'common'),
-        troll: allChallenges.filter(c => c.rarity === 'troll')
-    };
-
-    const selected = [];
-    const usedIds = new Set();
-
-    // Ограничения: не более 1 эпической и 1 пакости в наборе
-    const maxEpic = 1, maxTroll = 1;
-
-    for (let i = 0; i < 3; i++) {
-        let availableRarities = [];
-
-        // Проверяем текущие количества
-        const currentEpic = selected.filter(c => c.rarity === 'epic').length;
-        const currentTroll = selected.filter(c => c.rarity === 'troll').length;
-
-        // Определяем доступные редкости с учетом ограничений
-        if (currentEpic < maxEpic) availableRarities.push('epic');
-        if (currentTroll < maxTroll) availableRarities.push('troll');
-        availableRarities.push('rare', 'common');
-
-        // Собираем доступные задания с учетом вероятностей
-        let weightedChallenges = [];
-        
-        availableRarities.forEach(rarity => {
-            const probKey = `${rarity}_probability`;
-            const probability = probabilities[probKey] || 0;
-            
-            challengesByRarity[rarity].forEach(challenge => {
-                if (!usedIds.has(challenge.id)) {
-                    // Добавляем задание несколько раз в зависимости от вероятности
-                    const count = Math.max(1, Math.floor(probability / 10));
-                    for (let j = 0; j < count; j++) {
-                        weightedChallenges.push(challenge);
-                    }
-                }
-            });
-        });
-
-        if (weightedChallenges.length === 0) {
-            // Если нет доступных заданий, берем любое
-            const allAvailable = Object.values(challengesByRarity).flat();
-            weightedChallenges = allAvailable.filter(c => !usedIds.has(c.id));
-        }
-
-        if (weightedChallenges.length === 0) break;
-
-        // Выбираем случайное задание из взвешенного списка
-        const randomIndex = Math.floor(Math.random() * weightedChallenges.length);
-        const selectedChallenge = weightedChallenges[randomIndex];
-        
-        selected.push(selectedChallenge);
-        usedIds.add(selectedChallenge.id);
-    }
-
-    return selected;
-}
-
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+        if (err) return res.status(500).json

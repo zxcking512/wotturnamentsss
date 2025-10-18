@@ -1,100 +1,90 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Header from "./components/Header/Header";
-import VideoBackground from "./components/VideoBackground/VideoBackground";
 import LoginPage from './pages/LoginPage';
 import MainPage from './pages/MainPage';
 import MyTeamPage from './pages/MyTeamPage';
 import ModeratorPage from './pages/ModeratorPage';
+import Header from './components/Header/Header';
 import './App.css';
 
-// Компонент для защищенных маршрутов
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+// Компонент для условного отображения шапки
+const Layout = ({ children }) => {
+  const location = useLocation();
+  const showHeader = location.pathname !== '/login';
   
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <VideoBackground />
-        <div className="loading-spinner"></div>
-        <div>Загрузка...</div>
-      </div>
-    );
-  }
-  
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
-
-// Компонент для маршрутов модератора
-const ModeratorRoute = ({ children }) => {
-  const { isAuthenticated, isModerator, loading } = useAuth();
-  
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <VideoBackground />
-        <div className="loading-spinner"></div>
-        <div>Загрузка...</div>
-      </div>
-    );
-  }
-  
-  return isAuthenticated && isModerator ? children : <Navigate to="/main" />;
-};
-
-// Основной компонент приложения
-function AppContent() {
-  const { isAuthenticated } = useAuth();
-
   return (
     <div className="App">
-      {/* VideoBackground теперь ВНЕ условий - всегда отображается */}
-      <VideoBackground />
-      {isAuthenticated && <Header />}
-      <main className={isAuthenticated ? "main-content" : ""}>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route 
-            path="/main" 
-            element={
-              <ProtectedRoute>
-                <MainPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/my-team" 
-            element={
-              <ProtectedRoute>
-                <MyTeamPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/moderator" 
-            element={
-              <ModeratorRoute>
-                <ModeratorPage />
-              </ModeratorRoute>
-            } 
-          />
-          <Route path="/" element={<Navigate to="/main" />} />
-          <Route path="*" element={<Navigate to="/main" />} />
-        </Routes>
+      {showHeader && <Header />}
+      <main className="main-content">
+        {children}
       </main>
     </div>
   );
-}
+};
 
-// Обертка с провайдерами
+// Protected Route component
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading">Проверка авторизации...</div>
+      </div>
+    );
+  }
+  
+  return user ? children : <Navigate to="/login" />;
+};
+
+// Role-based route component
+const ModeratorRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return <div className="loading">Загрузка...</div>;
+  }
+  
+  return user && user.role === 'moderator' ? children : <Navigate to="/" />;
+};
+
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <Layout>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route 
+              path="/" 
+              element={
+                <ProtectedRoute>
+                  <MainPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/my-team" 
+              element={
+                <ProtectedRoute>
+                  <MyTeamPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/moderator" 
+              element={
+                <ModeratorRoute>
+                  <ModeratorPage />
+                </ModeratorRoute>
+              } 
+            />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Layout>
+      </AuthProvider>
+    </Router>
   );
 }
 

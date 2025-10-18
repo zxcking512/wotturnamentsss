@@ -21,12 +21,17 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
+      setLoading(true);
       const response = await api.checkAuth();
-      if (response.loggedIn) {
+      
+      if (response.loggedIn && response.user) {
         setUser(response.user);
+      } else {
+        setUser(null);
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error('Auth check error:', error);
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -34,15 +39,23 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (login, password) => {
     try {
+      setLoading(true);
       const response = await api.login(login, password);
-      if (response.success) {
+      
+      if (response.success && response.user) {
         setUser(response.user);
         return { success: true };
       } else {
-        return { success: false, error: response.error };
+        return { success: false, error: response.error || 'Ошибка авторизации' };
       }
     } catch (error) {
-      return { success: false, error: error.message };
+      console.error('Login error:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.error || 'Ошибка соединения' 
+      };
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,8 +73,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
-    isAuthenticated: !!user,
-    isModerator: user?.role === 'moderator'
+    checkAuth
   };
 
   return (
