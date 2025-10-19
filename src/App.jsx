@@ -16,9 +16,15 @@ const Layout = ({ children }) => {
   
   return (
     <div className="App">
-      {/* ВИДЕОФОН ВСЕГДА НА ВСЕХ СТРАНИЦАХ */}
       <VideoBackground />
-      {showHeader && <Header />}
+      
+      {/* HEADER С ПРАВИЛЬНЫМ Z-INDEX */}
+      {showHeader && (
+        <div className="header-container">
+          <Header />
+        </div>
+      )}
+      
       <main className="main-content">
         {children}
       </main>
@@ -61,6 +67,14 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route 
               path="/" 
+              element={
+                <ProtectedRoute>
+                  <MainPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/main" 
               element={
                 <ProtectedRoute>
                   <MainPage />

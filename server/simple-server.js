@@ -12,9 +12,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// ← ДОБАВЬ ЭТОТ БЛОК CORS
 app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true
+  origin: ['http://localhost:5173', 'http://192.168.0.52:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 
 app.use(express.json());
@@ -29,6 +32,21 @@ app.use(session({
         httpOnly: true
     }
 }));
+
+// MIDDLEWARE ДЛЯ ПРОВЕРКИ АВТОРИЗАЦИИ API
+app.use('/api', (req, res, next) => {
+    // Пропускаем только auth endpoints без проверки
+    if (req.path.includes('/auth/')) {
+        return next();
+    }
+    
+    // Для всех остальных API endpoints проверяем авторизацию
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Not authorized' });
+    }
+    
+    next();
+});
 
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -296,10 +314,6 @@ function generateChallengeSet(allChallenges, probabilities) {
 
 // Новый API для получения списка команд для пакости
 app.get('/api/teams/for-mischief', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: 'Not authorized' });
-    }
-
     const currentTeamId = req.session.user.team_id;
 
     db.all(`SELECT id, name, balance FROM teams WHERE id != ? ORDER BY name`, [currentTeamId], (err, teams) => {
@@ -310,10 +324,6 @@ app.get('/api/teams/for-mischief', (req, res) => {
 
 // Новый API для выбора цели пакости
 app.post('/api/challenges/select-mischief-target', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: 'Not authorized' });
-    }
-
     const { challengeId, targetTeamId } = req.body;
     const userId = req.session.user.id;
     const userTeamId = req.session.user.team_id;
@@ -438,10 +448,6 @@ app.get('/api/auth/check', (req, res) => {
 });
 
 app.get('/api/challenges/available', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: 'Not authorized' });
-    }
-
     const userId = req.session.user.id;
 
     db.get(`SELECT * FROM user_challenges WHERE user_id = ? AND status IN ('active', 'pending')`, 
@@ -516,10 +522,6 @@ function generateChallengesForUser(userId, excludeCondition, res) {
 
 // Обновленная функция выбора задания - для пакости требует выбора цели
 app.post('/api/challenges/select', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: 'Not authorized' });
-    }
-
     const { challengeId } = req.body;
     const userId = req.session.user.id;
 
@@ -556,10 +558,6 @@ app.post('/api/challenges/select', (req, res) => {
 });
 
 app.post('/api/challenges/replace', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: 'Not authorized' });
-    }
-
     const userId = req.session.user.id;
     const teamId = req.session.user.team_id;
     const cost = 10000;
@@ -613,10 +611,6 @@ app.post('/api/challenges/replace', (req, res) => {
 });
 
 app.get('/api/cards/current', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: 'Not authorized' });
-    }
-
     const userId = req.session.user.id;
 
     db.all(`SELECT uc.*, c.title, c.description, c.rarity, c.reward 
@@ -632,10 +626,6 @@ app.get('/api/cards/current', (req, res) => {
 });
 
 app.post('/api/cards/generate', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: 'Not authorized' });
-    }
-
     const userId = req.session.user.id;
 
     db.all(`SELECT COUNT(*) as count FROM used_challenges WHERE user_id = ? AND replaced = 0`, 
@@ -709,10 +699,6 @@ function generateInitialChallenges(userId, excludeCondition, res) {
 }
 
 app.get('/api/teams/my-team', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: 'Not authorized' });
-    }
-
     const userId = req.session.user.id;
     const teamId = req.session.user.team_id;
 
@@ -750,10 +736,6 @@ app.get('/api/teams/my-team', (req, res) => {
 });
 
 app.post('/api/teams/complete-challenge', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: 'Not authorized' });
-    }
-
     const userId = req.session.user.id;
     const teamId = req.session.user.team_id;
 
@@ -773,10 +755,6 @@ app.post('/api/teams/complete-challenge', (req, res) => {
 });
 
 app.post('/api/teams/cancel-challenge', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: 'Not authorized' });
-    }
-
     const userId = req.session.user.id;
     const teamId = req.session.user.team_id;
 

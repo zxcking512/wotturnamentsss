@@ -1,0 +1,423 @@
+/* MyTeamPage.css - ОБНОВЛЕННЫЙ С НОВЫМИ БЛОКАМИ */
+
+.my-team-page {
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+    color: #FFF;
+}
+
+/* Основной контейнер */
+.team-container {
+    display: flex;
+    gap: 2rem;
+    max-width: 1400px;
+    width: 100%;
+    align-items: flex-start;
+}
+
+/* ЛЕВЫЙ БЛОК */
+.left-panel {
+    width: 444px;
+    height: 741px;
+    padding: 40px 45px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+    border: 1px solid #FF5000;
+    background: linear-gradient(180deg, rgba(49, 49, 49, 0.80) 0%, rgba(15, 15, 15, 0.90) 100%);
+    border-radius: 12px;
+}
+
+/* Заголовок "ТЕКУЩЕЕ ЗАДАНИЕ" */
+.current-task-title {
+    height: 51.073px;
+    width: 100%;
+    color: #FFF;
+    text-align: center;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 42px;
+    font-weight: 350;
+    line-height: normal;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Внутренний блок задания */
+.task-inner-block {
+    width: 354px;
+    height: 436px;
+    flex-shrink: 0;
+    border: 3px solid #FF5000;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(18, 18, 18, 0.76) 0%, rgba(18, 18, 18, 0.95) 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    align-self: stretch;
+}
+
+/* Надпись "ЗАДАНИЕ НА МОДЕРАЦИИ" */
+.moderation-title {
+    color: #FFF;
+    text-align: center;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 32px;
+    font-weight: 350;
+    line-height: normal;
+    margin: 0;
+}
+
+/* Контейнер для кнопок */
+.buttons-container {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    justify-content: center;
+}
+
+/* Кнопка "Выполнено" */
+.btn-done {
+    width: 182px;
+    height: 54px;
+    flex-shrink: 0;
+    background: #313131;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-done:hover {
+    background: #404040;
+    transform: translateY(-2px);
+}
+
+.btn-done-text {
+    width: 182px;
+    height: 23.564px;
+    flex-shrink: 0;
+    color: #FFF;
+    text-align: center;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 100;
+    line-height: normal;
+    margin: 0;
+}
+
+/* Кнопка "Отменить" */
+.btn-cancel {
+    width: 150.788px;
+    height: 54px;
+    flex-shrink: 0;
+    border: 2px solid #5A5A5A;
+    background: transparent;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    border-color: #7A7A7A;
+    background: rgba(90, 90, 90, 0.1);
+    transform: translateY(-2px);
+}
+
+.btn-cancel-text {
+    width: 150.359px;
+    height: 23.577px;
+    flex-shrink: 0;
+    color: #FFF;
+    text-align: center;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 100;
+    line-height: normal;
+    margin: 0;
+}
+
+/* Блок информации об отменах */
+.cancels-info-block {
+    display: flex;
+    padding: 10px 20px;
+    align-items: center;
+    gap: 5px;
+    align-self: stretch;
+    border: 1px solid #4B4B4B;
+    border-radius: 8px;
+    background: rgba(75, 75, 75, 0.1);
+}
+
+.cancels-text {
+    width: 230px;
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 100;
+    line-height: normal;
+    margin: 0;
+}
+
+.cancels-count {
+    width: 79px;
+    color: #FE791A;
+    text-align: right;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 350;
+    line-height: normal;
+    margin: 0;
+}
+
+.penalty-text {
+    color: #FE791A;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 100;
+    line-height: normal;
+    margin: 0;
+}
+
+/* ПРАВЫЙ БЛОК */
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    flex: 1;
+}
+
+/* Заголовок команды */
+.team-header {
+    width: 607px;
+    height: 82px;
+    flex-shrink: 0;
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 68px;
+    font-weight: 350;
+    line-height: normal;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+/* Блок баланса */
+.balance-block {
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.15) 0%, 
+        rgba(69, 69, 69, 0.20) 100%);
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+}
+
+.balance-title {
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 24px;
+    font-weight: 350;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+.balance-amount {
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 42px;
+    font-weight: 350;
+    line-height: normal;
+}
+
+/* Блок статистики */
+.stats-block {
+    display: flex;
+    gap: 2rem;
+}
+
+.stat-item {
+    flex: 1;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.15) 0%, 
+        rgba(69, 69, 69, 0.20) 100%);
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.stat-label {
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 18px;
+    font-weight: 350;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 32px;
+    font-weight: 350;
+    line-height: normal;
+}
+
+/* Блок отмен */
+.cancels-block {
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.15) 0%, 
+        rgba(69, 69, 69, 0.20) 100%);
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+}
+
+.cancels-title {
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 20px;
+    font-weight: 350;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.cancels-info {
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 16px;
+    font-weight: 350;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.penalty-info {
+    color: #FF6B6B;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 14px;
+    font-weight: 350;
+    line-height: 1.4;
+    margin-top: 0.5rem;
+}
+
+/* Турнирная таблица */
+.leaderboard-block {
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.15) 0%, 
+        rgba(69, 69, 69, 0.20) 100%);
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+}
+
+.leaderboard-title {
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 20px;
+    font-weight: 350;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard-table th {
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 14px;
+    font-weight: 350;
+    text-align: left;
+    padding: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.leaderboard-table td {
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 14px;
+    font-weight: 350;
+    padding: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .team-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .left-panel {
+        width: 100%;
+        max-width: 500px;
+    }
+    
+    .team-header {
+        width: 100%;
+        font-size: 48px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .my-team-page {
+        padding: 1rem;
+    }
+    
+    .team-header {
+        font-size: 36px;
+        height: auto;
+    }
+    
+    .stats-block {
+        flex-direction: column;
+    }
+    
+    .left-panel {
+        padding: 20px;
+    }
+    
+    .task-inner-block {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .buttons-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-done, .btn-cancel {
+        width: 100%;
+        max-width: 200px;
+    }
+}
