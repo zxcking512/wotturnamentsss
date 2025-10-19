@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import './MyTeamPage.css';
+import VideoBackground from '../components/VideoBackground/VideoBackground';
 
 const MyTeamPage = () => {
   const { user } = useAuth();

@@ -19,10 +19,12 @@ const MainPage = () => {
     isOpen: false,
     challengeId: null
   });
+  const [teams, setTeams] = useState([]);
 
   useEffect(() => {
     console.log('MainPage mounted, loading challenges...');
     loadChallenges();
+    loadTeams();
   }, []);
 
   const loadChallenges = async () => {
@@ -48,6 +50,30 @@ const MainPage = () => {
       setError('Ошибка загрузки заданий: ' + (error.message || 'Неизвестная ошибка'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadTeams = async () => {
+    try {
+      const response = await api.getLeaderboard();
+      // Сортируем команды по балансу (от большего к меньшему)
+      const sortedTeams = response
+        .sort((a, b) => b.balance - a.balance)
+        .map(team => ({
+          ...team,
+          // Делаем первую букву заглавной, остальные строчными
+          name: team.name.charAt(0).toUpperCase() + team.name.slice(1).toLowerCase()
+        }));
+      setTeams(sortedTeams);
+    } catch (error) {
+      console.error('Load teams error:', error);
+      // Если API не работает, используем тестовые данные с правильным регистром
+      setTeams([
+        { name: 'Recrent', balance: 100000 },
+        { name: 'Bratishkinoff', balance: 50000 },
+        { name: 'Shadowkek', balance: 70000 },
+        { name: 'Levsha', balance: 30000 }
+      ]);
     }
   };
 
@@ -89,6 +115,7 @@ const MainPage = () => {
     setSuccessMessage(message);
     setMischiefModal({ isOpen: false, challengeId: null });
     await loadChallenges();
+    await loadTeams(); // Обновляем балансы после пакости
     setTimeout(() => setSuccessMessage(''), 5000);
   };
 
@@ -102,7 +129,8 @@ const MainPage = () => {
       const response = await api.replaceChallenges();
       if (response.success) {
         await loadChallenges();
-        setSuccessMessage('Карточки заменены! Спиcано 10 000 руб.');
+        await loadTeams(); // Обновляем балансы после замены карт
+        setSuccessMessage('Карточки заменены! Спиcано 5 000 руб.');
         setTimeout(() => setSuccessMessage(''), 3000);
       }
     } catch (error) {
@@ -236,7 +264,7 @@ const MainPage = () => {
           </button>
           <div className="replace-cost">
             <span className="cost-text">*Стоимость каждой замены карт испытаний</span>
-            <span className="cost-amount">-10 000 руб.</span>
+            <span className="cost-amount">-5 000 руб.</span>
           </div>
         </div>
       </>
@@ -245,7 +273,7 @@ const MainPage = () => {
 
   return (
     <div className="main-page">
-      {successMessage && <div className="success-message">{successMessage}</div>}
+      {successMessage && <div className="successMessage">{successMessage}</div>}
       
       <div className="main-container">
         
@@ -253,30 +281,26 @@ const MainPage = () => {
         <div className="left-column">
           <div className="cards-actions-block">
             <div className="block-title">КАРТЫ И ДЕЙСТВИЯ</div>
+            <div className="title-divider"></div>
             
-            <div className="card-type">
-              <div className="card-name">ЭПИЧЕСКОЕ БЕЗУМСТВО</div>
-              <div className="card-reward">+50 000 руб.</div>
+            <div className="action-item">
+              <div className="action-name">ЭПИЧЕСКОЕ БЕЗУМСТВО</div>
+              <div className="action-reward">+50 000 руб.</div>
             </div>
             
-            <div className="card-type">
-              <div className="card-name">ДЕРЗКИЙ ВЫЗОВ</div>
-              <div className="card-reward">+25 000 руб.</div>
+            <div className="action-item">
+              <div className="action-name">ПРОСТАЯ ШАЛОСТЬ</div>
+              <div className="action-reward">+5 000 руб.</div>
             </div>
             
-            <div className="card-type">
-              <div className="card-name">ПРОСТАЯ ШАЛОСТЬ</div>
-              <div className="card-reward">+5 000 руб.</div>
+            <div className="action-item">
+              <div className="action-name">ПАКОСТЬ ПРОТИВНИКУ</div>
+              <div className="action-reward">-10 000 руб.</div>
             </div>
             
-            <div className="card-type">
-              <div className="card-name">ПАКОСТЬ</div>
-              <div className="card-reward">-10 000 руб.</div>
-            </div>
-            
-            <div className="card-type">
-              <div className="card-name">ЗАМЕНА КАРТ</div>
-              <div className="card-reward">-10 000 руб.</div>
+            <div className="action-item">
+              <div className="action-name">ЗАМЕНА КАРТ</div>
+              <div className="action-reward">-5 000 руб.</div>
             </div>
           </div>
         </div>
@@ -289,48 +313,16 @@ const MainPage = () => {
         {/* Правая колонка - Котлы команд */}
         <div className="right-column">
           <div className="rating-block">
-            <div className="rating-title">КОТЛЫ КОМАНД</div>
+            <div className="block-title">КОТЛЫ КОМАНД</div>
+            <div className="title-divider"></div>
             
             <div className="teams-list">
-              <div className="team-row">
-                <div className="team-icon">
-                  <svg width="29" height="38" viewBox="0 0 29 38" fill="none">
-                    <path d="M0 26.0217L14.7101 38L29 26.0217V5.78261L25.8478 2.89131L17.8518 14.725H23.1685L8.42681 28.5L14.7101 14.725H8.91015L17.8518 0L7.14493 4.13358e-06L0 5.78261V26.0217Z" fill="#FF5000"/>
-                  </svg>
+              {teams.map((team, index) => (
+                <div key={team.name} className="action-item">
+                  <div className="action-name">{team.name}</div>
+                  <div className="action-reward">{formatBalance(team.balance)}</div>
                 </div>
-                <div className="team-name">BRATISHKINOFF</div>
-                <div className="team-balance">100 000 руб.</div>
-              </div>
-              
-              <div className="team-row">
-                <div className="team-icon">
-                  <svg width="29" height="38" viewBox="0 0 29 38" fill="none">
-                    <path d="M0 26.0217L14.7101 38L29 26.0217V5.78261L25.8478 2.89131L17.8518 14.725H23.1685L8.42681 28.5L14.7101 14.725H8.91015L17.8518 0L7.14493 4.13358e-06L0 5.78261V26.0217Z" fill="#FF5000"/>
-                  </svg>
-                </div>
-                <div className="team-name">SHADOWKEK</div>
-                <div className="team-balance">100 000 руб.</div>
-              </div>
-              
-              <div className="team-row">
-                <div className="team-icon">
-                  <svg width="29" height="38" viewBox="0 0 29 38" fill="none">
-                    <path d="M0 26.0217L14.7101 38L29 26.0217V5.78261L25.8478 2.89131L17.8518 14.725H23.1685L8.42681 28.5L14.7101 14.725H8.91015L17.8518 0L7.14493 4.13358e-06L0 5.78261V26.0217Z" fill="#FF5000"/>
-                  </svg>
-                </div>
-                <div className="team-name">LEVSHA</div>
-                <div className="team-balance">100 000 руб.</div>
-              </div>
-              
-              <div className="team-row">
-                <div className="team-icon">
-                  <svg width="29" height="38" viewBox="0 0 29 38" fill="none">
-                    <path d="M0 26.0217L14.7101 38L29 26.0217V5.78261L25.8478 2.89131L17.8518 14.725H23.1685L8.42681 28.5L14.7101 14.725H8.91015L17.8518 0L7.14493 4.13358e-06L0 5.78261V26.0217Z" fill="#FF5000"/>
-                  </svg>
-                </div>
-                <div className="team-name">RECRENT</div>
-                <div className="team-balance">100 000 руб.</div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

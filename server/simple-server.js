@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors({
     origin: 'http://localhost:5173',
@@ -230,6 +230,70 @@ function getAvailableChallengesCount(userId, callback) {
     });
 }
 
+function generateChallengeSet(allChallenges, probabilities) {
+    const selectedChallenges = [];
+    const usedRarities = new Set();
+    
+    // Создаем пул карт по редкостям
+    const challengesByRarity = {
+        epic: allChallenges.filter(c => c.rarity === 'epic'),
+        rare: allChallenges.filter(c => c.rarity === 'rare'),
+        common: allChallenges.filter(c => c.rarity === 'common'),
+        troll: allChallenges.filter(c => c.rarity === 'troll')
+    };
+    
+    for (let i = 0; i < 3; i++) {
+        let selectedChallenge = null;
+        let attempts = 0;
+        
+        while (!selectedChallenge && attempts < 10) {
+            const random = Math.random() * 100;
+            let selectedRarity = '';
+            
+            if (random < probabilities.epic_probability) {
+                selectedRarity = 'epic';
+            } else if (random < probabilities.epic_probability + probabilities.rare_probability) {
+                selectedRarity = 'rare';
+            } else if (random < probabilities.epic_probability + probabilities.rare_probability + probabilities.common_probability) {
+                selectedRarity = 'common';
+            } else {
+                selectedRarity = 'troll';
+            }
+            
+            // Проверяем ограничения: только 1 эпическая и 1 пакость в наборе
+            if ((selectedRarity === 'epic' && usedRarities.has('epic')) ||
+                (selectedRarity === 'troll' && usedRarities.has('troll'))) {
+                attempts++;
+                continue;
+            }
+            
+            const availableChallenges = challengesByRarity[selectedRarity];
+            if (availableChallenges && availableChallenges.length > 0) {
+                selectedChallenge = availableChallenges[Math.floor(Math.random() * availableChallenges.length)];
+                usedRarities.add(selectedRarity);
+            }
+            
+            attempts++;
+        }
+        
+        // Если не удалось выбрать по вероятностям, берем любую доступную
+        if (!selectedChallenge) {
+            const available = allChallenges.filter(challenge => 
+                !selectedChallenges.includes(challenge)
+            );
+            if (available.length > 0) {
+                selectedChallenge = available[Math.floor(Math.random() * available.length)];
+            }
+        }
+        
+        if (selectedChallenge) {
+            selectedChallenges.push(selectedChallenge);
+        }
+    }
+    
+    return selectedChallenges;
+}
+
 // Новый API для получения списка команд для пакости
 app.get('/api/teams/for-mischief', (req, res) => {
     if (!req.session.user) {
@@ -357,8 +421,12 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.post('/api/auth/logout', (req, res) => {
-    req.session.destroy();
-    res.json({ success: true });
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ error: 'Logout error' });
+        }
+        res.json({ success: true });
+    });
 });
 
 app.get('/api/auth/check', (req, res) => {
@@ -848,4 +916,21 @@ app.post('/api/moderator/reset-challenges', (req, res) => {
     }
 
     db.run(`DELETE FROM used_challenges`, (err) => {
-        if (err) return res.status(500).json
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json({ success: true });
+    });
+});
+
+app.get('/api/leaderboard', (req, res) => {
+    db.all(`SELECT name, balance, completed_challenges FROM teams ORDER BY balance DESC, completed_challenges DESC`, 
+        (err, teams) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        res.json(teams);
+    });
+});
+
+// Запуск сервера
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📊 API endpoints available at http://localhost:${PORT}/api/`);
+});

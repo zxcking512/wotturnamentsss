@@ -1,10 +1,11 @@
-const API_BASE = 'http://localhost:3000/api';
+// src/services/api.js
+const API_BASE_URL = 'http://localhost:3001/api'; 
 
 // Общий API клиент
 const api = {
   // Auth methods
   async login(login, password) {
-    const response = await fetch(`${API_BASE}/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -14,7 +15,7 @@ const api = {
   },
 
   async logout() {
-    const response = await fetch(`${API_BASE}/auth/logout`, {
+    const response = await fetch(`${API_BASE_URL}/auth/logout`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -22,7 +23,7 @@ const api = {
   },
 
   async checkAuth() {
-    const response = await fetch(`${API_BASE}/auth/check`, {
+    const response = await fetch(`${API_BASE_URL}/auth/check`, {
       credentials: 'include',
     });
     return await response.json();
@@ -30,14 +31,14 @@ const api = {
 
   // Challenges methods
   async getAvailableChallenges() {
-    const response = await fetch(`${API_BASE}/challenges/available`, {
+    const response = await fetch(`${API_BASE_URL}/challenges/available`, {
       credentials: 'include',
     });
     return await response.json();
   },
 
   async selectChallenge(challengeId) {
-    const response = await fetch(`${API_BASE}/challenges/select`, {
+    const response = await fetch(`${API_BASE_URL}/challenges/select`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -48,7 +49,7 @@ const api = {
 
   // НОВЫЙ МЕТОД: Выбор цели для пакости
   async selectMischiefTarget(challengeId, targetTeamId) {
-    const response = await fetch(`${API_BASE}/challenges/select-mischief-target`, {
+    const response = await fetch(`${API_BASE_URL}/challenges/select-mischief-target`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -58,7 +59,7 @@ const api = {
   },
 
   async replaceChallenges() {
-    const response = await fetch(`${API_BASE}/challenges/replace`, {
+    const response = await fetch(`${API_BASE_URL}/challenges/replace`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -67,7 +68,7 @@ const api = {
 
   // Cards methods
   async generateCards() {
-    const response = await fetch(`${API_BASE}/cards/generate`, {
+    const response = await fetch(`${API_BASE_URL}/cards/generate`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -75,7 +76,7 @@ const api = {
   },
 
   async getCurrentCards() {
-    const response = await fetch(`${API_BASE}/cards/current`, {
+    const response = await fetch(`${API_BASE_URL}/cards/current`, {
       credentials: 'include',
     });
     return await response.json();
@@ -83,7 +84,7 @@ const api = {
 
   // Teams methods
   async getMyTeam() {
-    const response = await fetch(`${API_BASE}/teams/my-team`, {
+    const response = await fetch(`${API_BASE_URL}/teams/my-team`, {
       credentials: 'include',
     });
     return await response.json();
@@ -91,14 +92,14 @@ const api = {
 
   // НОВЫЙ МЕТОД: Получить список команд для пакости
   async getTeamsForMischief() {
-    const response = await fetch(`${API_BASE}/teams/for-mischief`, {
+    const response = await fetch(`${API_BASE_URL}/teams/for-mischief`, {
       credentials: 'include',
     });
     return await response.json();
   },
 
   async completeChallenge() {
-    const response = await fetch(`${API_BASE}/teams/complete-challenge`, {
+    const response = await fetch(`${API_BASE_URL}/teams/complete-challenge`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -106,7 +107,7 @@ const api = {
   },
 
   async cancelChallenge() {
-    const response = await fetch(`${API_BASE}/teams/cancel-challenge`, {
+    const response = await fetch(`${API_BASE_URL}/teams/cancel-challenge`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -115,20 +116,20 @@ const api = {
 
   // Leaderboard methods
   async getLeaderboard() {
-    const response = await fetch(`${API_BASE}/leaderboard`);
+    const response = await fetch(`${API_BASE_URL}/leaderboard`);
     return await response.json();
   },
 
   // Moderator methods
   async getTeams() {
-    const response = await fetch(`${API_BASE}/moderator/teams`, {
+    const response = await fetch(`${API_BASE_URL}/moderator/teams`, {
       credentials: 'include',
     });
     return await response.json();
   },
 
   async updateTeam(teamId, updates) {
-    const response = await fetch(`${API_BASE}/moderator/update-team`, {
+    const response = await fetch(`${API_BASE_URL}/moderator/update-team`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -138,14 +139,14 @@ const api = {
   },
 
   async getProbabilities() {
-    const response = await fetch(`${API_BASE}/moderator/probabilities`, {
+    const response = await fetch(`${API_BASE_URL}/moderator/probabilities`, {
       credentials: 'include',
     });
     return await response.json();
   },
 
   async updateProbabilities(probabilities) {
-    const response = await fetch(`${API_BASE}/moderator/probabilities`, {
+    const response = await fetch(`${API_BASE_URL}/moderator/probabilities`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -155,7 +156,7 @@ const api = {
   },
 
   async resetChallenges() {
-    const response = await fetch(`${API_BASE}/moderator/reset-challenges`, {
+    const response = await fetch(`${API_BASE_URL}/moderator/reset-challenges`, {
       method: 'POST',
       credentials: 'include',
     });

@@ -6,6 +6,7 @@ import MainPage from './pages/MainPage';
 import MyTeamPage from './pages/MyTeamPage';
 import ModeratorPage from './pages/ModeratorPage';
 import Header from './components/Header/Header';
+import VideoBackground from './components/VideoBackground/VideoBackground';
 import './App.css';
 
 // Компонент для условного отображения шапки
@@ -15,6 +16,8 @@ const Layout = ({ children }) => {
   
   return (
     <div className="App">
+      {/* ВИДЕОФОН ВСЕГДА НА ВСЕХ СТРАНИЦАХ */}
+      <VideoBackground />
       {showHeader && <Header />}
       <main className="main-content">
         {children}
