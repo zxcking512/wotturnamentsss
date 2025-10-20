@@ -1,4 +1,3 @@
-// server/simple-server.js
 import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
@@ -13,12 +12,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// ПРОСТОЙ CORS - разрешаем localhost
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://192.168.0.60:3001',
-    'http://192.168.0.60:5173'
-  ],
+  origin: 'http://localhost:5173',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
@@ -933,8 +929,7 @@ app.get('/api/leaderboard', (req, res) => {
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`🌐 Server accessible from network: http://192.168.0.52:${PORT}`);
-  console.log(`📊 API endpoints available at http://192.168.0.52:${PORT}/api/`);
+  console.log(`📊 API endpoints available at http://localhost:${PORT}/api/`);
 });
