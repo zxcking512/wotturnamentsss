@@ -1,5 +1,5 @@
 // src/services/api.js
-const API_BASE_URL = 'http://192.168.0.52:3001/api'; 
+const API_BASE_URL = 'http://192.168.0.60:3001/api'; 
 
 // Общий API клиент
 const api = {
@@ -115,7 +115,13 @@ const api = {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      return await response.json();
+      const result = await response.json();
+      
+      // ДОБАВЛЕНО: Возвращаем результат с флагом shouldRefreshCards
+      return {
+        ...result,
+        shouldRefreshCards: result.shouldRefreshCards || false
+      };
     } catch (error) {
       console.error('Select mischief target API error:', error);
       throw new Error(`Ошибка выбора цели: ${error.message}`);

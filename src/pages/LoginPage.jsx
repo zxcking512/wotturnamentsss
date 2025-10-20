@@ -119,12 +119,7 @@ const LoginPage = () => {
             </div>
           </form>
 
-          {/* Тестовые аккаунты */}
-          <div className="test-accounts">
-            <h4>Тестовые аккаунты:</h4>
-            <p>Модератор: moderator / moderator123</p>
-            <p>Капитан: bratishkin / bratishkin123</p>
-          </div>
+         
         </div>
       </div>
     </div>

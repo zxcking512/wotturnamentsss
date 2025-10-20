@@ -14,11 +14,9 @@ body {
 
 .App {
   min-height: 100vh;
-  /* УБИРАЕМ градиентный фон - он перекрывает видео */
   position: relative;
 }
 
-/* КОНТЕЙНЕР ДЛЯ HEADER - ДОБАВЛЕНО */
 .header-container {
   position: relative;
   z-index: 1000;
@@ -113,14 +111,15 @@ input::placeholder {
   color: #a0aec0;
 }
 
-.card {
+/* ⚠️ УДАЛИЛ ЭТОТ БЛОК СТИЛЕЙ ДЛЯ .card - ОНИ КОНФЛИКТУЮТ С КАРТОЧКАМИ */
+/* .card {
   background: rgba(45, 55, 72, 0.9);
   border: 2px solid #f0a500;
   border-radius: 10px;
   padding: 20px;
   backdrop-filter: blur(10px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
+} */
 
 table {
   width: 100%;
@@ -305,8 +304,64 @@ tr:hover td {
     padding: 10px 20px;
     font-size: 0.9rem;
   }
-  
-  .card {
-    padding: 15px;
-  }
+}
+
+/* App.css - ФИКС ДЛЯ РАСТЯЖКИ НА ВСЮ ШИРИНУ */
+.App {
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+.header-container {
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.main-content {
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.main-page,
+.my-team-page,
+.moderator-page,
+.login-page {
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Подключение шрифтов */
+@font-face {
+  font-family: 'MT Sans LC Test 3 VF';
+  src: url('/fonts/MTSansLCTest3VF.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MT Sans LC Test 3 VF';
+  src: url('/fonts/MTSansVF.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  font-family: 'MT Sans LC Test 3 VF', Arial, sans-serif;
+}
+
+body {
+  font-family: 'MT Sans LC Test 3 VF', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }

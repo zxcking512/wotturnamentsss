@@ -1,3 +1,4 @@
+// src/pages/MyTeamPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
@@ -53,39 +54,50 @@ const MyTeamPage = () => {
   };
 
   const loadLeaderboard = async () => {
-    try {
-      // Используем endpoint leaderboard который доступен всем пользователям
-      const response = await api.getLeaderboard();
-      console.log('Leaderboard data:', response);
-      
-      if (Array.isArray(response) && response.length > 0) {
-        // Сортируем команды по балансу (от большего к меньшему)
-        const sortedTeams = response.sort((a, b) => b.balance - a.balance);
-        // Добавляем позицию каждой команде
-        const teamsWithPosition = sortedTeams.map((team, index) => ({
-          ...team,
-          position: index + 1
-        }));
-        setLeaderboard(teamsWithPosition);
-      } else {
-        console.error('Leaderboard response is empty or not array:', response);
-        // Используем данные из teamData как fallback
-        if (teamData && teamData.team) {
-          const fallbackTeams = [
-            { name: teamData.team.name, completed_challenges: teamData.team.completed_challenges || 0, balance: teamData.team.balance || 0 }
-          ];
-          setLeaderboard(fallbackTeams.map((team, index) => ({ ...team, position: 1 })));
-        }
-      }
-    } catch (error) {
-      console.error('Error loading leaderboard:', error);
-      // Fallback на данные текущей команды
-      if (teamData && teamData.team) {
-        const fallbackTeams = [
-          { name: teamData.team.name, completed_challenges: teamData.team.completed_challenges || 0, balance: teamData.team.balance || 0 }
-        ];
-        setLeaderboard(fallbackTeams.map((team, index) => ({ ...team, position: 1 })));
-      }
+  try {
+    console.log('🔄 Loading leaderboard from API...');
+    const response = await api.getLeaderboard();
+    console.log('📦 API response:', response);
+    
+    if (Array.isArray(response) && response.length > 0) {
+      const sortedTeams = response.sort((a, b) => b.balance - a.balance);
+      const teamsWithPosition = sortedTeams.map((team, index) => ({
+        ...team,
+        position: index + 1
+      }));
+      console.log('✅ Setting leaderboard:', teamsWithPosition);
+      setLeaderboard(teamsWithPosition);
+    } else {
+      console.log('❌ No teams data, using fallback');
+      // Fallback данные
+      const fallbackTeams = [
+        { id: 1, name: 'Bratishkinoff', balance: 100000, completed_challenges: 0 },
+        { id: 2, name: 'Shadowkek', balance: 100000, completed_challenges: 0 },
+        { id: 3, name: 'Levsha', balance: 100000, completed_challenges: 0 },
+        { id: 4, name: 'Recrent', balance: 100000, completed_challenges: 0 }
+      ];
+      const sortedFallback = fallbackTeams.sort((a, b) => b.balance - a.balance);
+      const fallbackWithPosition = sortedFallback.map((team, index) => ({
+        ...team,
+        position: index + 1
+      }));
+      setLeaderboard(fallbackWithPosition);
+    }
+  } catch (error) {
+    console.error('💥 Load leaderboard error:', error);
+    // Fallback данные при ошибке
+    const fallbackTeams = [
+      { id: 1, name: 'Bratishkinoff', balance: 100000, completed_challenges: 0 },
+      { id: 2, name: 'Shadowkek', balance: 100000, completed_challenges: 0 },
+      { id: 3, name: 'Levsha', balance: 100000, completed_challenges: 0 },
+      { id: 4, name: 'Recrent', balance: 100000, completed_challenges: 0 }
+    ];
+    const sortedFallback = fallbackTeams.sort((a, b) => b.balance - a.balance);
+    const fallbackWithPosition = sortedFallback.map((team, index) => ({
+      ...team,
+      position: index + 1
+    }));
+    setLeaderboard(fallbackWithPosition);
     }
   };
 
@@ -477,7 +489,7 @@ const MyTeamPage = () => {
                     fontWeight: '100',
                     lineHeight: 'normal'
                   }}>
-                    (Последующие отмены: -10 000 руб.)
+                    (Последующие отмены: -20% от награды)
                   </span>
                 </div>
                 <div className="cancels-count" style={{
@@ -700,53 +712,65 @@ const MyTeamPage = () => {
               overflowY: 'auto',
               maxHeight: '280px'
             }}>
-              {Array.isArray(leaderboard) && leaderboard.map((team, index) => (
-                <div key={team.name} style={{
-                  display: 'flex',
-                  width: '100%',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '8px 0',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+              {Array.isArray(leaderboard) && leaderboard.length > 0 ? (
+                leaderboard.map((team, index) => (
+                  <div key={team.id || team.name} style={{
+                    display: 'flex',
+                    width: '100%',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '8px 0',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}>
+                    <div style={{
+                      flex: '1',
+                      color: '#FFF',
+                      fontFamily: '"MT Sans LC Test 3 VF"',
+                      fontSize: '16px',
+                      fontWeight: '350',
+                      lineHeight: 'normal',
+                      textAlign: 'left',
+                      whiteSpace: 'nowrap', // Одна строка
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      {team.name.toUpperCase()}
+                    </div>
+                    <div style={{
+                      flex: '1',
+                      color: '#FFF',
+                      fontFamily: '"MT Sans LC Test 3 VF"',
+                      fontSize: '16px',
+                      fontWeight: '100',
+                      lineHeight: 'normal',
+                      textAlign: 'center'
+                    }}>
+                      {team.completed_challenges || 0}
+                    </div>
+                    <div style={{
+                      flex: '1',
+                      color: '#FFF',
+                      fontFamily: '"MT Sans LC Test 3 VF"',
+                      fontSize: '16px',
+                      fontWeight: '100',
+                      lineHeight: 'normal',
+                      textAlign: 'right'
+                    }}>
+                      {team.balance?.toLocaleString()} руб.
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div style={{
+                  color: '#FFF',
+                  textAlign: 'center',
+                  padding: '20px',
+                  fontFamily: '"MT Sans LC Test 3 VF"',
+                  fontSize: '16px'
                 }}>
-                  <div style={{
-                    flex: '1',
-                    color: '#FFF',
-                    fontFamily: '"MT Sans LC Test 3 VF"',
-                    fontSize: '16px',
-                    fontWeight: '350',
-                    lineHeight: 'normal',
-                    textAlign: 'left',
-                    whiteSpace: 'nowrap', // Одна строка
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    {team.name.toUpperCase()}
-                  </div>
-                  <div style={{
-                    flex: '1',
-                    color: '#FFF',
-                    fontFamily: '"MT Sans LC Test 3 VF"',
-                    fontSize: '16px',
-                    fontWeight: '100',
-                    lineHeight: 'normal',
-                    textAlign: 'center'
-                  }}>
-                    {team.completed_challenges || 0}
-                  </div>
-                  <div style={{
-                    flex: '1',
-                    color: '#FFF',
-                    fontFamily: '"MT Sans LC Test 3 VF"',
-                    fontSize: '16px',
-                    fontWeight: '100',
-                    lineHeight: 'normal',
-                    textAlign: 'right'
-                  }}>
-                    {team.balance?.toLocaleString()} руб.
-                  </div>
+                  Загрузка данных команд...
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

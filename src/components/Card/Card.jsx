@@ -1,62 +1,66 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Card.css';
 
-const Card = ({ challenge, onSelect, isSelected = false, canSelect = true }) => {
-  const getRarityColor = (rarity) => {
-    switch (rarity) {
-      case 'epic': return '#ff6b35';
-      case 'rare': return '#4cc9f0';
-      case 'common': return '#4ade80';
-      case 'troll': return '#f72585';
-      default: return '#6b7280';
-    }
-  };
+const Card = ({ challenge, onSelect, canSelect = true }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
   const getRarityName = (rarity) => {
     switch (rarity) {
-      case 'epic': return 'Эпическое безумство';
-      case 'rare': return 'Дерзкий вызов';
-      case 'common': return 'Простая шалость';
-      case 'troll': return 'Пакость';
+      case 'epic': return 'ЭПИЧЕСКОЕ БЕЗУМСТВО';
+      case 'rare': return 'ДЕРЗКИЙ ВЫЗОВ';
+      case 'common': return 'ПРОСТАЯ ШАЛОСТЬ';
+      case 'troll': return 'ПАКОСТЬ';
       default: return rarity;
     }
   };
 
-  const getCardClass = () => {
-    let className = 'card';
-    if (isSelected) className += ' card--selected';
-    if (!canSelect) className += ' card--disabled';
-    className += ` card--${challenge.rarity}`;
-    return className;
+  const handleCardClick = () => {
+    if (!canSelect) return;
+    setIsOpen(!isOpen);
+  };
+
+  const handleTakeTask = (e) => {
+    e.stopPropagation();
+    onSelect && onSelect(challenge);
+  };
+
+  const formatReward = (reward) => {
+    if (reward > 0) {
+      return `+${reward.toLocaleString('ru-RU')} РУБ.`;
+    } else if (reward < 0) {
+      return `${reward.toLocaleString('ru-RU')} РУБ.`;
+    }
+    return '0 РУБ.';
   };
 
   return (
     <div 
-      className={getCardClass()}
-      onClick={() => canSelect && onSelect && onSelect(challenge)}
-      style={{ borderColor: getRarityColor(challenge.rarity) }}
+      className={`card ${isOpen ? 'flipped' : ''} ${challenge.rarity} ${!canSelect ? 'disabled' : ''}`}
+      onClick={handleCardClick}
     >
-      <div className="card__header" style={{ backgroundColor: getRarityColor(challenge.rarity) }}>
-        <span className="card__rarity">{getRarityName(challenge.rarity)}</span>
-        <span className="card__reward">
-          {challenge.reward > 0 ? `+${challenge.reward} руб` : `${challenge.reward} руб`}
-        </span>
-      </div>
-      
-      <div className="card__content">
-        <h3 className="card__title">{challenge.title}</h3>
-        <p className="card__description">{challenge.description}</p>
-      </div>
-      
-      <div className="card__footer">
-        {canSelect && (
-          <button 
-            className={`card__button ${isSelected ? 'card__button--selected' : ''}`}
+      <div className="card-inner">
+        {/* ЛИЦЕВАЯ СТОРОНА (РУБАШКА) */}
+        <div className="card-front">
+          {/* Для всех карт фон загружается через CSS */}
+        </div>
+        
+        {/* ОБОРОТНАЯ СТОРОНА */}
+        <div className="card-back">
+          <div className="card-rarity">{getRarityName(challenge.rarity)}</div>
+          <div className="card-reward">
+            {formatReward(challenge.reward)}
+          </div>
+          <h3 className="card-title">{challenge.title}</h3>
+          <p className="card-description">{challenge.description}</p>
+          
+          <button
+            onClick={handleTakeTask}
+            className={`take-task-btn ${challenge.rarity === 'troll' ? 'mischief-btn' : ''}`}
             disabled={!canSelect}
           >
-            {isSelected ? 'Выбрано' : 'Выбрать'}
+            {challenge.rarity === 'troll' ? 'СДЕЛАТЬ ПАКОСТЬ' : 'ВЗЯТЬ ЗАДАНИЕ'}
           </button>
-        )}
+        </div>
       </div>
     </div>
   );

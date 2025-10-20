@@ -1,3 +1,4 @@
+// server/simple-server.js
 import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
@@ -12,9 +13,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ← ДОБАВЬ ЭТОТ БЛОК CORS
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://192.168.0.52:5173'],
+  origin: [
+    'http://localhost:5173',
+    'http://192.168.0.60:3001',
+    'http://192.168.0.60:5173'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
@@ -35,12 +39,10 @@ app.use(session({
 
 // MIDDLEWARE ДЛЯ ПРОВЕРКИ АВТОРИЗАЦИИ API
 app.use('/api', (req, res, next) => {
-    // Пропускаем только auth endpoints без проверки
-    if (req.path.includes('/auth/')) {
+    if (req.path.includes('/auth/') || req.path === '/leaderboard') {
         return next();
     }
     
-    // Для всех остальных API endpoints проверяем авторизацию
     if (!req.session.user) {
         return res.status(401).json({ error: 'Not authorized' });
     }
@@ -154,7 +156,6 @@ function initDB(db) {
             {title: 'Простая шалость 2', description: 'Нанести 2000 урона за бой', rarity: 'common', reward: 5000},
             {title: 'Простая шалость 3', description: 'Сбить 1000 урона за один бой', rarity: 'common', reward: 3000},
             {title: 'Пакость', description: 'Забрать 10000 рублей у другой команды', rarity: 'troll', reward: -10000},
-            {title: 'Пакость 2', description: 'Использовать способность 5 раз за бой', rarity: 'troll', reward: 2000}
         ];
 
         const insertChallenge = db.prepare(`INSERT OR IGNORE INTO challenges (title, description, rarity, reward) VALUES (?, ?, ?, ?)`);
@@ -163,7 +164,6 @@ function initDB(db) {
         });
         insertChallenge.finalize();
 
-        // Сначала создаем команды и получаем их ID
         const teams = [
             { name: 'Bratishkinoff', balance: 100000 },
             { name: 'Shadowkek', balance: 100000 },
@@ -171,7 +171,6 @@ function initDB(db) {
             { name: 'Recrent', balance: 100000 }
         ];
 
-        // Удаляем старые данные чтобы пересоздать правильно
         db.run(`DELETE FROM users`);
         db.run(`DELETE FROM teams`);
 
@@ -181,7 +180,6 @@ function initDB(db) {
         });
         teamInsert.finalize();
 
-        // Ждем пока команды создадутся и получаем их ID
         db.all(`SELECT id, name FROM teams ORDER BY id`, (err, teamRows) => {
             if (err) {
                 console.error('Error getting team IDs:', err);
@@ -199,7 +197,6 @@ function initDB(db) {
             db.run(`INSERT OR IGNORE INTO users (login, password_hash, role) VALUES (?, ?, ?)`, 
                 ['moderator', moderatorPassword, 'moderator']);
 
-            // Создаем капитанов с правильными team_id
             const captains = [
                 { login: 'bratishkin', password: 'bratishkin123', teamName: 'Bratishkinoff' },
                 { login: 'shadow', password: 'shadow123', teamName: 'Shadowkek' },
@@ -234,7 +231,6 @@ function getAvailableChallengesCount(userId, callback) {
     db.get("SELECT COUNT(*) as total FROM challenges WHERE is_active = 1", (err, totalRow) => {
         if (err) return callback(err);
         
-        // ИСКЛЮЧАЕМ ТОЛЬКО НЕ-ПАКОСТИ из used_challenges
         db.get(`SELECT COUNT(DISTINCT uc.challenge_id) as used 
                 FROM used_challenges uc 
                 JOIN challenges c ON uc.challenge_id = c.id 
@@ -252,10 +248,8 @@ function generateChallengeSet(allChallenges, probabilities) {
     const selectedChallenges = [];
     const usedRarities = new Set();
     
-    // Создаем пул карт по редкостям
     const challengesByRarity = {
         epic: allChallenges.filter(c => c.rarity === 'epic'),
-        rare: allChallenges.filter(c => c.rarity === 'rare'),
         common: allChallenges.filter(c => c.rarity === 'common'),
         troll: allChallenges.filter(c => c.rarity === 'troll')
     };
@@ -270,15 +264,12 @@ function generateChallengeSet(allChallenges, probabilities) {
             
             if (random < probabilities.epic_probability) {
                 selectedRarity = 'epic';
-            } else if (random < probabilities.epic_probability + probabilities.rare_probability) {
-                selectedRarity = 'rare';
-            } else if (random < probabilities.epic_probability + probabilities.rare_probability + probabilities.common_probability) {
+            } else if (random < probabilities.epic_probability + probabilities.common_probability) {
                 selectedRarity = 'common';
             } else {
                 selectedRarity = 'troll';
             }
             
-            // Проверяем ограничения: только 1 эпическая и 1 пакость в наборе
             if ((selectedRarity === 'epic' && usedRarities.has('epic')) ||
                 (selectedRarity === 'troll' && usedRarities.has('troll'))) {
                 attempts++;
@@ -294,7 +285,6 @@ function generateChallengeSet(allChallenges, probabilities) {
             attempts++;
         }
         
-        // Если не удалось выбрать по вероятностям, берем любую доступную
         if (!selectedChallenge) {
             const available = allChallenges.filter(challenge => 
                 !selectedChallenges.includes(challenge)
@@ -312,7 +302,6 @@ function generateChallengeSet(allChallenges, probabilities) {
     return selectedChallenges;
 }
 
-// Новый API для получения списка команд для пакости
 app.get('/api/teams/for-mischief', (req, res) => {
     const currentTeamId = req.session.user.team_id;
 
@@ -322,7 +311,7 @@ app.get('/api/teams/for-mischief', (req, res) => {
     });
 });
 
-// Новый API для выбора цели пакости
+// ИСПРАВЛЕННЫЙ API для выбора цели пакости
 app.post('/api/challenges/select-mischief-target', (req, res) => {
     const { challengeId, targetTeamId } = req.body;
     const userId = req.session.user.id;
@@ -332,7 +321,6 @@ app.post('/api/challenges/select-mischief-target', (req, res) => {
         return res.status(400).json({ error: 'Challenge ID and target team ID required' });
     }
 
-    // Проверяем что выбранная команда не своя
     if (targetTeamId == userTeamId) {
         return res.status(400).json({ error: 'Нельзя выбрать свою команду как цель пакости' });
     }
@@ -348,36 +336,64 @@ app.post('/api/challenges/select-mischief-target', (req, res) => {
 
         // Получаем информацию о пакости
         db.get(`SELECT * FROM challenges WHERE id = ?`, [challengeId], (err, challenge) => {
-            if (challenge && challenge.rarity === 'troll' && challenge.reward < 0) {
-                // Немедленно выполняем пакость - списываем деньги у цели
-                const stolenAmount = Math.abs(challenge.reward);
-                
-                // Списываем у цели
-                db.run(`UPDATE teams SET balance = balance - ? WHERE id = ?`, [stolenAmount, targetTeamId]);
-                db.run(`INSERT INTO transactions (team_id, amount, type, description) VALUES (?, ?, ?, ?)`,
-                    [targetTeamId, -stolenAmount, 'mischief_stolen', `Пакость: украдено командой ${req.session.user.team_name}`]);
+            if (err) return res.status(500).json({ error: 'Database error' });
 
-                // Начисляем себе
-                db.run(`UPDATE teams SET balance = balance + ? WHERE id = ?`, [stolenAmount, userTeamId]);
-                db.run(`INSERT INTO transactions (team_id, amount, type, description) VALUES (?, ?, ?, ?)`,
-                    [userTeamId, stolenAmount, 'mischief_gained', `Пакость: украдено у команды ${targetTeamId}`]);
+            if (challenge && challenge.rarity === 'troll') {
+                if (challenge.reward < 0) {
+                    // Пакость с отрицательным reward - списываем деньги у цели
+                    const stolenAmount = Math.abs(challenge.reward);
+                    
+                    db.run(`UPDATE teams SET balance = balance - ? WHERE id = ?`, [stolenAmount, targetTeamId]);
+                    db.run(`INSERT INTO transactions (team_id, amount, type, description) VALUES (?, ?, ?, ?)`,
+                        [targetTeamId, -stolenAmount, 'mischief_stolen', `Пакость: украдено командой ${req.session.user.team_name}`]);
 
-                // Помечаем задание выполненным
-                db.run(`UPDATE user_challenges SET status = 'completed' WHERE user_id = ? AND challenge_id = ?`, 
-                    [userId, challengeId]);
+                    db.run(`UPDATE teams SET balance = balance + ? WHERE id = ?`, [stolenAmount, userTeamId]);
+                    db.run(`INSERT INTO transactions (team_id, amount, type, description) VALUES (?, ?, ?, ?)`,
+                        [userTeamId, stolenAmount, 'mischief_gained', `Пакость: украдено у команды ${targetTeamId}`]);
 
-                // Получаем обновленные балансы
-                db.get(`SELECT balance FROM teams WHERE id = ?`, [userTeamId], (err, userTeam) => {
-                    db.get(`SELECT name FROM teams WHERE id = ?`, [targetTeamId], (err, targetTeam) => {
-                        res.json({ 
-                            success: true, 
-                            message: `Пакость выполнена! Украдено ${stolenAmount} руб у команды ${targetTeam.name}`,
-                            newBalance: userTeam.balance
+                    // Помечаем задание выполненным
+                    db.run(`UPDATE user_challenges SET status = 'completed' WHERE user_id = ? AND challenge_id = ?`, 
+                        [userId, challengeId]);
+
+                    // ВАЖНО: Добавляем пакость в used_challenges чтобы она не выпадала повторно сразу
+                    db.run(`INSERT OR IGNORE INTO used_challenges (user_id, challenge_id) VALUES (?, ?)`, 
+                        [userId, challengeId], function(err) {
+                        if (err) {
+                            console.error('Error adding to used_challenges:', err);
+                        }
+                        
+                        db.get(`SELECT balance FROM teams WHERE id = ?`, [userTeamId], (err, userTeam) => {
+                            db.get(`SELECT name FROM teams WHERE id = ?`, [targetTeamId], (err, targetTeam) => {
+                                res.json({ 
+                                    success: true, 
+                                    message: `Пакость выполнена! Украдено ${stolenAmount} руб у команды ${targetTeam.name}`,
+                                    newBalance: userTeam.balance,
+                                    shouldRefreshCards: true
+                                });
+                            });
                         });
                     });
-                });
+                } else {
+                    // Пакость с положительным reward - просто активируем задание
+                    // ВАЖНО: Добавляем пакость в used_challenges чтобы она не выпадала повторно сразу
+                    db.run(`INSERT OR IGNORE INTO used_challenges (user_id, challenge_id) VALUES (?, ?)`, 
+                        [userId, challengeId], function(err) {
+                        if (err) {
+                            console.error('Error adding to used_challenges:', err);
+                        }
+                        
+                        db.get(`SELECT balance FROM teams WHERE id = ?`, [userTeamId], (err, userTeam) => {
+                            res.json({ 
+                                success: true, 
+                                message: 'Пакость активирована!',
+                                newBalance: userTeam.balance,
+                                shouldRefreshCards: true
+                            });
+                        });
+                    });
+                }
             } else {
-                res.json({ success: true });
+                res.status(400).json({ error: 'Это не пакость' });
             }
         });
     });
@@ -464,7 +480,6 @@ app.get('/api/challenges/available', (req, res) => {
             let excludeCondition = '';
             
             if (availableCount > 6) {
-                // ИСКЛЮЧАЕМ ТОЛЬКО НЕ-ПАКОСТИ из used_challenges
                 db.all(`SELECT uc.challenge_id, c.rarity 
                         FROM used_challenges uc 
                         JOIN challenges c ON uc.challenge_id = c.id 
@@ -504,7 +519,6 @@ function generateChallengesForUser(userId, excludeCondition, res) {
 
             const selectedChallenges = generateChallengeSet(allChallenges, probabilities);
             
-            // НЕ ЗАПИСЫВАЕМ ПАКОСТИ в used_challenges (они могут выпадать повторно)
             const nonTrollChallenges = selectedChallenges.filter(challenge => challenge.rarity !== 'troll');
             
             if (nonTrollChallenges.length > 0) {
@@ -520,7 +534,7 @@ function generateChallengesForUser(userId, excludeCondition, res) {
     });
 }
 
-// Обновленная функция выбора задания - для пакости требует выбора цели
+// ИСПРАВЛЕННАЯ функция выбора задания
 app.post('/api/challenges/select', (req, res) => {
     const { challengeId } = req.body;
     const userId = req.session.user.id;
@@ -532,8 +546,8 @@ app.post('/api/challenges/select', (req, res) => {
     db.get(`SELECT * FROM challenges WHERE id = ?`, [challengeId], (err, challenge) => {
         if (err) return res.status(500).json({ error: 'Database error' });
 
-        if (challenge.rarity === 'troll' && challenge.reward < 0) {
-            // Для пакости возвращаем информацию что нужно выбрать цель
+        // ВАЖНОЕ ИСПРАВЛЕНИЕ: для ВСЕХ пакостей требуем выбор цели
+        if (challenge.rarity === 'troll') {
             return res.json({ 
                 success: true, 
                 requiresTarget: true,
@@ -546,11 +560,6 @@ app.post('/api/challenges/select', (req, res) => {
         db.serialize(() => {
             db.run(`INSERT INTO user_challenges (user_id, challenge_id, status) VALUES (?, ?, 'active')`, 
                 [userId, challengeId]);
-
-            if (challenge && challenge.rarity === 'troll') {
-                db.run(`UPDATE user_challenges SET status = 'completed' WHERE user_id = ? AND challenge_id = ?`, 
-                    [userId, challengeId]);
-            }
         });
 
         res.json({ success: true, requiresTarget: false });
@@ -642,7 +651,6 @@ app.post('/api/cards/generate', (req, res) => {
             let excludeCondition = '';
             
             if (availableCount > 6) {
-                // ИСКЛЮЧАЕМ ТОЛЬКО НЕ-ПАКОСТИ из used_challenges
                 db.all(`SELECT uc.challenge_id, c.rarity 
                         FROM used_challenges uc 
                         JOIN challenges c ON uc.challenge_id = c.id 
@@ -682,7 +690,6 @@ function generateInitialChallenges(userId, excludeCondition, res) {
 
             const selectedChallenges = generateChallengeSet(allChallenges, probabilities);
             
-            // НЕ ЗАПИСЫВАЕМ ПАКОСТИ в used_challenges (они могут выпадать повторно)
             const nonTrollChallenges = selectedChallenges.filter(challenge => challenge.rarity !== 'troll');
             
             if (nonTrollChallenges.length > 0) {
@@ -900,15 +907,34 @@ app.post('/api/moderator/reset-challenges', (req, res) => {
 });
 
 app.get('/api/leaderboard', (req, res) => {
-    db.all(`SELECT name, balance, completed_challenges FROM teams ORDER BY balance DESC, completed_challenges DESC`, 
-        (err, teams) => {
-        if (err) return res.status(500).json({ error: 'Database error' });
-        res.json(teams);
-    });
+  console.log('📊 Leaderboard endpoint called');
+  
+  db.all(`SELECT id, name, balance, completed_challenges FROM teams ORDER BY balance DESC, completed_challenges DESC`, 
+    (err, teams) => {
+    if (err) {
+      console.error('❌ Database error in leaderboard:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    
+    console.log('✅ Leaderboard teams from DB:', teams);
+    
+    if (!teams || teams.length === 0) {
+      console.log('⚠️ No teams found, creating default teams');
+      const defaultTeams = [
+        { id: 1, name: 'Bratishkinoff', balance: 100000, completed_challenges: 0 },
+        { id: 2, name: 'Shadowkek', balance: 100000, completed_challenges: 0 },
+        { id: 3, name: 'Levsha', balance: 100000, completed_challenges: 0 },
+        { id: 4, name: 'Recrent', balance: 100000, completed_challenges: 0 }
+      ];
+      return res.json(defaultTeams);
+    }
+    
+    res.json(teams);
+  });
 });
 
-// Запуск сервера
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📊 API endpoints available at http://localhost:${PORT}/api/`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🌐 Server accessible from network: http://192.168.0.52:${PORT}`);
+  console.log(`📊 API endpoints available at http://192.168.0.52:${PORT}/api/`);
 });
