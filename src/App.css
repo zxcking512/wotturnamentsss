@@ -15,6 +15,11 @@ body {
 .App {
   min-height: 100vh;
   position: relative;
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
 }
 
 .header-container {
@@ -23,21 +28,7 @@ body {
   width: 100%;
 }
 
-.main-content {
-  min-height: calc(100vh - 80px);
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 100;
-}
-
-.page-container {
-  min-height: 100vh;
-  padding: 20px;
-  position: relative;
-  z-index: 1;
-}
+/* УДАЛИЛ main-content и page-container которые ломали ширину */
 
 h1, h2, h3, h4, h5, h6 {
   color: #f0a500;
@@ -110,16 +101,6 @@ input:focus, select:focus, textarea:focus {
 input::placeholder {
   color: #a0aec0;
 }
-
-/* ⚠️ УДАЛИЛ ЭТОТ БЛОК СТИЛЕЙ ДЛЯ .card - ОНИ КОНФЛИКТУЮТ С КАРТОЧКАМИ */
-/* .card {
-  background: rgba(45, 55, 72, 0.9);
-  border: 2px solid #f0a500;
-  border-radius: 10px;
-  padding: 20px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-} */
 
 table {
   width: 100%;
@@ -264,81 +245,6 @@ tr:hover td {
   100% { transform: rotate(360deg); }
 }
 
-/* Debug styles (development only) */
-.debug-info {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #00ff00;
-  padding: 10px;
-  border-radius: 5px;
-  font-family: monospace;
-  font-size: 12px;
-  z-index: 9999;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .page-container {
-    padding: 10px;
-  }
-  
-  .main-content {
-    padding: 10px;
-  }
-  
-  h1 {
-    font-size: 2rem;
-  }
-  
-  h2 {
-    font-size: 1.5rem;
-  }
-  
-  h3 {
-    font-size: 1.2rem;
-  }
-  
-  button {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-}
-
-/* App.css - ФИКС ДЛЯ РАСТЯЖКИ НА ВСЮ ШИРИНУ */
-.App {
-  width: 100vw !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow-x: hidden !important;
-}
-
-.header-container {
-  width: 100vw !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.main-content {
-  width: 100vw !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.main-page,
-.my-team-page,
-.moderator-page,
-.login-page {
-  width: 100vw !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
 /* Подключение шрифтов */
 @font-face {
   font-family: 'MT Sans LC Test 3 VF';
@@ -364,4 +270,697 @@ body {
   font-family: 'MT Sans LC Test 3 VF', Arial, sans-serif;
   margin: 0;
   padding: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
+/* MainPage.css - ФИКСИРОВАННЫЙ ПРАВЫЙ БЛОК */
+
+/* 🔥 СБРОС ОГРАНИЧЕНИЙ */
+body, html, #root, .app, .app-container {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+.main-page {
+  min-height: 100vh;
+  padding: 1rem !important;
+  padding-top: 0 !important;
+  position: relative;
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+/* 🎯 ГЛАВНЫЙ КОНТЕЙНЕР */
+.main-container {
+  display: flex !important;
+  gap: 2rem !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 auto !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  margin-top: 1rem !important;
+  padding: 0 1rem !important;
+}
+
+/* ◀️ ЛЕВАЯ КОЛОНКА */
+.left-column {
+  width: 285px !important;
+  flex-shrink: 0 !important;
+  margin-left: 0 !important;
+  margin-top: 60px !important;
+  display: flex;
+  justify-content: center;
+}
+
+/* ▶️ ПРАВАЯ КОЛОНКА */
+.right-column {
+  width: 285px !important;
+  flex-shrink: 0 !important;
+  margin-right: 0 !important;
+  margin-top: 60px !important;
+  display: flex;
+  justify-content: center;
+}
+
+/* ЛЕВЫЙ БЛОК "КАРТЫ И ДЕЙСТВИЯ" */
+.cards-actions-block {
+  display: flex;
+  width: 285px;
+  height: 360px;
+  padding: 40px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+  flex-shrink: 0;
+  border: 1px solid #FFF;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.30) 0%, rgba(69, 69, 69, 0.30) 100%);
+  backdrop-filter: blur(15px);
+  border-radius: 12px;
+}
+
+/* ПРАВЫЙ БЛОК "КОТЛЫ КОМАНД" - ПОЛНОСТЬЮ ПЕРЕПИСАН */
+.rating-block {
+  width: 285px;
+  height: 360px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid #FFF;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.30) 0%, rgba(69, 69, 69, 0.30) 100%);
+  backdrop-filter: blur(15px);
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+/* Заголовок блока */
+.block-title {
+  width: 205px;
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 23px;
+  font-style: normal;
+  font-weight: 350;
+  line-height: normal;
+  margin: 0;
+  text-align: left;
+}
+
+/* Разделительная линия */
+.title-divider {
+  width: 205px;
+  height: 1px;
+  background: #FFF;
+  margin: 0;
+}
+
+/* Контейнер для команд */
+.teams-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+/* Элемент команды */
+.team-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+}
+
+/* Название команды */
+.team-name {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 350;
+  line-height: 110%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Баланс команды */
+.team-balance {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: 110%;
+  margin: 0;
+  padding: 0;
+}
+
+/* ЛЕВЫЙ БЛОК СТИЛИ */
+.actions-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
+}
+
+.action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  background: transparent !important;
+}
+
+.action-name {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 350;
+  line-height: 110%;
+  margin: 0;
+  padding: 0;
+}
+
+.action-reward {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: 110%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Особые стили для определенных элементов */
+.action-item:nth-child(1) .action-name {
+  width: 159px;
+}
+
+.action-item:nth-child(2) .action-name {
+  width: 159px;
+}
+
+.action-item:nth-child(4) .action-name {
+  width: 159px;
+}
+
+/* 🎯 ЦЕНТРАЛЬНАЯ КОЛОНКА */
+.center-column {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 🃏 КАРТОЧКИ - ОБНОВЛЕННАЯ СЕТКА */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem !important;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 1000px !important;
+  justify-self: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  align-items: start;
+  justify-items: center;
+}
+
+/* БАЛАНС */
+.balance-display {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 22px;
+  font-weight: 350;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+/* Блок замены карт */
+.replace-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  width: 100%;
+  max-width: 320px;
+}
+
+.replace-btn {
+  width: 100%;
+  height: 45px;
+  background: rgba(255, 80, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: none;
+}
+
+.replace-btn:hover {
+  background: rgba(255, 106, 0, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 80, 0, 0.4);
+}
+
+.replace-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.replace-text {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 100;
+}
+
+.replace-cost {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.cost-text {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 100;
+  text-align: center;
+}
+
+.cost-amount {
+  color: #FD9A33;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 350;
+}
+
+.no-teams-message {
+  color: #FFF;
+  text-align: center;
+  padding: 10px;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 14px;
+  opacity: 0.7;
+  width: 100%;
+}
+
+/* Сообщения */
+.successMessage {
+  background: rgba(0, 255, 0, 0.2);
+  color: #88ff88;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 15px auto;
+}
+
+.error-message {
+  background: rgba(255, 0, 0, 0.2);
+  color: #ff8888;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 15px auto;
+}
+
+.loading {
+  color: #FFF;
+  font-size: 18px;
+  text-align: center;
+  margin-top: 80px;
+}
+
+.error-container {
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.retry-btn {
+  background: rgba(255, 80, 0, 0.8);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 0.8rem;
+}
+
+.no-cards-message {
+  text-align: center;
+  color: #FFF;
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: rgba(255, 80, 0, 0.1);
+}
+
+.active-task-notification {
+  text-align: center;
+  color: #FFF;
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: rgba(255, 80, 0, 0.1);
+}
+
+.notification-content h2 {
+  color: #FF5000;
+  margin-bottom: 0.8rem;
+}
+
+.go-to-team-btn {
+  background: #FF5000;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 0.8rem;
+  font-size: 14px;
+}
+
+/* МОДАЛКА ДЛЯ ПАКОСТИ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin-bottom: 0.8rem;
+  color: #333;
+  font-size: 18px;
+}
+
+.mischief-select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.modal-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.modal-actions button:first-child {
+  background: #6b7280;
+  color: white;
+}
+
+/* Заблокированные карточки */
+.card.disabled {
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+  pointer-events: none !important;
+}
+
+.card.disabled .card-inner {
+  transform: none !important;
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 1400px) {
+  .main-container {
+    gap: 1.5rem;
+    padding: 0 0.5rem !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 950px !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .main-container {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .left-column {
+    width: 285px !important;
+    margin-top: 20px !important;
+  }
+  
+  .right-column {
+    width: 285px !important;
+    margin-top: 20px !important;
+  }
+  
+  .center-column {
+    order: -1;
+    width: 100%;
+    margin-bottom: 1.5rem;
+  }
+  
+  .cards-grid {
+    grid-template-columns: repeat(3, 300px);
+    justify-content: center;
+    max-width: 950px !important;
+  }
+}
+
+@media (max-width: 968px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 300px);
+    justify-content: center;
+    max-width: 650px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-page {
+    padding: 0.5rem !important;
+  }
+  
+  .main-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .left-column {
+    width: min(285px, 90vw) !important;
+    margin: 0 auto !important;
+  }
+  
+  .right-column {
+    width: min(285px, 90vw) !important;
+    margin: 0 auto !important;
+  }
+  
+  .center-column {
+    margin-bottom: 1rem;
+  }
+  
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: 650px;
+  }
+  
+  .cards-actions-block,
+  .rating-block {
+    height: 340px;
+    padding: 30px;
+  }
+}
+
+@media (max-width: 640px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+    max-width: 320px;
+    gap: 1.5rem;
+  }
+  
+  .balance-display {
+    font-size: 20px;
+    margin-bottom: 1rem;
+  }
+  
+  .replace-section {
+    max-width: 300px;
+  }
+  
+  .cards-actions-block,
+  .rating-block {
+    height: 320px;
+    padding: 25px;
+    gap: 15px;
+  }
+  
+  .block-title {
+    font-size: 21px;
+  }
+  
+  .action-name,
+  .action-reward,
+  .team-name,
+  .team-balance {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-page {
+    padding: 0.25rem !important;
+  }
+  
+  .main-container {
+    gap: 0.8rem;
+  }
+  
+  .cards-grid {
+    max-width: 300px;
+  }
+  
+  .balance-display {
+    font-size: 18px;
+  }
+  
+  .replace-btn {
+    height: 40px;
+  }
+  
+  .replace-text {
+    font-size: 14px;
+  }
+  
+  .cost-text {
+    font-size: 10px;
+  }
+  
+  .cost-amount {
+    font-size: 14px;
+  }
+  
+  .cards-actions-block,
+  .rating-block {
+    height: 300px;
+    padding: 20px;
+    gap: 12px;
+  }
+  
+  .block-title {
+    font-size: 19px;
+  }
+  
+  .action-name,
+  .action-reward,
+  .team-name,
+  .team-balance {
+    font-size: 14px;
+  }
+}
+/* App.css - ДОБАВЛЯЕМ В КОНЕЦ ФАЙЛА */
+
+/* ФИКС ДЛЯ ПРАВОГО БЛОКА */
+.main-content {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Убираем любые ограничения по ширине */
+.app-container, .page-container, .content-wrapper {
+  max-width: none !important;
+  width: 100% !important;
+}
+/* App.css - ДОБАВЛЯЕМ В КОНЕЦ ФАЙЛА */
+
+/* Стили для страницы авторизации */
+.login-page {
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Убираем шапку на странице авторизации */
+.login-page ~ .header-container {
+  display: none !important;
+}
+
+/* Гарантируем что видеофон будет на всю страницу */
+.video-background {
+  width: 100vw !important;
+  height: 100vh !important;
 }

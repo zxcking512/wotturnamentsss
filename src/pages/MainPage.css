@@ -1,5 +1,4 @@
-/* MainPage.css - ФИКС ОТСТУПОВ ДЛЯ КАРТОЧЕК */
-
+/* MainPage.css */
 /* 🔥 СБРОС ОГРАНИЧЕНИЙ */
 body, html, #root, .app, .app-container {
   max-width: none !important;
@@ -11,7 +10,7 @@ body, html, #root, .app, .app-container {
 
 .main-page {
   min-height: 100vh;
-  padding: 1rem !important; /* УМЕНЬШИЛ ОТСТУП */
+  padding: 1rem !important;
   padding-top: 0 !important;
   position: relative;
   max-width: none !important;
@@ -23,30 +22,205 @@ body, html, #root, .app, .app-container {
 /* 🎯 ГЛАВНЫЙ КОНТЕЙНЕР */
 .main-container {
   display: flex !important;
-  gap: 2rem !important; /* УМЕНЬШИЛ РАССТОЯНИЕ МЕЖДУ КОЛОНКАМИ */
+  gap: 2rem !important;
   width: 100% !important;
   max-width: none !important;
   margin: 0 auto !important;
   align-items: flex-start !important;
   justify-content: space-between !important;
-  margin-top: 1rem !important; /* УМЕНЬШИЛ ВЕРХНИЙ ОТСТУП */
-  padding: 0 1rem !important; /* УМЕНЬШИЛ БОКОВЫЕ ОТСТУПЫ */
+  margin-top: 1rem !important;
+  padding: 0 1rem !important;
 }
 
 /* ◀️ ЛЕВАЯ КОЛОНКА */
 .left-column {
-  width: 280px !important;
+  width: 350px !important;
   flex-shrink: 0 !important;
   margin-left: 0 !important;
-  margin-top: 80px !important; /* УМЕНЬШИЛ ОТСТУП СВЕРХУ */
+  margin-top: 60px !important;
+  display: flex;
+  justify-content: center;
 }
 
 /* ▶️ ПРАВАЯ КОЛОНКА */
 .right-column {
-  width: 280px !important;
+  width: 350px !important;
   flex-shrink: 0 !important;
   margin-right: 0 !important;
-  margin-top: 80px !important; /* УМЕНЬШИЛ ОТСТУП СВЕРХУ */
+  margin-top: 60px !important;
+  display: flex;
+  justify-content: center;
+}
+
+/* ЛЕВЫЙ БЛОК "КАРТЫ И ДЕЙСТВИЯ" */
+.cards-actions-block {
+  width: 1000px;
+  height: 500px !important;
+  padding:15px !important;
+  border: 1px solid #FFF;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.30) 0%, rgba(69, 69, 69, 0.30) 100%);
+  backdrop-filter: blur(15px);
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+.cards-actions-title {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 23px;
+  font-weight: 350;
+  margin: 0 0 15px 0;
+  width: 100%;
+  text-align: left;
+}
+
+.cards-actions-divider {
+  width: 100%;
+  height: 1px;
+  background: #FFF;
+  margin: 0 0 25px 0;
+}
+
+.cards-actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px !important;
+  width: 100%;
+}
+
+.action-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  width: 100%;
+  min-height: auto;
+}
+
+.action-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.action-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.action-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.action-name {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 350;
+  line-height: 1.2;
+  white-space: normal;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.action-reward {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 100;
+  line-height: 1.2;
+  margin: 0;
+}
+
+/* ПРАВЫЙ БЛОК "КОТЛЫ КОМАНД" */
+.teams-rating-block {
+  width: 350px !important;
+  height: 500px !important;
+  padding: 15px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  border: 1px solid #FFF !important;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.30) 0%, rgba(69, 69, 69, 0.30) 100%) !important;
+  backdrop-filter: blur(15px) !important;
+  border-radius: 12px !important;
+  box-sizing: border-box !important;
+}
+
+.teams-rating-title {
+  color: #FFF !important;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif !important;
+  font-size: 23px !important;
+  font-weight: 350 !important;
+  margin: 0 0 15px 0 !important;
+  text-align: left !important;
+  width: 100%;
+}
+
+.teams-rating-divider {
+  width: 100% !important;
+  height: 1px !important;
+  background: #FFF !important;
+  margin: 0 0 25px 0 !important;
+}
+
+.teams-rating-list {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 25px !important;
+  width: 100% !important;
+}
+
+.teams-rating-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  min-height: 38px;
+}
+
+.teams-rating-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.teams-rating-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.teams-rating-name {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 350;
+  line-height: 110%;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+}
+
+.teams-rating-balance {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 100;
+  line-height: 110%;
+  margin: 0;
+  padding: 0;
 }
 
 /* 🎯 ЦЕНТРАЛЬНАЯ КОЛОНКА */
@@ -61,122 +235,43 @@ body, html, #root, .app, .app-container {
   padding: 0 !important;
 }
 
-/* КАРТЫ И ДЕЙСТВИЯ */
-.cards-actions-block {
-  width: 100%;
-  min-height: 450px !important; /* УМЕНЬШИЛ ВЫСОТУ */
-  padding: 1rem; /* УМЕНЬШИЛ ВНУТРЕННИЕ ОТСТУПЫ */
-  background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.15) 0%, 
-    rgba(69, 69, 69, 0.20) 100%);
-  backdrop-filter: blur(15px);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem; /* УМЕНЬШИЛ РАССТОЯНИЕ МЕЖДУ ЭЛЕМЕНТАМИ */
-  justify-content: flex-start !important;
-}
-
-.block-title {
-  color: #FFF;
-  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 18px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
-  font-weight: 350;
-  line-height: 1.2;
-  margin-bottom: 0.3rem; /* УМЕНЬШИЛ ОТСТУП */
-  text-align: center !important;
-  white-space: nowrap;
-}
-
-.title-divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.3);
-  width: 100%;
-  margin-bottom: 0.3rem; /* УМЕНЬШИЛ ОТСТУП */
-}
-
-.action-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center !important;
-  width: 100%;
-  padding: 0.3rem 0; /* УМЕНЬШИЛ ВЕРТИКАЛЬНЫЕ ОТСТУПЫ */
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  gap: 0.1rem;
-  background: transparent !important;
-}
-
-.action-item:last-child {
-  border-bottom: none;
-}
-
-.action-name {
-  color: #FFF;
-  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 13px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
-  font-weight: 350;
-  line-height: 1.2;
-  white-space: nowrap;
-  width: 100%;
-  text-align: center !important;
-  background: transparent !important;
-  margin: 0;
-  padding: 0;
-}
-
-.action-reward {
-  color: #FFF;
-  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 13px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
-  font-weight: 100;
-  line-height: 1.2;
-  white-space: nowrap;
-  width: 100%;
-  text-align: center !important;
-  background: transparent !important;
-  margin: 0;
-  padding: 0;
-}
-
-/* 🃏 КАРТОЧКИ - ФИКС ВЫСОТЫ */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem !important; /* УМЕНЬШИЛ РАССТОЯНИЕ МЕЖДУ КАРТОЧКАМИ */
-  margin-bottom: 1.5rem; /* УМЕНЬШИЛ ОТСТУП СНИЗУ */
+  gap: 1.5rem !important;
+  margin-bottom: 1.5rem;
   width: 100%;
-  max-width: 950px !important;
+  max-width: 1000px !important;
   justify-self: center !important;
   margin-left: auto !important;
   margin-right: auto !important;
-  align-items: start; /* ВЫРАВНИВАЕМ ПО ВЕРХУ */
+  align-items: start;
+  justify-items: center;
 }
 
-/* БАЛАНС */
 .balance-display {
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 22px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
+  font-size: 22px;
   font-weight: 350;
-  margin-bottom: 1.5rem; /* УМЕНЬШИЛ ОТСТУП */
+  margin-bottom: 1.5rem;
   text-align: center;
   width: 100%;
 }
 
-/* Блок замены карт */
 .replace-section {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 1.5rem; /* УМЕНЬШИЛ ОТСТУП */
+  margin-top: 1.5rem;
   width: 100%;
   max-width: 320px;
 }
 
 .replace-btn {
   width: 100%;
-  height: 45px; /* УМЕНЬШИЛ ВЫСОТУ */
+  height: 45px;
   background: rgba(255, 80, 0, 0.9);
   display: flex;
   align-items: center;
@@ -203,7 +298,7 @@ body, html, #root, .app, .app-container {
 .replace-text {
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 15px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
+  font-size: 15px;
   font-weight: 100;
 }
 
@@ -218,7 +313,7 @@ body, html, #root, .app, .app-container {
 .cost-text {
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 11px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
+  font-size: 11px;
   font-weight: 100;
   text-align: center;
 }
@@ -226,125 +321,104 @@ body, html, #root, .app, .app-container {
 .cost-amount {
   color: #FD9A33;
   font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 16px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
+  font-size: 16px;
   font-weight: 350;
-}
-
-/* ПРАВАЯ КОЛОНКА */
-.rating-block {
-  width: 100%;
-  min-height: 450px !important; /* УМЕНЬШИЛ ВЫСОТУ */
-  padding: 1rem; /* УМЕНЬШИЛ ВНУТРЕННИЕ ОТСТУПЫ */
-  background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.15) 0%, 
-    rgba(69, 69, 69, 0.20) 100%);
-  backdrop-filter: blur(15px);
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem; /* УМЕНЬШИЛ РАССТОЯНИЕ МЕЖДУ ЭЛЕМЕНТАМИ */
-  justify-content: flex-start !important;
-}
-
-.teams-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  width: 100%;
 }
 
 .no-teams-message {
   color: #FFF;
   text-align: center;
-  padding: 15px; /* УМЕНЬШИЛ ОТСТУПЫ */
+  padding: 10px;
   font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 14px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
+  font-size: 14px;
   opacity: 0.7;
+  width: 100%;
 }
 
-/* Сообщения */
 .successMessage {
   background: rgba(0, 255, 0, 0.2);
   color: #88ff88;
-  padding: 12px; /* УМЕНЬШИЛ ОТСТУПЫ */
+  padding: 12px;
   border-radius: 8px;
-  margin-bottom: 15px; /* УМЕНЬШИЛ ОТСТУП */
+  margin-bottom: 15px;
   text-align: center;
-  font-size: 14px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
+  font-size: 14px;
   backdrop-filter: blur(10px);
   width: 100%;
   max-width: 400px;
-  margin: 0 auto 15px auto; /* УМЕНЬШИЛ ОТСТУП */
+  margin: 0 auto 15px auto;
 }
 
 .error-message {
   background: rgba(255, 0, 0, 0.2);
   color: #ff8888;
-  padding: 12px; /* УМЕНЬШИЛ ОТСТУПЫ */
+  padding: 12px;
   border-radius: 8px;
-  margin-bottom: 15px; /* УМЕНЬШИЛ ОТСТУП */
+  margin-bottom: 15px;
   text-align: center;
-  font-size: 14px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
+  font-size: 14px;
   backdrop-filter: blur(10px);
   width: 100%;
   max-width: 400px;
-  margin: 0 auto 15px auto; /* УМЕНЬШИЛ ОТСТУП */
+  margin: 0 auto 15px auto;
 }
 
 .loading {
   color: #FFF;
-  font-size: 18px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
+  font-size: 18px;
   text-align: center;
-  margin-top: 80px; /* УМЕНЬШИЛ ОТСТУП */
+  margin-top: 80px;
 }
 
 .error-container {
   text-align: center;
-  margin: 1.5rem 0; /* УМЕНЬШИЛ ОТСТУПЫ */
+  margin: 1.5rem 0;
 }
 
 .retry-btn {
   background: rgba(255, 80, 0, 0.8);
   color: white;
   border: none;
-  padding: 8px 16px; /* УМЕНЬШИЛ ОТСТУПЫ */
+  padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 0.8rem; /* УМЕНЬШИЛ ОТСТУП */
+  margin-top: 0.8rem;
 }
 
 .no-cards-message {
   text-align: center;
   color: #FFF;
-  margin: 1.5rem 0; /* УМЕНЬШИЛ ОТСТУПЫ */
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: rgba(255, 80, 0, 0.1);
 }
 
 .active-task-notification {
   text-align: center;
   color: #FFF;
-  margin: 1.5rem 0; /* УМЕНЬШИЛ ОТСТУПЫ */
-  padding: 1.5rem; /* УМЕНЬШИЛ ОТСТУПЫ */
+  margin: 1.5rem 0;
+  padding: 1.5rem;
   border-radius: 12px;
   background: rgba(255, 80, 0, 0.1);
 }
 
 .notification-content h2 {
   color: #FF5000;
-  margin-bottom: 0.8rem; /* УМЕНЬШИЛ ОТСТУП */
+  margin-bottom: 0.8rem;
 }
 
 .go-to-team-btn {
   background: #FF5000;
   color: white;
   border: none;
-  padding: 10px 20px; /* УМЕНЬШИЛ ОТСТУПЫ */
+  padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 0.8rem; /* УМЕНЬШИЛ ОТСТУП */
-  font-size: 14px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
+  margin-top: 0.8rem;
+  font-size: 14px;
 }
 
-/* МОДАЛКА ДЛЯ ПАКОСТИ */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -360,40 +434,40 @@ body, html, #root, .app, .app-container {
 
 .modal-content {
   background: white;
-  padding: 1.5rem; /* УМЕНЬШИЛ ОТСТУПЫ */
+  padding: 1.5rem;
   border-radius: 12px;
-  max-width: 380px; /* УМЕНЬШИЛ ШИРИНУ */
+  max-width: 380px;
   width: 90%;
   text-align: center;
 }
 
 .modal-content h3 {
-  margin-bottom: 0.8rem; /* УМЕНЬШИЛ ОТСТУП */
+  margin-bottom: 0.8rem;
   color: #333;
-  font-size: 18px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
+  font-size: 18px;
 }
 
 .mischief-select {
   width: 100%;
-  padding: 8px; /* УМЕНЬШИЛ ОТСТУПЫ */
-  margin-bottom: 0.8rem; /* УМЕНЬШИЛ ОТСТУП */
+  padding: 8px;
+  margin-bottom: 0.8rem;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 14px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
+  font-size: 14px;
 }
 
 .modal-actions {
   display: flex;
-  gap: 0.8rem; /* УМЕНЬШИЛ РАССТОЯНИЕ */
+  gap: 0.8rem;
   justify-content: center;
 }
 
 .modal-actions button {
-  padding: 8px 16px; /* УМЕНЬШИЛ ОТСТУПЫ */
+  padding: 8px 16px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px; /* УМЕНЬШИЛ РАЗМЕР ШРИФТА */
+  font-size: 14px;
 }
 
 .modal-actions button:first-child {
@@ -401,7 +475,6 @@ body, html, #root, .app, .app-container {
   color: white;
 }
 
-/* Заблокированные карточки */
 .card.disabled {
   cursor: not-allowed !important;
   opacity: 0.6 !important;
@@ -424,7 +497,7 @@ body, html, #root, .app, .app-container {
   .cards-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
-    max-width: 800px !important;
+    max-width: 950px !important;
   }
 }
 
@@ -434,10 +507,14 @@ body, html, #root, .app, .app-container {
     justify-content: center;
   }
   
-  .left-column,
+  .left-column {
+    width: 350px !important;
+    margin-top: 20px !important;
+  }
+  
   .right-column {
-    width: 240px;
-    margin-top: 0 !important;
+    width: 350px !important;
+    margin-top: 20px !important;
   }
   
   .center-column {
@@ -447,9 +524,17 @@ body, html, #root, .app, .app-container {
   }
   
   .cards-grid {
-    grid-template-columns: repeat(3, 180px);
+    grid-template-columns: repeat(3, 300px);
     justify-content: center;
-    max-width: 600px !important;
+    max-width: 950px !important;
+  }
+}
+
+@media (max-width: 968px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 300px);
+    justify-content: center;
+    max-width: 650px !important;
   }
 }
 
@@ -464,9 +549,13 @@ body, html, #root, .app, .app-container {
     gap: 1rem;
   }
   
-  .left-column,
+  .left-column {
+    width: min(350px, 90vw) !important;
+    margin: 0 auto !important;
+  }
+  
   .right-column {
-    width: min(300px, 90vw) !important;
+    width: min(350px, 90vw) !important;
     margin: 0 auto !important;
   }
   
@@ -475,37 +564,172 @@ body, html, #root, .app, .app-container {
   }
   
   .cards-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.8rem;
-    max-width: 500px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: 650px;
+  }
+  
+  .cards-actions-block,
+  .teams-rating-block {
+    height: 450px;
+    padding: 40px;
   }
 }
 
 @media (max-width: 640px) {
   .cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 400px;
-  }
-}
-
-@media (max-width: 480px) {
-  .cards-grid {
     grid-template-columns: 1fr;
+    max-width: 320px;
+    gap: 1.5rem;
+  }
+  
+  .balance-display {
+    font-size: 20px;
+    margin-bottom: 1rem;
+  }
+  
+  .replace-section {
     max-width: 300px;
   }
   
   .cards-actions-block,
-  .rating-block {
-    min-height: 350px !important;
-    padding: 0.8rem;
+  .teams-rating-block {
+    height: 400px;
+    padding: 30px;
+    gap: 15px;
   }
   
-  .block-title {
-    font-size: 16px;
+  .teams-rating-title,
+  .cards-actions-title {
+    font-size: 21px;
   }
   
   .action-name,
-  .action-reward {
-    font-size: 12px;
+  .action-reward,
+  .teams-rating-name,
+  .teams-rating-balance {
+    font-size: 15px;
   }
+  
+  .action-icon,
+  .teams-rating-icon {
+    width: 25px !important;
+    height: 25px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-page {
+    padding: 0.25rem !important;
+  }
+  
+  .main-container {
+    gap: 0.8rem;
+  }
+  
+  .cards-grid {
+    max-width: 300px;
+  }
+  
+  .balance-display {
+    font-size: 18px;
+  }
+  
+  .replace-btn {
+    height: 40px;
+  }
+  
+  .replace-text {
+    font-size: 14px;
+  }
+  
+  .cost-text {
+    font-size: 10px;
+  }
+  
+  .cost-amount {
+    font-size: 14px;
+  }
+  
+  .cards-actions-block,
+  .teams-rating-block {
+    height: 380px;
+    padding: 25px;
+    gap: 12px;
+  }
+  
+  .teams-rating-title,
+  .cards-actions-title {
+    font-size: 19px;
+  }
+  
+  .action-name,
+  .action-reward,
+  .teams-rating-name,
+  .teams-rating-balance {
+    font-size: 14px;
+  }
+  
+  .action-icon,
+  .teams-rating-icon {
+    width: 22px !important;
+    height: 22px !important;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  color: white;
+  line-height: 1.6;
+  background: #121212;
+  overflow-x: hidden;
+}
+
+.App {
+  min-height: 100vh;
+  position: relative;
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+.header-container {
+  position: relative;
+  z-index: 1000;
+  width: 100%;
+}
+
+/* Подключение шрифтов */
+@font-face {
+  font-family: 'MT Sans LC Test 3 VF';
+  src: url('/fonts/MTSansLCTest3VF.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MT Sans LC Test 3 VF';
+  src: url('/fonts/MTSansVF.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  font-family: 'MT Sans LC Test 3 VF', Arial, sans-serif;
+}
+
+body {
+  font-family: 'MT Sans LC Test 3 VF', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }

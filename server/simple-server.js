@@ -14,11 +14,25 @@ const PORT = process.env.PORT || 3001;
 
 // ПРОСТОЙ CORS - разрешаем localhost
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'http://192.168.0.60:5173',  // IP ноута
+      'http://192.168.0.52:5173'   // IP ПК
+    ];
+    
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin']
 }));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -569,6 +583,11 @@ app.post('/api/challenges/replace', (req, res) => {
 
     console.log('Replace request:', { userId, teamId, cost });
 
+    // ЕСЛИ МОДЕРАТОР - НЕ РАЗРЕШАЕМ ЗАМЕНУ КАРТ
+    if (req.session.user.role === 'moderator') {
+        return res.status(400).json({ error: 'Модератор не может заменять карты' });
+    }
+
     if (!teamId) {
         return res.status(400).json({ error: 'Команда не найдена для пользователя' });
     }
@@ -618,6 +637,11 @@ app.post('/api/challenges/replace', (req, res) => {
 app.get('/api/cards/current', (req, res) => {
     const userId = req.session.user.id;
 
+    // ЕСЛИ МОДЕРАТОР - ВОЗВРАЩАЕМ ПУСТОЙ СПИСОК
+    if (req.session.user.role === 'moderator') {
+        return res.json({ cards: [] });
+    }
+
     db.all(`SELECT uc.*, c.title, c.description, c.rarity, c.reward 
             FROM used_challenges uc
             JOIN challenges c ON uc.challenge_id = c.id
@@ -632,6 +656,11 @@ app.get('/api/cards/current', (req, res) => {
 
 app.post('/api/cards/generate', (req, res) => {
     const userId = req.session.user.id;
+
+    // ЕСЛИ МОДЕРАТОР - НЕ РАЗРЕШАЕМ ГЕНЕРАЦИЮ КАРТ
+    if (req.session.user.role === 'moderator') {
+        return res.status(400).json({ error: 'Модератор не может генерировать карты' });
+    }
 
     db.all(`SELECT COUNT(*) as count FROM used_challenges WHERE user_id = ? AND replaced = 0`, 
         [userId], (err, result) => {
@@ -701,9 +730,21 @@ function generateInitialChallenges(userId, excludeCondition, res) {
     });
 }
 
+// ИСПРАВЛЕННЫЙ API для получения данных команды - РАБОТАЕТ С МОДЕРАТОРОМ
 app.get('/api/teams/my-team', (req, res) => {
     const userId = req.session.user.id;
     const teamId = req.session.user.team_id;
+    const userRole = req.session.user.role;
+
+    // ЕСЛИ ПОЛЬЗОВАТЕЛЬ МОДЕРАТОР - ВОЗВРАЩАЕМ ПУСТЫЕ ДАННЫЕ
+    if (userRole === 'moderator') {
+        return res.json({
+            team: null,
+            activeChallenge: null,
+            cancelCount: 0,
+            isModerator: true
+        });
+    }
 
     if (!teamId) {
         return res.status(400).json({ error: 'Команда не найдена для пользователя' });
@@ -731,7 +772,8 @@ app.get('/api/teams/my-team', (req, res) => {
                 res.json({
                     team: team,
                     activeChallenge: activeChallenge,
-                    cancelCount: result ? result.cancel_count : 0
+                    cancelCount: result ? result.cancel_count : 0,
+                    isModerator: false
                 });
             });
         });
@@ -741,6 +783,11 @@ app.get('/api/teams/my-team', (req, res) => {
 app.post('/api/teams/complete-challenge', (req, res) => {
     const userId = req.session.user.id;
     const teamId = req.session.user.team_id;
+
+    // ЕСЛИ МОДЕРАТОР - НЕ РАЗРЕШАЕМ ВЫПОЛНЕНИЕ ЗАДАНИЙ
+    if (req.session.user.role === 'moderator') {
+        return res.status(400).json({ error: 'Модератор не может выполнять задания' });
+    }
 
     db.get(`SELECT uc.*, c.reward FROM user_challenges uc 
             JOIN challenges c ON uc.challenge_id = c.id 
@@ -760,6 +807,11 @@ app.post('/api/teams/complete-challenge', (req, res) => {
 app.post('/api/teams/cancel-challenge', (req, res) => {
     const userId = req.session.user.id;
     const teamId = req.session.user.team_id;
+
+    // ЕСЛИ МОДЕРАТОР - НЕ РАЗРЕШАЕМ ОТМЕНУ ЗАДАНИЙ
+    if (req.session.user.role === 'moderator') {
+        return res.status(400).json({ error: 'Модератор не может отменять задания' });
+    }
 
     db.get(`SELECT uc.*, c.reward FROM user_challenges uc 
             JOIN challenges c ON uc.challenge_id = c.id 

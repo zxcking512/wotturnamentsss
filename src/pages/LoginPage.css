@@ -1,231 +1,326 @@
+/* LoginPage.css - ДОБАВЛЯЕМ ОТСТУПЫ МЕЖДУ БЛОКАМИ */
+
 .login-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
   position: relative;
   z-index: 1;
-  /* УБИРАЕМ градиентный фон */
 }
 
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+  gap: 30px;
 }
 
-/* Основной блок */
-.login-card {
-  width: 500px;
-  height: 479px;
-  flex-shrink: 0;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.95); /* Полупрозрачный белый */
-  padding: 2rem;
+/* Основной блок авторизации - ДОБАВЛЯЕМ ОТСТУПЫ МЕЖДУ ЭЛЕМЕНТАМИ */
+.login-auth-block {
   display: flex;
+  width: 400px;
+  padding: 40px;
   flex-direction: column;
   align-items: center;
-  backdrop-filter: blur(10px); /* Стеклянный эффект */
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  gap: 20px; /* ОТСТУПЫ МЕЖДУ ВСЕМИ ЭЛЕМЕНТАМИ ВНУТРИ БЛОКА */
+  border: 1px solid #FFF;
+  background: linear-gradient(180deg, rgba(49, 49, 49, 0.80) 0%, rgba(15, 15, 15, 0.90) 100%);
+  backdrop-filter: blur(15px);
+  border-radius: 12px;
+  box-sizing: border-box;
 }
 
-/* Заголовок МИР ТАНКОВ */
-.login-header {
-  margin-bottom: 1rem;
+/* Блок с логотипом - УБИРАЕМ СЕРЫЙ ФОН */
+.login-logo-block {
+  width: 290px;
+  height: 165px;
+  aspect-ratio: 58/33;
+  background: url('/images/cards/logphoto/logoname.png') 50% / contain no-repeat;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin-bottom: 10px; /* ДОПОЛНИТЕЛЬНЫЙ ОТСТУП СНИЗУ */
 }
 
-.game-title {
-  width: 283.696px;
-  height: 58px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #000;
+/* Текст инструкции */
+.login-instruction {
+  width: 245px;
+  color: #FFF;
   text-align: center;
   font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 32px;
-  font-weight: bold;
-  font-style: normal;
-  line-height: normal;
-  background: transparent;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Подзаголовок */
-.login-subtitle {
-  width: 264px;
-  height: 40px;
-  flex-shrink: 0;
-  color: #000;
-  text-align: center;
-  font-family: "MT Sans LC Test 3 VF";
   font-size: 16px;
   font-style: normal;
   font-weight: 100;
   line-height: normal;
-  margin-bottom: 2rem;
+  margin: 0;
+  margin-bottom: 15px; /* ОТСТУП ПОД ИНСТРУКЦИЕЙ */
 }
 
+/* Форма - ДОБАВЛЯЕМ ОТСТУПЫ МЕЖДУ ПОЛЯМИ ВВОДА */
 .login-form {
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.input-group {
+  gap: 15px; /* ОТСТУПЫ МЕЖДУ ПОЛЯМИ ВВОДА В ФОРМЕ */
   width: 100%;
-  display: flex;
-  justify-content: center;
 }
 
-/* Поля ввода */
-.login-input {
-  width: 400px;
+/* Блок для логина */
+.login-input-block {
+  width: 320px;
   height: 60px;
   flex-shrink: 0;
-  border-radius: 8px;
-  border: 2px solid #4a5568;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 0 1rem;
-  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 16px;
-  color: #000;
+  border: 1px solid #FFF;
+  background: rgba(57, 57, 57, 0.40);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
   box-sizing: border-box;
-  backdrop-filter: blur(5px);
-  transition: all 0.3s ease;
 }
 
-.login-input::placeholder {
-  color: #666;
+/* Блок для пароля */
+.login-password-block {
+  width: 320px;
+  height: 60px;
+  flex-shrink: 0;
+  border: 1px solid #FFF;
+  background: rgba(57, 57, 57, 0.40);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* Поле ввода логина */
+.login-username-input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: #FFF;
   font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
   font-size: 16px;
-}
-
-.login-input:focus {
-  outline: none;
-  border-color: #f0a500;
-  box-shadow: 0 0 0 3px rgba(240, 165, 0, 0.2);
-  background: rgba(255, 255, 255, 0.95);
-}
-
-/* Сообщение об ошибке */
-.error-message {
-  width: 264px;
-  height: 40px;
-  flex-shrink: 0;
-  color: #e53e3e;
-  text-align: center;
-  font-family: "MT Sans LC Test 3 VF";
-  font-size: 14px;
   font-style: normal;
-  font-weight: 500;
+  font-weight: 100;
   line-height: normal;
+  outline: none;
+}
+
+.login-username-input::placeholder {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: normal;
+  opacity: 0.8;
+}
+
+/* Поле ввода пароля */
+.login-password-input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: normal;
+  outline: none;
+}
+
+.login-password-input::placeholder {
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: normal;
+  opacity: 0.8;
+}
+
+/* Кнопка входа */
+.login-submit-button {
+  width: 320px;
+  height: 63px;
+  flex-shrink: 0;
+  background: #FF5000;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0.5rem 0;
-  background: rgba(229, 62, 62, 0.1);
-  border-radius: 6px;
-  border: 1px solid rgba(229, 62, 62, 0.3);
-}
-
-.login-actions {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.login-button {
-  width: 400px;
-  height: 50px;
-  background: #f0a500;
-  color: #1a1f2b;
-  border: none;
-  border-radius: 8px;
-  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 16px;
-  font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border: 2px solid #f0a500;
+  border-radius: 4px;
+  margin-top: 10px; /* ОТСТУП СВЕРХУ ДЛЯ КНОПКИ */
 }
 
-.login-button:hover:not(:disabled) {
-  background: #e59a00;
+.login-submit-button:hover:not(:disabled) {
+  background: #FF3D00;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(240, 165, 0, 0.3);
 }
 
-.login-button:disabled {
+.login-submit-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background: #6b7280;
-  border-color: #6b7280;
+  transform: none;
 }
 
+/* Текст на кнопке */
+.login-button-text {
+  color: #FFF;
+  text-align: center;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: normal;
+}
 
-/* Адаптивность */
+/* Блок с лого МИР ТАНКОВ - ОТДЕЛЬНО ОТ ОСНОВНОГО БЛОКА */
+.login-mt-logo {
+  width: 219.838px;
+  height: 45.033px;
+  aspect-ratio: 219.84/45.03;
+  background: url('/images/cards/logphoto/Logo-mt.png') 50% / cover no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Сообщение об ошибке */
+.login-error-message {
+  color: #FF6B6B;
+  text-align: center;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: normal;
+  padding: 10px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 5px 0; /* ОТСТУПЫ ДЛЯ СООБЩЕНИЯ ОБ ОШИБКЕ */
+}
+
+/* Индикатор загрузки */
+.login-loading {
+  color: #FFF;
+  text-align: center;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: normal;
+}
+
+/* АДАПТИВНОСТЬ */
 @media (max-width: 768px) {
   .login-page {
     padding: 1rem;
   }
   
-  .login-card {
-    width: 100%;
-    max-width: 400px;
-    height: auto;
-    min-height: 479px;
+  .login-auth-block {
+    width: 350px;
+    padding: 30px;
+    gap: 15px;
   }
   
-  .login-input {
-    width: 100%;
-    max-width: 400px;
+  .login-form {
+    gap: 12px;
   }
   
-  .login-button {
-    width: 100%;
-    max-width: 400px;
+  .login-input-block,
+  .login-password-block,
+  .login-submit-button {
+    width: 280px;
   }
   
-  .test-account-group {
-    flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
+  .login-logo-block {
+    width: 250px;
+    height: 140px;
+  }
+  
+  .login-mt-logo {
+    width: 180px;
+    height: 37px;
   }
 }
 
 @media (max-width: 480px) {
-  .login-card {
-    padding: 1.5rem;
+  .login-auth-block {
+    width: 300px;
+    padding: 25px;
+    gap: 15px;
   }
   
-  .game-title {
-    width: 200px;
-    height: 40px;
-    font-size: 24px;
+  .login-form {
+    gap: 10px;
   }
   
-  .login-subtitle {
+  .login-input-block,
+  .login-password-block,
+  .login-submit-button {
+    width: 240px;
+    height: 55px;
+  }
+  
+  .login-submit-button {
+    height: 58px;
+  }
+  
+  .login-logo-block {
+    width: 220px;
+    height: 125px;
+  }
+  
+  .login-instruction {
     width: 100%;
-    height: auto;
-  }
-  
-  .login-input {
-    height: 50px;
     font-size: 14px;
   }
   
-  .login-button {
-    height: 45px;
+  .login-username-input,
+  .login-password-input {
     font-size: 14px;
+  }
+  
+  .login-username-input::placeholder,
+  .login-password-input::placeholder {
+    font-size: 14px;
+  }
+  
+  .login-button-text {
+    font-size: 18px;
+  }
+  
+  .login-mt-logo {
+    width: 150px;
+    height: 31px;
+  }
+}
+
+@media (max-width: 320px) {
+  .login-auth-block {
+    width: 280px;
+    padding: 20px;
+    gap: 12px;
+  }
+  
+  .login-form {
+    gap: 8px;
+  }
+  
+  .login-input-block,
+  .login-password-block,
+  .login-submit-button {
+    width: 220px;
   }
 }

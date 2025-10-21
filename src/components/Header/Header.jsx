@@ -6,7 +6,7 @@ import './Header.css';
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, teamData } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -21,16 +21,25 @@ const Header = () => {
     return new Intl.NumberFormat('ru-RU').format(balance) + ' руб.';
   };
 
+  // УЛУЧШЕННАЯ функция для обрезки длинного названия команды
+  const getTeamDisplayName = () => {
+    const teamName = user?.team_name || user?.username || '';
+    if (teamName.length > 15) {
+      return teamName.substring(0, 15) + '...';
+    }
+    return teamName;
+  };
+
   return (
     <header className="header">
       <div className="header-content">
         
-        {/* Логотип МИР ТАНКОВ */}
+        {/* Логотип МИР ТАНКОВ - ТЕПЕРЬ КАРТИНКА */}
         <div className="logo">
-          <div className="game-logo">МИР ТАНКОВ</div>
+          <div className="game-logo"></div>
         </div>
 
-        {/* Навигация */}
+        {/* Навигация - СДВИНУТА ПРАВЕЕ */}
         <nav className="navigation">
           <button 
             className={`nav-button ${isActive('/main') ? 'active' : ''}`}
@@ -60,9 +69,9 @@ const Header = () => {
           )}
         </nav>
 
-        {/* Информация о команде */}
+        {/* Информация о команде - БОЛЬШЕ МЕСТА */}
         <div className="team-info">
-          <div className="team-name">Команда {user?.team_name || user?.username}</div>
+          <div className="team-name">Команда {getTeamDisplayName()}</div>
           <button className="logout-button" onClick={handleLogout}>
             <span className="logout-text">Выйти из профиля</span>
             <svg className="logout-icon" width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -73,18 +82,18 @@ const Header = () => {
 
       </div>
 
-      {/* Котел команды */}
-      {user?.role === 'captain' && (
+      {/* Котел команды - ПОКАЗЫВАЕМ ТОЛЬКО НА СТРАНИЦЕ "ВЗЯТЬ ЗАДАНИЕ" */}
+      {user?.role === 'captain' && location.pathname === '/main' && (
         <div className="team-balance-container">
           <svg 
             className="balance-svg" 
             width="744" 
-            height="84" 
-            viewBox="0 0 744 84" 
+            height="50" 
+            viewBox="0 0 744 50" 
             fill="none"
           >
             <path 
-              d="M0 0H744L714 84H30L0 0Z" 
+              d="M0 0H744L714 50H30L0 0Z" 
               fill="url(#paint0_linear_445_327)" 
               fillOpacity="0.5"
             />
@@ -92,9 +101,9 @@ const Header = () => {
               <linearGradient 
                 id="paint0_linear_445_327" 
                 x1="356.5" 
-                y1="84" 
+                y1="50" 
                 x2="356.5" 
-                y2="-1.07347e-06" 
+                y2="0" 
                 gradientUnits="userSpaceOnUse"
               >
                 <stop stopColor="white"/>
@@ -103,7 +112,7 @@ const Header = () => {
             </defs>
           </svg>
           <div className="team-balance">
-            КОТЁЛ КОМАНДЫ: {formatBalance(user?.balance || 0)}
+            КОТЁЛ КОМАНДЫ: {formatBalance(teamData?.team?.balance || user?.balance || 0)}
           </div>
         </div>
       )}

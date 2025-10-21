@@ -1,8 +1,9 @@
+// MainPage.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../contexts/AuthContext";
 import api from '../services/api';
-import Card from '../components/Card/Card';
+import AnimatedCard from '../components/AnimatedCard/AnimatedCard';
 import './MainPage.css';
 
 const MainPage = () => {
@@ -16,8 +17,8 @@ const MainPage = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [teams, setTeams] = useState([]);
   const [myTeamData, setMyTeamData] = useState(null);
+  const [replacingCards, setReplacingCards] = useState(false);
   
-  // Для модалки пакости
   const [showMischiefModal, setShowMischiefModal] = useState(false);
   const [selectedMischiefCard, setSelectedMischiefCard] = useState(null);
   const [mischiefTeams, setMischiefTeams] = useState([]);
@@ -68,7 +69,12 @@ const MainPage = () => {
       } else {
         console.log('No active challenge, setting cards:', response.challenges);
         setHasActiveTask(false);
-        setCards(response.challenges || []);
+        const cardsWithAnimationState = (response.challenges || []).map((card, index) => ({
+          ...card,
+          isReplacing: false,
+          uniqueKey: `${card.id}_${index}_${Date.now()}`
+        }));
+        setCards(cardsWithAnimationState);
       }
     } catch (error) {
       console.error('Load challenges error:', error);
@@ -111,7 +117,6 @@ const MainPage = () => {
     }
   };
 
-  // Загрузка команд для пакости
   const loadTeamsForMischief = async () => {
     try {
       const teams = await api.getTeamsForMischief();
@@ -125,12 +130,10 @@ const MainPage = () => {
     if (!card || hasActiveTask || loading) return;
 
     if (card.rarity === 'troll') {
-      // Для пакости показываем модалку выбора команды
       setSelectedMischiefCard(card);
       await loadTeamsForMischief();
       setShowMischiefModal(true);
     } else {
-      // Для обычных заданий сразу выбираем
       try {
         console.log('Selecting challenge:', card.id);
         const response = await api.selectChallenge(card.id);
@@ -150,7 +153,6 @@ const MainPage = () => {
     }
   };
 
-  // Обработчик выполнения пакости
   const handleMischiefConfirm = async () => {
     if (!selectedMischiefCard || !selectedTargetTeam) {
       alert('Выберите команду для пакости!');
@@ -181,15 +183,26 @@ const MainPage = () => {
   };
 
   const handleReplaceCards = async () => {
-    if (hasActiveTask || loading) {
+    if (hasActiveTask || loading || replacingCards) {
       alert('Нельзя заменять карточки при активном задании!');
       return;
     }
 
     try {
+      setReplacingCards(true);
+      setLoading(true);
+      
+      setCards(prevCards => 
+        prevCards.map(card => ({ ...card, isReplacing: true }))
+      );
+      
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       const response = await api.replaceChallenges();
+      console.log('Replace cards response:', response);
+      
       if (response.success) {
-        await loadAllData();
+        await loadChallenges();
         setSuccessMessage('Карточки заменены! Спиcано 10 000 руб.');
         setTimeout(() => setSuccessMessage(''), 3000);
       }
@@ -200,7 +213,16 @@ const MainPage = () => {
       } else {
         setError('Ошибка при замене карточек: ' + (error.message || 'Неизвестная ошибка'));
       }
+      await loadChallenges();
+    } finally {
+      setLoading(false);
+      setReplacingCards(false);
     }
+  };
+
+  const handleCardReplaceComplete = (uniqueKey) => {
+    console.log(`Card ${uniqueKey} replace animation complete`);
+    setCards(prevCards => prevCards.filter(card => card.uniqueKey !== uniqueKey));
   };
 
   const formatBalance = (balance) => {
@@ -226,7 +248,7 @@ const MainPage = () => {
   };
 
   const renderCardsSection = () => {
-    if (loading) {
+    if (loading && !replacingCards) {
         return <div className="loading">Обновление карточек...</div>;
     }
 
@@ -245,7 +267,7 @@ const MainPage = () => {
       return renderActiveTaskBlock();
     }
 
-    if (cards.length === 0) {
+    if (cards.length === 0 && !replacingCards) {
       return (
         <div className="no-cards-message">
           <h3>Нет доступных заданий</h3>
@@ -260,12 +282,14 @@ const MainPage = () => {
     return (
       <>
         <div className="cards-grid">
-          {cards.map((card, index) => (
-            <Card
-              key={card.id || index}
+          {cards.map((card) => (
+            <AnimatedCard
+              key={card.uniqueKey}
               challenge={card}
               onSelect={handleTakeTask}
-              canSelect={!loading}
+              canSelect={!loading && !replacingCards}
+              isReplacing={card.isReplacing}
+              onReplaceComplete={() => handleCardReplaceComplete(card.uniqueKey)}
             />
           ))}
         </div>
@@ -274,9 +298,11 @@ const MainPage = () => {
           <button 
             onClick={handleReplaceCards}
             className="replace-btn"
-            disabled={loading || (myTeamData && myTeamData.team && myTeamData.team.balance < 10000)}
+            disabled={loading || replacingCards || (myTeamData && myTeamData.team && myTeamData.team.balance < 10000)}
           >
-            <span className="replace-text">Заменить карты*</span>
+            <span className="replace-text">
+              {replacingCards ? 'ЗАМЕНА...' : 'ЗАМЕНИТЬ КАРТЫ*'}
+            </span>
           </button>
           <div className="replace-cost">
             <span className="cost-text">*Стоимость каждой замены карт испытаний</span>
@@ -293,56 +319,81 @@ const MainPage = () => {
       
       <div className="main-container">
         
+        {/* ЛЕВЫЙ БЛОК - С ИКОНКАМИ */}
         <div className="left-column">
-          <div className="cards-actions-block">
-            <div className="block-title">КАРТЫ И ДЕЙСТВИЯ</div>
-            <div className="title-divider"></div>
-            
-            <div className="action-item">
-              <div className="action-name">ЭПИЧЕСКОЕ БЕЗУМСТВО</div>
-              <div className="action-reward">+50 000 руб.</div>
-            </div>
-            
-            <div className="action-item">
-              <div className="action-name">ПРОСТАЯ ШАЛОСТЬ</div>
-              <div className="action-reward">+5 000 руб.</div>
-            </div>
-            
-            <div className="action-item">
-              <div className="action-name">ПАКОСТЬ ПРОТИВНИКУ</div>
-              <div className="action-reward">-10 000 руб.</div>
-            </div>
-            
-            <div className="action-item">
-              <div className="action-name">ЗАМЕНА КАРТ</div>
-              <div className="action-reward">-10 000 руб.</div>
+  <div className="cards-actions-block">
+    <div className="cards-actions-title">КАРТЫ И ДЕЙСТВИЯ</div>
+    <div className="cards-actions-divider"></div>
+    
+    <div className="cards-actions-list">
+      <div className="action-item">
+        <div className="action-icon-container">
+          <img src="/images/icons/icon-1.svg" alt="Эпическое безумство" className="action-icon" />
+        </div>
+        <div className="action-text">
+          <div className="action-name">ЭПИЧЕСКОЕ БЕЗУМСТВО</div>
+          <div className="action-reward">+50 000 руб.</div>
+        </div>
+      </div>
+      
+      <div className="action-item">
+        <div className="action-icon-container">
+          <img src="/images/icons/icon-2.svg" alt="Простая шалость" className="action-icon" />
+        </div>
+        <div className="action-text">
+          <div className="action-name">ПРОСТАЯ ШАЛОСТЬ</div>
+          <div className="action-reward">+25 000 руб.</div>
+        </div>
+      </div>
+      
+      <div className="action-item">
+        <div className="action-icon-container">
+          <img src="/images/icons/icon-3.svg" alt="Пакость противнику" className="action-icon" />
+        </div>
+        <div className="action-text">
+          <div className="action-name">ПАКОСТЬ ПРОТИВНИКУ</div>
+          <div className="action-reward">-10 000 руб.</div>
+        </div>
+      </div>
+      
+      <div className="action-item">
+        <div className="action-icon-container">
+          <img src="/images/icons/icon-4.svg" alt="Замена карт" className="action-icon" />
+        </div>
+        <div className="action-text">
+          <div className="action-name">ЗАМЕНА КАРТ</div>
+          <div className="action-reward">-10 000 руб.</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
+        {/* ЦЕНТРАЛЬНАЯ КОЛОНКА С КАРТОЧКАМИ */}
         <div className="center-column">
-          <div className="balance-display">
-            Баланс: {myTeamData ? formatBalance(myTeamData.team.balance) : '0 руб.'}
-          </div>
           {renderCardsSection()}
         </div>
 
+        {/* ПРАВЫЙ БЛОК С ИКОНКАМИ */}
         <div className="right-column">
-          <div className="rating-block">
-            <div className="block-title">КОТЛЫ КОМАНД</div>
-            <div className="title-divider"></div>
-            
-            <div className="teams-list">
-              {teams.length > 0 ? (
-                teams.map((team, index) => (
-                  <div key={team.id || team.name} className="action-item">
-                    <div className="action-name">{team.name}</div>
-                    <div className="action-reward">{formatBalance(team.balance)}</div>
-                  </div>
-                ))
-              ) : (
-                <div className="no-teams-message">
-                  Загрузка данных команд...
+  <div className="teams-rating-block">
+    <div className="teams-rating-title">КОТЛЫ КОМАНД</div>
+    <div className="teams-rating-divider"></div>
+    
+    <div className="teams-rating-list">
+      {teams.length > 0 ? (
+        teams.map((team, index) => (
+          <div key={team.id || team.name} className="teams-rating-item">
+            <div className="teams-rating-icon-container">
+              <img src="/images/icons/icon-52.svg" alt="Команда" className="teams-rating-icon" />
+            </div>
+            <div className="teams-rating-name">{team.name}</div>
+            <div className="teams-rating-balance">{formatBalance(team.balance)}</div>
+          </div>
+        ))
+      ) : (
+        <div className="no-teams-message">
+          Загрузка данных команд...
                 </div>
               )}
             </div>
@@ -351,7 +402,7 @@ const MainPage = () => {
 
       </div>
 
-      {/* Модалка для выбора команды пакости */}
+      {/* МОДАЛЬНОЕ ОКНО ДЛЯ ПАКОСТИ */}
       {showMischiefModal && (
         <div className="modal-overlay">
           <div className="modal-content">

@@ -1,5 +1,15 @@
 // src/services/api.js
-const API_BASE_URL = 'http://localhost:3001/api';
+// Динамический URL в зависимости от окружения
+const getApiBaseUrl = () => {
+  // Если фронтенд на localhost - бекенд тоже на localhost
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:3001/api';
+  }
+  // Если фронтенд на IP - бекенд на IP ноута
+  return `http://${window.location.hostname}:3001/api`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Общий API клиент
 const api = {

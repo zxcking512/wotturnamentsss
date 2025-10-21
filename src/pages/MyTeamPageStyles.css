@@ -1,5 +1,3 @@
-/* MyTeamPage.css - ОБНОВЛЕННЫЙ С НОВЫМИ БЛОКАМИ */
-
 .my-team-page {
     min-height: 100vh;
     padding: 2rem;
@@ -8,6 +6,34 @@
     align-items: flex-start;
     font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
     color: #FFF;
+    position: relative;
+    z-index: 1;
+}
+
+.loading-container {
+    position: relative;
+    z-index: 2;
+    color: #FFF;
+    font-size: 18px;
+}
+
+/* Заголовок команды - СДВИНУТ ЛЕВЕЕ */
+.team-header-title {
+    position: absolute;
+    top: 1rem;
+    left: 45%;
+    transform: translateX(-50%);
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 68px;
+    font-weight: 350;
+    line-height: normal;
+    text-transform: uppercase;
+    text-align: center;
+    z-index: 3;
+    white-space: nowrap;
+    width: auto;
+    min-width: 600px;
 }
 
 /* Основной контейнер */
@@ -17,12 +43,15 @@
     max-width: 1400px;
     width: 100%;
     align-items: flex-start;
+    position: relative;
+    z-index: 2;
+    margin-top: 120px;
 }
 
-/* ЛЕВЫЙ БЛОК */
+/* ЛЕВЫЙ БЛОК - ВСЕГДА БОЛЬШОЙ */
 .left-panel {
     width: 444px;
-    height: 741px;
+    height: 741px; /* Фиксированная высота */
     padding: 40px 45px;
     display: flex;
     flex-direction: column;
@@ -32,6 +61,7 @@
     border: 1px solid #FF5000;
     background: linear-gradient(180deg, rgba(49, 49, 49, 0.80) 0%, rgba(15, 15, 15, 0.90) 100%);
     border-radius: 12px;
+    backdrop-filter: blur(10px);
 }
 
 /* Заголовок "ТЕКУЩЕЕ ЗАДАНИЕ" */
@@ -48,34 +78,154 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
 }
 
-/* Внутренний блок задания */
-.task-inner-block {
+/* КОНТЕЙНЕР ДЛЯ КАРТОЧКИ ЗАДАНИЯ - ВСЕГДА ОДИНАКОВЫЙ */
+.challenge-card-container {
     width: 354px;
-    height: 436px;
-    flex-shrink: 0;
-    border: 3px solid #FF5000;
-    background: radial-gradient(50% 50% at 50% 50%, rgba(18, 18, 18, 0.76) 0%, rgba(18, 18, 18, 0.95) 100%);
-    border-radius: 12px;
-    padding: 2rem;
+    height: 536px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 20px;
-    align-self: stretch;
+    gap: 0;
+    border: 3px solid #FF5000;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(18, 18, 18, 0.76) 0%, rgba(18, 18, 18, 0.95) 100%);
+    border-radius: 12px;
+    overflow: hidden;
 }
 
-/* Надпись "ЗАДАНИЕ НА МОДЕРАЦИИ" */
-.moderation-title {
+/* Блок с фото из карточки */
+.challenge-image-block {
+    width: 100%;
+    height: 216px;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #2a2a2a;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+/* Стиль для отсутствующего изображения */
+.challenge-image-block.no-challenge-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a1a;
+}
+
+.no-challenge-icon {
+    font-size: 64px;
+    opacity: 0.5;
+}
+
+/* Оранжевый блок с наградой */
+.challenge-reward-overlay {
+    position: relative;
+    width: 233px;
+    height: 43px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reward-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.challenge-reward-text {
+    position: relative;
+    z-index: 1;
     color: #FFF;
     text-align: center;
     font-family: "MT Sans LC Test 3 VF";
-    font-size: 32px;
+    font-size: 28px;
+    font-weight: 350;
+    line-height: normal;
+}
+
+/* Блок с названием задания */
+.challenge-title-block {
+    width: 100%;
+    height: 80px;
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.challenge-rarity {
+    color: #FF5000;
+    text-align: center;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 24px;
     font-weight: 350;
     line-height: normal;
     margin: 0;
+}
+
+.moderation-status {
+    color: #FFA500;
+    text-align: center;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 24px;
+    font-weight: 350;
+    line-height: normal;
+    margin: 0;
+}
+
+.no-challenge-title {
+    color: #888;
+    text-align: center;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 20px;
+    font-weight: 350;
+    line-height: normal;
+    margin: 0;
+}
+
+/* Блок с описанием задания */
+.challenge-description-block {
+    width: 100%;
+    height: 240px;
+    padding: 20px;
+    color: #FFF;
+    text-align: center;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 100;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.moderation-description {
+    color: #FFF;
+    text-align: center;
+    font-size: 16px;
+    font-family: "MT Sans LC Test 3 VF";
+    line-height: 1.4;
+}
+
+.no-challenge-description {
+    color: #888;
+    text-align: center;
+    font-size: 14px;
+    font-family: "MT Sans LC Test 3 VF";
+    line-height: 1.4;
 }
 
 /* Контейнер для кнопок */
@@ -84,6 +234,7 @@
     gap: 20px;
     width: 100%;
     justify-content: center;
+    align-items: center;
 }
 
 /* Кнопка "Выполнено" */
@@ -99,22 +250,25 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
+    margin: 0;
 }
 
-.btn-done:hover {
+.btn-done:hover:not(.disabled) {
     background: #404040;
     transform: translateY(-2px);
 }
 
+.btn-done.disabled {
+    background: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 .btn-done-text {
-    width: 182px;
-    height: 23.564px;
-    flex-shrink: 0;
     color: #FFF;
     text-align: center;
     font-family: "MT Sans LC Test 3 VF";
     font-size: 20px;
-    font-style: normal;
     font-weight: 100;
     line-height: normal;
     margin: 0;
@@ -133,23 +287,26 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
+    margin: 0;
 }
 
-.btn-cancel:hover {
+.btn-cancel:hover:not(.disabled) {
     border-color: #7A7A7A;
     background: rgba(90, 90, 90, 0.1);
     transform: translateY(-2px);
 }
 
+.btn-cancel.disabled {
+    border-color: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 .btn-cancel-text {
-    width: 150.359px;
-    height: 23.577px;
-    flex-shrink: 0;
     color: #FFF;
     text-align: center;
     font-family: "MT Sans LC Test 3 VF";
     font-size: 20px;
-    font-style: normal;
     font-weight: 100;
     line-height: normal;
     margin: 0;
@@ -172,7 +329,6 @@
     color: #FFF;
     font-family: "MT Sans LC Test 3 VF";
     font-size: 16px;
-    font-style: normal;
     font-weight: 100;
     line-height: normal;
     margin: 0;
@@ -184,7 +340,6 @@
     text-align: right;
     font-family: "MT Sans LC Test 3 VF";
     font-size: 32px;
-    font-style: normal;
     font-weight: 350;
     line-height: normal;
     margin: 0;
@@ -194,179 +349,224 @@
     color: #FE791A;
     font-family: "MT Sans LC Test 3 VF";
     font-size: 16px;
-    font-style: normal;
     font-weight: 100;
     line-height: normal;
-    margin: 0;
 }
 
 /* ПРАВЫЙ БЛОК */
 .right-panel {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 20px;
     flex: 1;
+    min-width: 709px;
 }
 
-/* Заголовок команды */
-.team-header {
-    width: 607px;
-    height: 82px;
+/* ОРАНЖЕВЫЙ БЛОК КОТЁЛ КОМАНДЫ */
+.balance-orange-block {
+    width: 709px;
+    height: 114px;
+    flex-shrink: 0;
+    border: 1px solid #FE791A;
+    background: rgba(255, 80, 0, 0.70);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.balance-orange-text {
+    width: 709px;
+    height: 51px;
     flex-shrink: 0;
     color: #FFF;
-    font-family: "MT Sans LC Test 3 VF";
-    font-size: 68px;
-    font-weight: 350;
-    line-height: normal;
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-}
-
-/* Блок баланса */
-.balance-block {
-    padding: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.15) 0%, 
-        rgba(69, 69, 69, 0.20) 100%);
-    backdrop-filter: blur(15px);
-    border-radius: 12px;
-}
-
-.balance-title {
-    color: #FFF;
-    font-family: "MT Sans LC Test 3 VF";
-    font-size: 24px;
-    font-weight: 350;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-}
-
-.balance-amount {
-    color: #FFF;
+    text-align: center;
     font-family: "MT Sans LC Test 3 VF";
     font-size: 42px;
     font-weight: 350;
-    line-height: normal;
+    line-height: 120%;
+}
+
+/* Контейнер для статистики */
+.stats-container {
+    display: flex;
+    gap: 20px;
+    width: 709px;
+    height: 80px;
+    margin-bottom: 20px;
 }
 
 /* Блок статистики */
-.stats-block {
+.stat-block {
     display: flex;
-    gap: 2rem;
-}
-
-.stat-item {
+    padding: 10px 15px;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #FFF;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.40) 0%, rgba(69, 69, 69, 0.40) 100%);
+    border-radius: 8px;
     flex: 1;
-    padding: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.15) 0%, 
-        rgba(69, 69, 69, 0.20) 100%);
-    backdrop-filter: blur(15px);
-    border-radius: 12px;
-    text-align: center;
+    height: 100%;
+    justify-content: space-between;
+    min-width: 0;
+    max-width: 344px;
 }
 
-.stat-label {
+.stat-text {
     color: #FFF;
     font-family: "MT Sans LC Test 3 VF";
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 350;
-    line-height: 1.2;
-    margin-bottom: 0.5rem;
+    line-height: 120%;
+    text-align: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 140px;
 }
 
 .stat-value {
     color: #FFF;
     font-family: "MT Sans LC Test 3 VF";
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 350;
-    line-height: normal;
-}
-
-/* Блок отмен */
-.cancels-block {
-    padding: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.15) 0%, 
-        rgba(69, 69, 69, 0.20) 100%);
-    backdrop-filter: blur(15px);
-    border-radius: 12px;
-}
-
-.cancels-title {
-    color: #FFF;
-    font-family: "MT Sans LC Test 3 VF";
-    font-size: 20px;
-    font-weight: 350;
-    line-height: 1.2;
-    margin-bottom: 1rem;
+    line-height: 120%;
     text-align: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 50px;
 }
 
-.cancels-info {
-    color: #FFF;
-    font-family: "MT Sans LC Test 3 VF";
-    font-size: 16px;
-    font-weight: 350;
-    line-height: 1.4;
-    text-align: center;
-}
-
-.penalty-info {
-    color: #FF6B6B;
-    font-family: "MT Sans LC Test 3 VF";
-    font-size: 14px;
-    font-weight: 350;
-    line-height: 1.4;
-    margin-top: 0.5rem;
-}
-
-/* Турнирная таблица */
-.leaderboard-block {
-    padding: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.15) 0%, 
-        rgba(69, 69, 69, 0.20) 100%);
-    backdrop-filter: blur(15px);
+/* Большой блок КОТЛЫ КОМАНД */
+.leaderboard-main-block {
+    display: flex;
+    width: 709px;
+    height: 475px;
+    padding: 35px 45px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    flex-shrink: 0;
+    border: 1px solid #FFF;
+    background: linear-gradient(180deg, rgba(49, 49, 49, 0.80) 0%, rgba(15, 15, 15, 0.90) 100%);
     border-radius: 12px;
 }
 
 .leaderboard-title {
+    height: 44px;
+    flex-shrink: 0;
+    align-self: stretch;
     color: #FFF;
     font-family: "MT Sans LC Test 3 VF";
-    font-size: 20px;
+    font-size: 42px;
     font-weight: 350;
-    line-height: 1.2;
-    margin-bottom: 1rem;
+    line-height: normal;
     text-align: center;
+    margin-bottom: 8px;
 }
 
-.leaderboard-table {
+/* Заголовки таблицы - ИСПРАВЛЕННОЕ ВЫРАВНИВАНИЕ */
+.leaderboard-headers {
+    display: flex;
     width: 100%;
-    border-collapse: collapse;
-}
-
-.leaderboard-table th {
-    color: #FFF;
-    font-family: "MT Sans LC Test 3 VF";
-    font-size: 14px;
-    font-weight: 350;
-    text-align: left;
-    padding: 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0 10px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.leaderboard-table td {
+.header-team {
+    width: 250px;
+    color: #C5C5C5;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 16px;
+    font-weight: 350;
+    line-height: normal;
+    text-align: left;
+    padding-left: 0;
+}
+
+.header-tasks {
+    width: 200px;
+    color: #C5C5C5;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 16px;
+    font-weight: 350;
+    line-height: normal;
+    text-align: center;
+}
+
+.header-balance {
+    width: 180px;
+    color: #C5C5C5;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 16px;
+    font-weight: 350;
+    line-height: normal;
+    text-align: right;
+    padding-right: 0;
+}
+
+/* Список команд - ИСПРАВЛЕННОЕ ВЫРАВНИВАНИЕ */
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.leaderboard-row {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 35px;
+}
+
+.team-name {
+    width: 250px;
     color: #FFF;
     font-family: "MT Sans LC Test 3 VF";
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 350;
-    padding: 0.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    line-height: normal;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 0;
+}
+
+.team-tasks {
+    width: 200px;
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 16px;
+    font-weight: 350;
+    line-height: normal;
+    text-align: center;
+}
+
+.team-balance {
+    width: 180px;
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 16px;
+    font-weight: 350;
+    line-height: normal;
+    text-align: right;
+    white-space: nowrap;
+    padding-right: 0;
+}
+
+.leaderboard-loading {
+    color: #FFF;
+    text-align: center;
+    padding: 20px;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 16px;
 }
 
 /* Адаптивность */
@@ -379,12 +579,31 @@
     .left-panel {
         width: 100%;
         max-width: 500px;
+        height: auto;
+        min-height: 741px;
     }
     
-    .team-header {
+    .right-panel {
+        min-width: 100%;
+    }
+    
+    .balance-orange-block,
+    .leaderboard-main-block,
+    .stats-container {
         width: 100%;
+    }
+    
+    .team-header-title {
         font-size: 48px;
-        text-align: center;
+        left: 45%;
+        transform: translateX(-50%);
+    }
+    
+    .challenge-card-container {
+        width: 100%;
+        max-width: 400px;
+        height: auto;
+        min-height: 536px;
     }
 }
 
@@ -393,22 +612,27 @@
         padding: 1rem;
     }
     
-    .team-header {
+    .team-header-title {
         font-size: 36px;
-        height: auto;
-    }
-    
-    .stats-block {
-        flex-direction: column;
+        min-width: 400px;
+        left: 45%;
     }
     
     .left-panel {
         padding: 20px;
+        height: auto;
+        min-height: 700px;
     }
     
-    .task-inner-block {
+    .challenge-card-container {
         width: 100%;
         max-width: 300px;
+        height: auto;
+        min-height: 500px;
+    }
+    
+    .challenge-image-block {
+        height: 180px;
     }
     
     .buttons-container {
@@ -419,5 +643,33 @@
     .btn-done, .btn-cancel {
         width: 100%;
         max-width: 200px;
+    }
+    
+    .leaderboard-main-block {
+        height: auto;
+        padding: 20px;
+    }
+    
+    .header-team,
+    .header-tasks,
+    .header-balance,
+    .team-name,
+    .team-tasks,
+    .team-balance {
+        font-size: 14px;
+    }
+    
+    .leaderboard-title {
+        font-size: 32px;
+    }
+    
+    .stats-container {
+        flex-direction: column;
+        height: auto;
+        gap: 10px;
+    }
+    
+    .stat-block {
+        max-width: none;
     }
 }

@@ -1,0 +1,529 @@
+/* АНИМИРОВАННАЯ КАРТОЧКА - БЕЗ ИЗМЕНЕНИЯ ЦВЕТОВ ВЗРЫВОВ */
+
+/* ОСНОВНОЙ КОНТЕЙНЕР */
+.animated-card-wrapper {
+  position: relative;
+  width: 300px;
+  height: 460px;
+  margin: 0 auto;
+  opacity: 0;
+  transform: translateY(100px) scale(0.8);
+  animation: cardAppear 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* Анимация появления карточки */
+@keyframes cardAppear {
+  0% {
+    opacity: 0;
+    transform: translateY(100px) scale(0.8);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Анимация исчезновения карточки */
+.card-exit {
+  animation: cardExit 0.6s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+}
+
+@keyframes cardExit {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(-20px) scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(50px) scale(0.9);
+    visibility: hidden;
+  }
+}
+
+/* Задержки для последовательного появления карточек */
+.animated-card-wrapper:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.animated-card-wrapper:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.animated-card-wrapper:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* КОНТЕЙНЕР ДЛЯ СВЕЧЕНИЯ */
+.glow-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 900px;
+  height: 900px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* ОСНОВНАЯ КАРТОЧКА */
+.animated-card {
+  width: 100%;
+  height: 100%;
+  perspective: 2000px;
+  cursor: pointer;
+  position: relative;
+  border-radius: 32px;
+  z-index: 100;
+}
+
+.card-3d-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  border-radius: 32px;
+}
+
+.animated-card.flipped .card-3d-container {
+  transform: rotateY(180deg);
+}
+
+/* КЛИКАБЕЛЬНАЯ ОБЛАСТЬ */
+.card-click-area {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  z-index: 150;
+  cursor: pointer;
+  background: transparent;
+  pointer-events: auto;
+}
+
+/* ЛИЦЕВАЯ СТОРОНА (РУБАШКА) */
+.card-front {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 32px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transform-style: preserve-3d;
+  z-index: 120;
+}
+
+.animated-card.common .card-front {
+  background-image: url('/images/cards/card-back-common.png');
+}
+
+.animated-card.epic .card-front {
+  background-image: url('/images/cards/card-back-epic.png');
+}
+
+.animated-card.troll .card-front {
+  background-image: url('/images/cards/card-back-mischief.png');
+}
+
+/* Fallback если рубашки не загрузились */
+.animated-card .card-front {
+  background-color: #2d3748;
+}
+
+/* ОБОРОТНАЯ СТОРОНА */
+.card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 32px;
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  transform-style: preserve-3d;
+  z-index: 120;
+  overflow: hidden;
+  background: white;
+}
+
+/* ФОН РУБАШКИ ДЛЯ ОБОРОТНОЙ СТОРОНЫ */
+.card-back-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/cards/card-back-back.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 32px;
+  z-index: 1;
+}
+
+/* ВЕРХНИЙ БЛОК С ИЗОБРАЖЕНИЕМ */
+.card-image-section {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15px;
+  z-index: 2;
+  overflow: hidden;
+}
+
+/* ВЕРХНИЙ ОРАНЖЕВЫЙ БЛОК С ТЕКСТОМ - ТРАПЕЦИЯ */
+.card-rarity-badge {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.rarity-svg {
+  width: 146px;
+  height: 19px;
+}
+
+.rarity-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #FFF;
+  text-align: center;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: normal;
+  white-space: nowrap;
+  z-index: 4;
+}
+
+/* БЕЙДЖ С НАГРАДОЙ ВНИЗУ ИЗОБРАЖЕНИЯ - ТРАПЕЦИЯ */
+.card-reward-badge {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.reward-svg {
+  width: 232px;
+  height: 43px;
+}
+
+.reward-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #FFF;
+  text-align: center;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 350;
+  line-height: normal;
+  white-space: nowrap;
+  z-index: 4;
+}
+
+/* НИЖНИЙ БЛОК С КОНТЕНТОМ */
+.card-content-section {
+  flex: 1;
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #FFF;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.30) 0%, rgba(69, 69, 69, 0.30) 100%);
+  border-radius: 0 0 12px 12px;
+  z-index: 2;
+  gap: 15px;
+}
+
+.card-back-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 3;
+  width: 100%;
+}
+
+/* ЗАГОЛОВОК КАРТОЧКИ */
+.card-title {
+  width: 100%;
+  color: #FFF;
+  text-align: center;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 350;
+  line-height: normal;
+  transform: translateZ(25px);
+  margin: 0;
+}
+
+/* ОПИСАНИЕ КАРТОЧКИ */
+.card-description {
+  width: 100%;
+  color: #FFF;
+  text-align: center;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: normal;
+  transform: translateZ(15px);
+  margin: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+}
+
+/* КНОПКА ПРИНЯТЬ ЗАДАНИЕ */
+.take-task-btn {
+  width: 100%;
+  height: 45px;
+  border-radius: 8px;
+  background: #FF5000;
+  color: #FFF;
+  border: none;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: normal;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  transform: translateZ(40px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+}
+
+.take-task-btn:hover:not(:disabled) {
+  background: #FF3D00;
+  transform: translateZ(40px) translateY(-2px);
+}
+
+.take-task-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: translateZ(40px);
+}
+
+.mischief-btn {
+  background: #f72585 !important;
+}
+
+.mischief-btn:hover:not(:disabled) {
+  background: #b5179e !important;
+  transform: translateZ(40px) translateY(-2px) !important;
+}
+
+.mischief-btn:disabled {
+  background: #9ca3af !important;
+  cursor: not-allowed !important;
+  transform: translateZ(40px) !important;
+}
+
+/* ВИДЕО ЭФФЕКТЫ - ВЗРЫВ ПРИ ОТКРЫТИИ */
+.boom-video {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 800px;
+  object-fit: contain;
+  z-index: 125;
+  pointer-events: none;
+}
+
+.boom-video.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ПОСТОЯННОЕ СВЕЧЕНИЕ - ФОН ПОСЛЕ ОТКРЫТИЯ */
+.permanent-glow-video {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  width: 900px;
+  height: 900px;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.permanent-glow-video.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ВАЖНО: УБРАЛ ВСЕ ФИЛЬТРЫ - ВЗРЫВЫ БУДУТ ОРИГИНАЛЬНЫХ ЦВЕТОВ */
+
+/* ЗАБЛОКИРОВАННЫЕ КАРТОЧКИ */
+.animated-card.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.animated-card.disabled .card-3d-container {
+  transform: none;
+}
+
+.animated-card.disabled .card-click-area {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 768px) {
+  .animated-card-wrapper {
+    width: 280px;
+    height: 430px;
+  }
+  
+  .animated-card {
+    width: 280px;
+    height: 430px;
+  }
+  
+  .glow-container {
+    width: 700px;
+    height: 700px;
+  }
+  
+  .boom-video {
+    width: 600px;
+    height: 600px;
+  }
+  
+  .permanent-glow-video {
+    width: 700px;
+    height: 700px;
+  }
+  
+  .card-image-section {
+    height: 180px;
+  }
+  
+  .rarity-svg {
+    width: 130px;
+    height: 17px;
+  }
+  
+  .rarity-text {
+    font-size: 14px;
+  }
+  
+  .reward-svg {
+    width: 200px;
+    height: 37px;
+  }
+  
+  .reward-text {
+    font-size: 18px;
+  }
+  
+  .card-title {
+    font-size: 20px;
+  }
+  
+  .card-description {
+    font-size: 14px;
+  }
+  
+  .take-task-btn {
+    height: 40px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .animated-card-wrapper {
+    width: 260px;
+    height: 400px;
+  }
+  
+  .animated-card {
+    width: 260px;
+    height: 400px;
+  }
+  
+  .card-image-section {
+    height: 160px;
+  }
+  
+  .rarity-svg {
+    width: 120px;
+    height: 16px;
+  }
+  
+  .rarity-text {
+    font-size: 13px;
+  }
+  
+  .reward-svg {
+    width: 180px;
+    height: 33px;
+  }
+  
+  .reward-text {
+    font-size: 16px;
+  }
+  
+  .card-title {
+    font-size: 18px;
+  }
+  
+  .card-description {
+    font-size: 13px;
+  }
+  
+  .card-content-section {
+    padding: 15px 12px;
+    gap: 12px;
+  }
+}

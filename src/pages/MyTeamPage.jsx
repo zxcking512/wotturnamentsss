@@ -1,4 +1,3 @@
-// src/pages/MyTeamPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
@@ -23,7 +22,6 @@ const MyTeamPage = () => {
     
     loadInitialData();
     
-    // Обновляем данные каждые 3 секунды для моментального обновления
     const interval = setInterval(() => {
       loadTeamData();
       loadLeaderboard();
@@ -54,27 +52,37 @@ const MyTeamPage = () => {
   };
 
   const loadLeaderboard = async () => {
-  try {
-    console.log('🔄 Loading leaderboard from API...');
-    const response = await api.getLeaderboard();
-    console.log('📦 API response:', response);
-    
-    if (Array.isArray(response) && response.length > 0) {
-      const sortedTeams = response.sort((a, b) => b.balance - a.balance);
-      const teamsWithPosition = sortedTeams.map((team, index) => ({
-        ...team,
-        position: index + 1
-      }));
-      console.log('✅ Setting leaderboard:', teamsWithPosition);
-      setLeaderboard(teamsWithPosition);
-    } else {
-      console.log('❌ No teams data, using fallback');
-      // Fallback данные
+    try {
+      const response = await api.getLeaderboard();
+      
+      if (Array.isArray(response) && response.length > 0) {
+        const sortedTeams = response.sort((a, b) => b.balance - a.balance);
+        const teamsWithPosition = sortedTeams.map((team, index) => ({
+          ...team,
+          position: index + 1
+        }));
+        setLeaderboard(teamsWithPosition);
+      } else {
+        const fallbackTeams = [
+          { id: 1, name: 'Bratishkinoff', balance: 100000, completed_challenges: 5 },
+          { id: 2, name: 'Shadowkek', balance: 85000, completed_challenges: 4 },
+          { id: 3, name: 'Levsha', balance: 72000, completed_challenges: 3 },
+          { id: 4, name: 'Recrent', balance: 68000, completed_challenges: 3 }
+        ];
+        const sortedFallback = fallbackTeams.sort((a, b) => b.balance - a.balance);
+        const fallbackWithPosition = sortedFallback.map((team, index) => ({
+          ...team,
+          position: index + 1
+        }));
+        setLeaderboard(fallbackWithPosition);
+      }
+    } catch (error) {
+      console.error('Load leaderboard error:', error);
       const fallbackTeams = [
-        { id: 1, name: 'Bratishkinoff', balance: 100000, completed_challenges: 0 },
-        { id: 2, name: 'Shadowkek', balance: 100000, completed_challenges: 0 },
-        { id: 3, name: 'Levsha', balance: 100000, completed_challenges: 0 },
-        { id: 4, name: 'Recrent', balance: 100000, completed_challenges: 0 }
+        { id: 1, name: 'Bratishkinoff', balance: 100000, completed_challenges: 5 },
+        { id: 2, name: 'Shadowkek', balance: 85000, completed_challenges: 4 },
+        { id: 3, name: 'Levsha', balance: 72000, completed_challenges: 3 },
+        { id: 4, name: 'Recrent', balance: 68000, completed_challenges: 3 }
       ];
       const sortedFallback = fallbackTeams.sort((a, b) => b.balance - a.balance);
       const fallbackWithPosition = sortedFallback.map((team, index) => ({
@@ -82,22 +90,6 @@ const MyTeamPage = () => {
         position: index + 1
       }));
       setLeaderboard(fallbackWithPosition);
-    }
-  } catch (error) {
-    console.error('💥 Load leaderboard error:', error);
-    // Fallback данные при ошибке
-    const fallbackTeams = [
-      { id: 1, name: 'Bratishkinoff', balance: 100000, completed_challenges: 0 },
-      { id: 2, name: 'Shadowkek', balance: 100000, completed_challenges: 0 },
-      { id: 3, name: 'Levsha', balance: 100000, completed_challenges: 0 },
-      { id: 4, name: 'Recrent', balance: 100000, completed_challenges: 0 }
-    ];
-    const sortedFallback = fallbackTeams.sort((a, b) => b.balance - a.balance);
-    const fallbackWithPosition = sortedFallback.map((team, index) => ({
-      ...team,
-      position: index + 1
-    }));
-    setLeaderboard(fallbackWithPosition);
     }
   };
 
@@ -107,7 +99,6 @@ const MyTeamPage = () => {
       await api.completeChallenge();
       setMessage('Задание отправлено на модерацию! Ожидайте проверки.');
       setWaitingModeration(true);
-      // Мгновенно обновляем данные
       await loadTeamData();
       await loadLeaderboard();
     } catch (error) {
@@ -131,7 +122,6 @@ const MyTeamPage = () => {
       
       setHasActiveChallenge(false);
       setWaitingModeration(false);
-      // Мгновенно обновляем данные
       await loadTeamData();
       await loadLeaderboard();
       setButtonsDisabled(false);
@@ -158,7 +148,6 @@ const MyTeamPage = () => {
     return teamName.toUpperCase();
   };
 
-  // Находим текущую позицию команды в рейтинге
   const getCurrentTeamPosition = () => {
     const currentTeamName = getTeamDisplayName();
     const currentTeam = leaderboard.find(team => 
@@ -167,7 +156,6 @@ const MyTeamPage = () => {
     return currentTeam?.position || 1;
   };
 
-  // Находим выполненные задания текущей команды
   const getCurrentTeamCompletedChallenges = () => {
     const currentTeamName = getTeamDisplayName();
     const currentTeam = leaderboard.find(team => 
@@ -176,7 +164,6 @@ const MyTeamPage = () => {
     return currentTeam?.completed_challenges || teamData?.team?.completed_challenges || 0;
   };
 
-  // Находим баланс текущей команды
   const getCurrentTeamBalance = () => {
     const currentTeamName = getTeamDisplayName();
     const currentTeam = leaderboard.find(team => 
@@ -185,21 +172,41 @@ const MyTeamPage = () => {
     return currentTeam?.balance || teamData?.team?.balance || 0;
   };
 
+  const getRarityDisplayName = (rarity) => {
+    switch (rarity) {
+      case 'epic': return 'ЭПИЧЕСКОЕ БЕЗУМСТВО';
+      case 'rare': return 'ДЕРЗКИЙ ВЫЗОВ';
+      case 'common': return 'ПРОСТАЯ ШАЛОСТЬ';
+      case 'troll': return 'ПАКОСТЬ';
+      default: return 'ЗАДАНИЕ';
+    }
+  };
+
+  // ИСПРАВЛЕННАЯ функция для получения URL изображения - ТЕПЕРЬ СОВПАДАЕТ С AnimatedCard
+  const getChallengeImage = (challenge) => {
+    if (!challenge) return '/images/cards/common/common-1.jpg';
+    
+    const rarity = challenge.rarity || 'common';
+    
+    // ТЕПЕРЬ ПУТИ СОВПАДАЮТ С AnimatedCard.jsx
+    switch(rarity) {
+      case 'epic':
+        return '/images/cards/epic/epic-1.jpg';
+      case 'rare':
+        return '/images/cards/rare/rare-1.jpg';
+      case 'troll':
+        return '/images/cards/mischief/mischief-1.jpg';
+      case 'common':
+      default:
+        return '/images/cards/common/common-1.jpg';
+    }
+  };
+
   if (!teamData) {
     return (
-      <div className="my-team-page" style={{
-        minHeight: '100vh',
-        padding: '2rem',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontFamily: '"MT Sans LC Test 3 VF", Arial, sans-serif',
-        color: '#FFF',
-        position: 'relative',
-        zIndex: '1'
-      }}>
+      <div className="my-team-page">
         <VideoBackground />
-        <div style={{ position: 'relative', zIndex: '2' }}>
+        <div className="loading-container">
           Загрузка данных команды...
         </div>
       </div>
@@ -212,296 +219,152 @@ const MyTeamPage = () => {
   const currentBalance = getCurrentTeamBalance();
 
   return (
-    <div className="my-team-page" style={{
-      minHeight: '100vh',
-      padding: '2rem',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'flex-start',
-      fontFamily: '"MT Sans LC Test 3 VF", Arial, sans-serif',
-      color: '#FFF',
-      position: 'relative',
-      zIndex: '1'
-    }}>
+    <div className="my-team-page">
       <VideoBackground />
       
-      {/* Заголовок КОМАНДА - слева над блоками */}
-      <div style={{
-        position: 'absolute',
-        top: '1rem',
-        left: '2rem', // Начинается от левого края
-        color: '#FFF',
-        fontFamily: '"MT Sans LC Test 3 VF"',
-        fontSize: '68px',
-        fontWeight: '350',
-        lineHeight: 'normal',
-        textTransform: 'uppercase',
-        textAlign: 'left',
-        zIndex: '3',
-        whiteSpace: 'nowrap' // Одна строка
-      }}>
+      {/* Заголовок сдвинут левее */}
+      <div className="team-header-title">
         КОМАНДА {getTeamDisplayName()}
       </div>
       
-      <div className="team-container" style={{
-        display: 'flex',
-        gap: '2rem',
-        maxWidth: '1400px',
-        width: '100%',
-        alignItems: 'flex-start',
-        position: 'relative',
-        zIndex: '2',
-        marginTop: '120px' // Больший отступ для заголовка
-      }}>
-        {/* ЛЕВЫЙ БЛОК */}
-        <div className="left-panel" style={{
-          width: '444px',
-          height: '741px',
-          padding: '40px 45px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '20px',
-          flexShrink: '0',
-          border: '1px solid #FF5000',
-          background: 'linear-gradient(180deg, rgba(49, 49, 49, 0.80) 0%, rgba(15, 15, 15, 0.90) 100%)',
-          borderRadius: '12px',
-          backdropFilter: 'blur(10px)'
-        }}>
-          <div className="current-task-title" style={{
-            height: '51.073px',
-            width: '100%',
-            color: '#FFF',
-            textAlign: 'center',
-            fontFamily: '"MT Sans LC Test 3 VF"',
-            fontSize: '42px',
-            fontWeight: '350',
-            lineHeight: 'normal',
-            margin: '0',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            whiteSpace: 'nowrap'
-          }}>
+      <div className="team-container">
+        {/* ЛЕВЫЙ БЛОК - ВСЕГДА БОЛЬШОЙ */}
+        <div className="left-panel">
+          <div className="current-task-title">
             ТЕКУЩЕЕ ЗАДАНИЕ
           </div>
           
-          {/* КАРТОЧКА ЗАДАНИЯ */}
-          <div className="task-inner-block" style={{
-            width: '354px',
-            height: '300px',
-            flexShrink: '0',
-            border: '3px solid #FF5000',
-            background: 'radial-gradient(50% 50% at 50% 50%, rgba(18, 18, 18, 0.76) 0%, rgba(18, 18, 18, 0.95) 100%)',
-            borderRadius: '12px',
-            padding: '2rem',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '15px'
-          }}>
+          <div className="challenge-card-container">
             {hasActiveChallenge && teamData.activeChallenge ? (
               <>
                 {waitingModeration ? (
                   <>
-                    <div className="moderation-title" style={{
-                      color: '#FFF',
-                      textAlign: 'center',
-                      fontFamily: '"MT Sans LC Test 3 VF"',
-                      fontSize: '32px',
-                      fontWeight: '350',
-                      lineHeight: 'normal',
-                      margin: '0'
-                    }}>
-                      ЗАДАНИЕ НА МОДЕРАЦИИ
+                    {/* Блок с фото даже при модерации */}
+                    <div 
+                      className="challenge-image-block"
+                      style={{ 
+                        backgroundImage: `url(${getChallengeImage(teamData.activeChallenge)})`,
+                        backgroundColor: '#2a2a2a'
+                      }}
+                    >
+                      <div className="challenge-reward-overlay">
+                        <svg className="reward-svg" width="233" height="43" viewBox="0 0 233 43" fill="none">
+                          <path d="M20.6797 0H212.68L232.68 43H0.679688L20.6797 0Z" fill="#FF5000" fillOpacity="0.8"/>
+                        </svg>
+                        <div className="challenge-reward-text">
+                          +{teamData.activeChallenge.reward} РУБ.
+                        </div>
+                      </div>
                     </div>
-                    <div style={{
-                      color: '#FFF', 
-                      textAlign: 'center', 
-                      fontSize: '16px',
-                      fontFamily: '"MT Sans LC Test 3 VF"',
-                      lineHeight: '1.4'
-                    }}>
-                      Проверяем условия выполнения.<br/>
-                      Это может занять несколько минут
+
+                    <div className="challenge-title-block">
+                      <div className="moderation-status">
+                        ОЖИДАЕТ ПРОВЕРКИ
+                      </div>
+                    </div>
+
+                    <div className="challenge-description-block">
+                      <div className="moderation-description">
+                        Проверяем условия выполнения.<br/>
+                        Это может занять несколько минут
+                      </div>
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="moderation-title" style={{
-                      color: '#FF5000',
-                      textAlign: 'center',
-                      fontFamily: '"MT Sans LC Test 3 VF"',
-                      fontSize: '28px',
-                      fontWeight: '350',
-                      lineHeight: 'normal',
-                      margin: '0'
-                    }}>
-                      {teamData.activeChallenge.rarity === 'epic' ? 'ЭПИЧЕСКОЕ БЕЗУМСТВО' : 
-                       teamData.activeChallenge.rarity === 'rare' ? 'ДЕРЗКИЙ ВЫЗОВ' : 
-                       teamData.activeChallenge.rarity === 'common' ? 'ПРОСТАЯ ШАЛОСТЬ' : 'ПАКОСТЬ'}
+                    {/* Блок с фото из карточки */}
+                    <div 
+                      className="challenge-image-block"
+                      style={{ 
+                        backgroundImage: `url(${getChallengeImage(teamData.activeChallenge)})`,
+                        backgroundColor: '#2a2a2a'
+                      }}
+                    >
+                      <div className="challenge-reward-overlay">
+                        <svg className="reward-svg" width="233" height="43" viewBox="0 0 233 43" fill="none">
+                          <path d="M20.6797 0H212.68L232.68 43H0.679688L20.6797 0Z" fill="#FF5000" fillOpacity="0.8"/>
+                        </svg>
+                        <div className="challenge-reward-text">
+                          +{teamData.activeChallenge.reward} РУБ.
+                        </div>
+                      </div>
                     </div>
-                    
-                    <div style={{
-                      color: '#FFD700', 
-                      fontSize: '24px', 
-                      fontWeight: 'bold',
-                      fontFamily: '"MT Sans LC Test 3 VF"',
-                      textAlign: 'center'
-                    }}>
-                      +{teamData.activeChallenge.reward} РУБ.
+
+                    {/* Блок с названием задания */}
+                    <div className="challenge-title-block">
+                      <div className="challenge-rarity">
+                        {getRarityDisplayName(teamData.activeChallenge.rarity)}
+                      </div>
                     </div>
-                    
-                    <div style={{
-                      color: '#FFF', 
-                      textAlign: 'center', 
-                      fontSize: '16px',
-                      fontFamily: '"MT Sans LC Test 3 VF"',
-                      lineHeight: '1.4'
-                    }}>
+
+                    {/* Блок с описанием задания */}
+                    <div className="challenge-description-block">
                       {teamData.activeChallenge.description}
                     </div>
                   </>
                 )}
               </>
             ) : (
-              <div style={{
-                color: '#FFF', 
-                textAlign: 'center', 
-                fontSize: '18px',
-                fontFamily: '"MT Sans LC Test 3 VF"',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%'
-              }}>
-                Нет активных заданий
-              </div>
+              /* Когда нет активного задания - показываем заглушку */
+              <>
+                <div 
+                  className="challenge-image-block no-challenge-image"
+                  style={{ 
+                    backgroundImage: 'none',
+                    backgroundColor: '#1a1a1a'
+                  }}
+                >
+                  <div className="no-challenge-icon">📋</div>
+                </div>
+
+                <div className="challenge-title-block">
+                  <div className="no-challenge-title">
+                    НЕТ АКТИВНЫХ ЗАДАНИЙ
+                  </div>
+                </div>
+
+                <div className="challenge-description-block">
+                  <div className="no-challenge-description">
+                    Вернитесь на страницу "Взять задание"<br/>
+                    чтобы выбрать новое задание
+                  </div>
+                </div>
+              </>
             )}
           </div>
 
-          {/* КНОПКИ - ВНЕ КАРТОЧКИ (ВСЕГДА ПОКАЗЫВАЕМ, НО ДЕЛАЕМ НЕАКТИВНЫМИ) */}
-          {hasActiveChallenge && teamData.activeChallenge && (
+          {hasActiveChallenge && teamData.activeChallenge && !waitingModeration && (
             <>
-              <div className="buttons-container" style={{
-                display: 'flex',
-                gap: '20px',
-                width: '100%',
-                justifyContent: 'center'
-              }}>
+              <div className="buttons-container">
                 <button 
-                  className="btn-done" 
+                  className={`btn-done ${buttonsDisabled ? 'disabled' : ''}`}
                   onClick={completeChallenge}
-                  disabled={buttonsDisabled || waitingModeration}
-                  style={{
-                    width: '182px',
-                    height: '54px',
-                    flexShrink: '0',
-                    background: (buttonsDisabled || waitingModeration) ? '#666' : '#313131',
-                    border: 'none',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: (buttonsDisabled || waitingModeration) ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.3s ease',
-                    opacity: (buttonsDisabled || waitingModeration) ? 0.6 : 1
-                  }}
+                  disabled={buttonsDisabled}
                 >
-                  <span className="btn-done-text" style={{
-                    width: '182px',
-                    height: '23.564px',
-                    flexShrink: '0',
-                    color: '#FFF',
-                    textAlign: 'center',
-                    fontFamily: '"MT Sans LC Test 3 VF"',
-                    fontSize: '20px',
-                    fontWeight: '100',
-                    lineHeight: 'normal',
-                    margin: '0'
-                  }}>
-                    {waitingModeration ? 'ОЖИДАНИЕ...' : 'Выполнено'}
+                  <span className="btn-done-text">
+                    Выполнено
                   </span>
                 </button>
                 <button 
-                  className="btn-cancel" 
+                  className={`btn-cancel ${buttonsDisabled ? 'disabled' : ''}`}
                   onClick={cancelChallenge}
-                  disabled={buttonsDisabled || waitingModeration}
-                  style={{
-                    width: '150.788px',
-                    height: '54px',
-                    flexShrink: '0',
-                    border: '2px solid #5A5A5A',
-                    background: 'transparent',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: (buttonsDisabled || waitingModeration) ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.3s ease',
-                    opacity: (buttonsDisabled || waitingModeration) ? 0.6 : 1
-                  }}
+                  disabled={buttonsDisabled}
                 >
-                  <span className="btn-cancel-text" style={{
-                    width: '150.359px',
-                    height: '23.577px',
-                    flexShrink: '0',
-                    color: '#FFF',
-                    textAlign: 'center',
-                    fontFamily: '"MT Sans LC Test 3 VF"',
-                    fontSize: '20px',
-                    fontWeight: '100',
-                    lineHeight: 'normal',
-                    margin: '0'
-                  }}>
+                  <span className="btn-cancel-text">
                     Отменить
                   </span>
                 </button>
               </div>
 
-              {/* ИНФОРМАЦИЯ ОБ ОТМЕНАХ - ВНЕ КАРТОЧКИ */}
-              <div className="cancels-info-block" style={{
-                display: 'flex',
-                padding: '10px 20px',
-                alignItems: 'center',
-                gap: '5px',
-                alignSelf: 'stretch',
-                border: '1px solid #4B4B4B',
-                borderRadius: '8px',
-                background: 'rgba(75, 75, 75, 0.1)'
-              }}>
-                <div className="cancels-text" style={{
-                  width: '230px',
-                  color: '#FFF',
-                  fontFamily: '"MT Sans LC Test 3 VF"',
-                  fontSize: '16px',
-                  fontWeight: '100',
-                  lineHeight: 'normal',
-                  margin: '0'
-                }}>
+              <div className="cancels-info-block">
+                <div className="cancels-text">
                   Осталось бесплатных отмен:
                   <br/>
-                  <span className="penalty-text" style={{
-                    color: '#FE791A',
-                    fontFamily: '"MT Sans LC Test 3 VF"',
-                    fontSize: '16px',
-                    fontWeight: '100',
-                    lineHeight: 'normal'
-                  }}>
+                  <span className="penalty-text">
                     (Последующие отмены: -20% от награды)
                   </span>
                 </div>
-                <div className="cancels-count" style={{
-                  width: '79px',
-                  color: '#FE791A',
-                  textAlign: 'right',
-                  fontFamily: '"MT Sans LC Test 3 VF"',
-                  fontSize: '32px',
-                  fontWeight: '350',
-                  lineHeight: 'normal',
-                  margin: '0'
-                }}>
+                <div className="cancels-count">
                   {cancelInfo.freeCancelsLeft}/3
                 </div>
               </div>
@@ -510,264 +373,72 @@ const MyTeamPage = () => {
         </div>
 
         {/* ПРАВЫЙ БЛОК */}
-        <div className="right-panel" style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px',
-          flex: '1'
-        }}>
-          {/* ОРАНЖЕВЫЙ БЛОК КОТЁЛ КОМАНДЫ - ВЕРНУЛ */}
-          <div style={{
-            width: '709px',
-            height: '114px',
-            flexShrink: '0',
-            border: '1px solid #FE791A',
-            background: 'rgba(255, 80, 0, 0.70)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '8px'
-          }}>
-            <div style={{
-              width: '709px',
-              height: '51px',
-              flexShrink: '0',
-              color: '#FFF',
-              textAlign: 'center',
-              fontFamily: '"MT Sans LC Test 3 VF"',
-              fontSize: '42px',
-              fontWeight: '350',
-              lineHeight: '120%'
-            }}>
+        <div className="right-panel">
+          {/* ОРАНЖЕВЫЙ БЛОК КОТЁЛ КОМАНДЫ */}
+          <div className="balance-orange-block">
+            <div className="balance-orange-text">
               КОТЁЛ КОМАНДЫ: {currentBalance.toLocaleString()} руб.
             </div>
           </div>
 
-          {/* Блоки МЕСТО В ТАБЛИЦЕ и ВЫПОЛНЕНО ЗАДАНИЙ */}
-          <div style={{
-            display: 'flex',
-            gap: '20px',
-            width: '100%'
-          }}>
+          {/* Блоки статистики */}
+          <div className="stats-container">
             {/* Блок МЕСТО В ТАБЛИЦЕ */}
-            <div style={{
-              display: 'flex',
-              padding: '20px 25px',
-              alignItems: 'center',
-              gap: '30px',
-              border: '1px solid #FFF',
-              background: 'linear-gradient(0deg, rgba(255, 255, 255, 0.40) 0%, rgba(69, 69, 69, 0.40) 100%)',
-              borderRadius: '8px',
-              flex: '1',
-              height: '100px', // Уменьшил высоту
-              justifyContent: 'space-between',
-              minWidth: '0'
-            }}>
-              <div style={{
-                color: '#FFF',
-                fontFamily: '"MT Sans LC Test 3 VF"',
-                fontSize: '22px', // Уменьшил шрифт
-                fontWeight: '350',
-                lineHeight: '120%',
-                textAlign: 'center',
-                whiteSpace: 'nowrap',
-                flexShrink: 0
-              }}>
+            <div className="stat-block">
+              <div className="stat-text">
                 МЕСТО В ТАБЛИЦЕ
               </div>
-              <div style={{
-                color: '#FFF',
-                fontFamily: '"MT Sans LC Test 3 VF"',
-                fontSize: '52px', // Уменьшил шрифт
-                fontWeight: '350',
-                lineHeight: '120%',
-                textAlign: 'center',
-                whiteSpace: 'nowrap',
-                flexShrink: 0
-              }}>
+              <div className="stat-value">
                 #{currentPosition}
               </div>
             </div>
 
             {/* Блок ВЫПОЛНЕНО ЗАДАНИЙ */}
-            <div style={{
-              display: 'flex',
-              padding: '20px 25px',
-              alignItems: 'center',
-              gap: '30px',
-              border: '1px solid #FFF',
-              background: 'linear-gradient(0deg, rgba(255, 255, 255, 0.40) 0%, rgba(69, 69, 69, 0.40) 100%)',
-              borderRadius: '8px',
-              flex: '1',
-              height: '100px', // Уменьшил высоту
-              justifyContent: 'space-between',
-              minWidth: '0'
-            }}>
-              <div style={{
-                color: '#FFF',
-                fontFamily: '"MT Sans LC Test 3 VF"',
-                fontSize: '22px', // Уменьшил шрифт
-                fontWeight: '350',
-                lineHeight: '120%',
-                textAlign: 'center',
-                whiteSpace: 'nowrap',
-                flexShrink: 0
-              }}>
+            <div className="stat-block">
+              <div className="stat-text">
                 ВЫПОЛНЕНО ЗАДАНИЙ
               </div>
-              <div style={{
-                color: '#FFF',
-                fontFamily: '"MT Sans LC Test 3 VF"',
-                fontSize: '52px', // Уменьшил шрифт
-                fontWeight: '350',
-                lineHeight: '120%',
-                textAlign: 'center',
-                whiteSpace: 'nowrap',
-                flexShrink: 0
-              }}>
+              <div className="stat-value">
                 {currentCompletedChallenges}
               </div>
             </div>
           </div>
 
           {/* Большой блок КОТЛЫ КОМАНД */}
-          <div style={{
-            display: 'flex',
-            width: '709px',
-            height: '445px',
-            padding: '45px',
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            gap: '20px',
-            flexShrink: '0',
-            border: '1px solid #FFF',
-            background: 'linear-gradient(180deg, rgba(49, 49, 49, 0.80) 0%, rgba(15, 15, 15, 0.90) 100%)',
-            borderRadius: '12px'
-          }}>
-            {/* Заголовок КОТЛЫ КОМАНД */}
-            <div style={{
-              height: '44px',
-              flexShrink: '0',
-              alignSelf: 'stretch',
-              color: '#FFF',
-              fontFamily: '"MT Sans LC Test 3 VF"',
-              fontSize: '42px',
-              fontWeight: '350',
-              lineHeight: 'normal',
-              textAlign: 'center'
-            }}>
+          <div className="leaderboard-main-block">
+            <div className="leaderboard-title">
               КОТЛЫ КОМАНД
             </div>
 
-            {/* Заголовки таблицы */}
-            <div style={{
-              display: 'flex',
-              width: '100%',
-              justifyContent: 'space-between',
-              padding: '10px 0',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-            }}>
-              <div style={{
-                flex: '1',
-                color: '#C5C5C5',
-                fontFamily: '"MT Sans LC Test 3 VF"',
-                fontSize: '16px',
-                fontWeight: '100',
-                lineHeight: 'normal',
-                textAlign: 'left'
-              }}>
+            <div className="leaderboard-headers">
+              <div className="header-team">
                 Команда
               </div>
-              <div style={{
-                flex: '1',
-                color: '#C5C5C5',
-                fontFamily: '"MT Sans LC Test 3 VF"',
-                fontSize: '16px',
-                fontWeight: '100',
-                lineHeight: 'normal',
-                textAlign: 'center'
-              }}>
+              <div className="header-tasks">
                 Выполненные задания
               </div>
-              <div style={{
-                flex: '1',
-                color: '#C5C5C5',
-                fontFamily: '"MT Sans LC Test 3 VF"',
-                fontSize: '16px',
-                fontWeight: '100',
-                lineHeight: 'normal',
-                textAlign: 'right'
-              }}>
+              <div className="header-balance">
                 Баланс
               </div>
             </div>
 
-            {/* Список команд */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '15px',
-              width: '100%',
-              marginTop: '10px',
-              overflowY: 'auto',
-              maxHeight: '280px'
-            }}>
+            <div className="leaderboard-list">
               {Array.isArray(leaderboard) && leaderboard.length > 0 ? (
                 leaderboard.map((team, index) => (
-                  <div key={team.id || team.name} style={{
-                    display: 'flex',
-                    width: '100%',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '8px 0',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
-                  }}>
-                    <div style={{
-                      flex: '1',
-                      color: '#FFF',
-                      fontFamily: '"MT Sans LC Test 3 VF"',
-                      fontSize: '16px',
-                      fontWeight: '350',
-                      lineHeight: 'normal',
-                      textAlign: 'left',
-                      whiteSpace: 'nowrap', // Одна строка
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}>
+                  <div key={team.id || team.name} className="leaderboard-row">
+                    <div className="team-name">
                       {team.name.toUpperCase()}
                     </div>
-                    <div style={{
-                      flex: '1',
-                      color: '#FFF',
-                      fontFamily: '"MT Sans LC Test 3 VF"',
-                      fontSize: '16px',
-                      fontWeight: '100',
-                      lineHeight: 'normal',
-                      textAlign: 'center'
-                    }}>
+                    <div className="team-tasks">
                       {team.completed_challenges || 0}
                     </div>
-                    <div style={{
-                      flex: '1',
-                      color: '#FFF',
-                      fontFamily: '"MT Sans LC Test 3 VF"',
-                      fontSize: '16px',
-                      fontWeight: '100',
-                      lineHeight: 'normal',
-                      textAlign: 'right'
-                    }}>
+                    <div className="team-balance">
                       {team.balance?.toLocaleString()} руб.
                     </div>
                   </div>
                 ))
               ) : (
-                <div style={{
-                  color: '#FFF',
-                  textAlign: 'center',
-                  padding: '20px',
-                  fontFamily: '"MT Sans LC Test 3 VF"',
-                  fontSize: '16px'
-                }}>
+                <div className="leaderboard-loading">
                   Загрузка данных команд...
                 </div>
               )}
