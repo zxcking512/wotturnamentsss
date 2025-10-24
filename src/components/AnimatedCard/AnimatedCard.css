@@ -551,7 +551,7 @@
   max-width: 250px;
 }
 
-/* СТИЛИ ДЛЯ ПРИНЯТОГО ЗАДАНИЯ */
+/* СТИЛИ ДЛЯ ПРИНЯТОГО ЗАДАНИЯ (ЭПИК И КОММОН) */
 .animated-card.task-accepted {
   cursor: not-allowed;
   pointer-events: none;

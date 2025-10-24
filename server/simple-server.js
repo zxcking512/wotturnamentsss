@@ -12,6 +12,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Глобальная переменная для хранения уведомлений
+let mischiefNotifications = [];
+
 // ПРОСТОЙ CORS - разрешаем localhost
 app.use(cors({
   origin: function (origin, callback) {
@@ -32,7 +35,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin']
 }));
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -312,6 +314,54 @@ function generateChallengeSet(allChallenges, probabilities) {
     return selectedChallenges;
 }
 
+// API для уведомлений о пакостях
+app.get('/api/mischief/notifications', (req, res) => {
+    const teamId = req.session.user.team_id;
+    
+    if (!teamId) {
+        return res.json({ hasNewMischief: false, mischiefData: null });
+    }
+
+    // Найти непрочитанные уведомления для этой команды
+    const teamNotifications = mischiefNotifications.filter(notification => 
+        notification.targetTeamId === teamId && !notification.isRead
+    );
+    
+    if (teamNotifications.length > 0) {
+        const latestNotification = teamNotifications[0];
+        
+        // Помечаем как прочитанное
+        latestNotification.isRead = true;
+        
+        res.json({
+            hasNewMischief: true,
+            mischiefData: {
+                id: latestNotification.id,
+                attacker: latestNotification.attackerName,
+                target: latestNotification.targetName,
+                amount: latestNotification.amount,
+                timestamp: latestNotification.timestamp
+            }
+        });
+    } else {
+        res.json({
+            hasNewMischief: false,
+            mischiefData: null
+        });
+    }
+});
+
+app.post('/api/mischief/notifications/:id/read', (req, res) => {
+    const notificationId = parseInt(req.params.id);
+    
+    const notification = mischiefNotifications.find(n => n.id === notificationId);
+    if (notification) {
+        notification.isRead = true;
+    }
+    
+    res.json({ success: true });
+});
+
 app.get('/api/teams/for-mischief', (req, res) => {
     const currentTeamId = req.session.user.team_id;
 
@@ -321,11 +371,12 @@ app.get('/api/teams/for-mischief', (req, res) => {
     });
 });
 
-// ИСПРАВЛЕННЫЙ API для выбора цели пакости
+// ОБНОВЛЕННЫЙ API для выбора цели пакости - добавляем создание уведомления
 app.post('/api/challenges/select-mischief-target', (req, res) => {
     const { challengeId, targetTeamId } = req.body;
     const userId = req.session.user.id;
     const userTeamId = req.session.user.team_id;
+    const userTeamName = req.session.user.team_name;
 
     if (!challengeId || !targetTeamId) {
         return res.status(400).json({ error: 'Challenge ID and target team ID required' });
@@ -355,11 +406,36 @@ app.post('/api/challenges/select-mischief-target', (req, res) => {
                     
                     db.run(`UPDATE teams SET balance = balance - ? WHERE id = ?`, [stolenAmount, targetTeamId]);
                     db.run(`INSERT INTO transactions (team_id, amount, type, description) VALUES (?, ?, ?, ?)`,
-                        [targetTeamId, -stolenAmount, 'mischief_stolen', `Пакость: украдено командой ${req.session.user.team_name}`]);
+                        [targetTeamId, -stolenAmount, 'mischief_stolen', `Пакость: украдено командой ${userTeamName}`]);
 
                     db.run(`UPDATE teams SET balance = balance + ? WHERE id = ?`, [stolenAmount, userTeamId]);
                     db.run(`INSERT INTO transactions (team_id, amount, type, description) VALUES (?, ?, ?, ?)`,
                         [userTeamId, stolenAmount, 'mischief_gained', `Пакость: украдено у команды ${targetTeamId}`]);
+
+                    // Создаем уведомление для цели
+                    db.get(`SELECT name FROM teams WHERE id = ?`, [targetTeamId], (err, targetTeam) => {
+                        if (targetTeam) {
+                            const newNotification = {
+                                id: Date.now(),
+                                attackerTeamId: userTeamId,
+                                attackerName: userTeamName,
+                                targetTeamId: parseInt(targetTeamId),
+                                targetName: targetTeam.name,
+                                amount: stolenAmount,
+                                timestamp: new Date().toISOString(),
+                                isRead: false
+                            };
+                            
+                            mischiefNotifications.push(newNotification);
+                            
+                            // Ограничиваем историю (последние 100 уведомлений)
+                            if (mischiefNotifications.length > 100) {
+                                mischiefNotifications = mischiefNotifications.slice(-100);
+                            }
+                            
+                            console.log(`🔔 Создано уведомление о пакости: ${userTeamName} -> ${targetTeam.name} (-${stolenAmount} руб.)`);
+                        }
+                    });
 
                     // Помечаем задание выполненным
                     db.run(`UPDATE user_challenges SET status = 'completed' WHERE user_id = ? AND challenge_id = ?`, 
@@ -984,4 +1060,5 @@ app.get('/api/leaderboard', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📊 API endpoints available at http://localhost:${PORT}/api/`);
+  console.log(`🔔 Система уведомлений о пакостях активирована!`);
 });

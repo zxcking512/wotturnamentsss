@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import api from '../services/api';
 import './MyTeamPageStyles.css';
 import VideoBackground from '../components/VideoBackground/VideoBackground';
+import { useNavigate } from 'react-router-dom';
 
 const MyTeamPage = () => {
   const { user } = useAuth();
@@ -13,6 +14,8 @@ const MyTeamPage = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [waitingModeration, setWaitingModeration] = useState(false);
   const [buttonsDisabled, setButtonsDisabled] = useState(false);
+  const [challengeCancelled, setChallengeCancelled] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -122,6 +125,7 @@ const MyTeamPage = () => {
       
       setHasActiveChallenge(false);
       setWaitingModeration(false);
+      setChallengeCancelled(true);
       await loadTeamData();
       await loadLeaderboard();
       setButtonsDisabled(false);
@@ -182,13 +186,11 @@ const MyTeamPage = () => {
     }
   };
 
-  // ИСПРАВЛЕННАЯ функция для получения URL изображения - ТЕПЕРЬ СОВПАДАЕТ С AnimatedCard
   const getChallengeImage = (challenge) => {
     if (!challenge) return '/images/cards/common/common-1.jpg';
     
     const rarity = challenge.rarity || 'common';
     
-    // ТЕПЕРЬ ПУТИ СОВПАДАЮТ С AnimatedCard.jsx
     switch(rarity) {
       case 'epic':
         return '/images/cards/epic/epic-1.jpg';
@@ -200,6 +202,11 @@ const MyTeamPage = () => {
       default:
         return '/images/cards/common/common-1.jpg';
     }
+  };
+
+  const handleTakeChallenge = () => {
+    navigate('/main');
+    setChallengeCancelled(false);
   };
 
   if (!teamData) {
@@ -222,82 +229,84 @@ const MyTeamPage = () => {
     <div className="my-team-page">
       <VideoBackground />
       
-      {/* Заголовок сдвинут левее */}
+      {/* Заголовок команды с иконкой */}
       <div className="team-header-title">
+        <img 
+          src="/images/iconsa/fwfw.svg" 
+          alt="Иконка команды" 
+          className="team-header-icon"
+        />
         КОМАНДА {getTeamDisplayName()}
       </div>
       
       <div className="team-container">
-        {/* ЛЕВЫЙ БЛОК - ВСЕГДА БОЛЬШОЙ */}
+        {/* ЛЕВЫЙ БЛОК */}
         <div className="left-panel">
           <div className="current-task-title">
             ТЕКУЩЕЕ ЗАДАНИЕ
           </div>
           
           <div className="challenge-card-container">
-            {hasActiveChallenge && teamData.activeChallenge ? (
+            {challengeCancelled ? (
+              /* СОСТОЯНИЕ ОТМЕНЫ ЗАДАНИЯ */
+              <div className="challenge-content-wrapper cancelled">
+                <div className="challenge-main-text cancelled">
+                  ЗАДАНИЕ ОТМЕНЕНО
+                </div>
+                <div className="challenge-description-text cancelled">
+                  Вы отменили выполнение текущего испытания. Теперь вы можете взять новое во вкладке "Взять задание"
+                </div>
+              </div>
+            ) : hasActiveChallenge && teamData.activeChallenge ? (
               <>
                 {waitingModeration ? (
-                  <>
-                    {/* Блок с фото даже при модерации */}
-                    <div 
-                      className="challenge-image-block"
-                      style={{ 
-                        backgroundImage: `url(${getChallengeImage(teamData.activeChallenge)})`,
-                        backgroundColor: '#2a2a2a'
-                      }}
-                    >
-                      <div className="challenge-reward-overlay">
-                        <svg className="reward-svg" width="233" height="43" viewBox="0 0 233 43" fill="none">
-                          <path d="M20.6797 0H212.68L232.68 43H0.679688L20.6797 0Z" fill="#FF5000" fillOpacity="0.8"/>
-                        </svg>
-                        <div className="challenge-reward-text">
-                          +{teamData.activeChallenge.reward} РУБ.
-                        </div>
+                  /* СОСТОЯНИЕ МОДЕРАЦИИ - С ФОНОМ КАРТИНКИ */
+                  <div 
+                    className="challenge-content-wrapper moderation"
+                    style={{ 
+                      backgroundImage: `url(${getChallengeImage(teamData.activeChallenge)})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat'
+                    }}
+                  >
+                    <div className="moderation-overlay">
+                      <div className="challenge-main-text moderation">
+                        ЗАДАНИЕ НА МОДЕРАЦИИ
+                      </div>
+                      <div className="challenge-description-text moderation">
+                        Проверяем условия выполнения. Это может занять несколько минут
                       </div>
                     </div>
-
-                    <div className="challenge-title-block">
-                      <div className="moderation-status">
-                        ОЖИДАЕТ ПРОВЕРКИ
-                      </div>
-                    </div>
-
-                    <div className="challenge-description-block">
-                      <div className="moderation-description">
-                        Проверяем условия выполнения.<br/>
-                        Это может занять несколько минут
-                      </div>
-                    </div>
-                  </>
+                  </div>
                 ) : (
+                  /* АКТИВНОЕ ЗАДАНИЕ */
                   <>
-                    {/* Блок с фото из карточки */}
                     <div 
-                      className="challenge-image-block"
+                      className="challenge-image-block active"
                       style={{ 
                         backgroundImage: `url(${getChallengeImage(teamData.activeChallenge)})`,
                         backgroundColor: '#2a2a2a'
                       }}
                     >
-                      <div className="challenge-reward-overlay">
-                        <svg className="reward-svg" width="233" height="43" viewBox="0 0 233 43" fill="none">
-                          <path d="M20.6797 0H212.68L232.68 43H0.679688L20.6797 0Z" fill="#FF5000" fillOpacity="0.8"/>
-                        </svg>
-                        <div className="challenge-reward-text">
-                          +{teamData.activeChallenge.reward} РУБ.
+                      <div className="challenge-reward-container">
+                        <div className="challenge-reward-overlay">
+                          <svg className="reward-svg" width="233" height="43" viewBox="0 0 233 43" fill="none">
+                            <path d="M20.6797 0H212.68L232.68 43H0.679688L20.6797 0Z" fill="#FF5000" fillOpacity="0.8"/>
+                          </svg>
+                          <div className="challenge-reward-text">
+                            +{teamData.activeChallenge.reward} РУБ.
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Блок с названием задания */}
                     <div className="challenge-title-block">
                       <div className="challenge-rarity">
                         {getRarityDisplayName(teamData.activeChallenge.rarity)}
                       </div>
                     </div>
 
-                    {/* Блок с описанием задания */}
                     <div className="challenge-description-block">
                       {teamData.activeChallenge.description}
                     </div>
@@ -305,41 +314,52 @@ const MyTeamPage = () => {
                 )}
               </>
             ) : (
-              /* Когда нет активного задания - показываем заглушку */
-              <>
-                <div 
-                  className="challenge-image-block no-challenge-image"
-                  style={{ 
-                    backgroundImage: 'none',
-                    backgroundColor: '#1a1a1a'
-                  }}
-                >
-                  <div className="no-challenge-icon">📋</div>
+              /* КОГДА НЕТ АКТИВНЫХ ЗАДАНИЙ */
+              <div className="challenge-content-wrapper no-challenge">
+                <div className="challenge-main-text no-challenge">
+                  НЕТ ЗАДАНИЙ
                 </div>
-
-                <div className="challenge-title-block">
-                  <div className="no-challenge-title">
-                    НЕТ АКТИВНЫХ ЗАДАНИЙ
-                  </div>
+                <div className="challenge-description-text no-challenge">
+                  У вашей команды пока нет активных заданий. Вы можете взять новое во вкладке "Взять задание"
                 </div>
-
-                <div className="challenge-description-block">
-                  <div className="no-challenge-description">
-                    Вернитесь на страницу "Взять задание"<br/>
-                    чтобы выбрать новое задание
-                  </div>
-                </div>
-              </>
+              </div>
             )}
           </div>
 
-          {hasActiveChallenge && teamData.activeChallenge && !waitingModeration && (
+          {/* КНОПКИ И ИНФОРМАЦИЯ ОБ ОТМЕНАХ */}
+          {challengeCancelled ? (
+            /* КОГДА ЗАДАНИЕ ОТМЕНЕНО */
+            <>
+              <button 
+                className="take-challenge-btn"
+                onClick={handleTakeChallenge}
+              >
+                <span className="take-challenge-text">
+                  Взять задание
+                </span>
+              </button>
+
+              <div className="cancels-info-block">
+                <div className="cancels-text">
+                  Осталось бесплатных отмен:
+                  <br/>
+                  <span className="penalty-text">
+                    (Последующие отмены: -20% от награды)
+                  </span>
+                </div>
+                <div className="cancels-count">
+                  {cancelInfo.freeCancelsLeft}/3
+                </div>
+              </div>
+            </>
+          ) : hasActiveChallenge && teamData.activeChallenge ? (
+            /* КОГДА ЕСТЬ АКТИВНОЕ ЗАДАНИЕ */
             <>
               <div className="buttons-container">
                 <button 
                   className={`btn-done ${buttonsDisabled ? 'disabled' : ''}`}
                   onClick={completeChallenge}
-                  disabled={buttonsDisabled}
+                  disabled={buttonsDisabled || waitingModeration}
                 >
                   <span className="btn-done-text">
                     Выполнено
@@ -348,7 +368,7 @@ const MyTeamPage = () => {
                 <button 
                   className={`btn-cancel ${buttonsDisabled ? 'disabled' : ''}`}
                   onClick={cancelChallenge}
-                  disabled={buttonsDisabled}
+                  disabled={buttonsDisabled || waitingModeration}
                 >
                   <span className="btn-cancel-text">
                     Отменить
@@ -369,34 +389,56 @@ const MyTeamPage = () => {
                 </div>
               </div>
             </>
+          ) : (
+            /* КОГДА НЕТ ЗАДАНИЙ */
+            <>
+              <button 
+                className="take-challenge-btn"
+                onClick={handleTakeChallenge}
+              >
+                <span className="take-challenge-text">
+                  Взять задание
+                </span>
+              </button>
+
+              <div className="cancels-info-block">
+                <div className="cancels-text">
+                  Осталось бесплатных отмен:
+                  <br/>
+                  <span className="penalty-text">
+                    (Последующие отмены: -20% от награды)
+                  </span>
+                </div>
+                <div className="cancels-count">
+                  {cancelInfo.freeCancelsLeft}/3
+                </div>
+              </div>
+            </>
           )}
         </div>
 
         {/* ПРАВЫЙ БЛОК */}
         <div className="right-panel">
-          {/* ОРАНЖЕВЫЙ БЛОК КОТЁЛ КОМАНДЫ */}
           <div className="balance-orange-block">
             <div className="balance-orange-text">
               КОТЁЛ КОМАНДЫ: {currentBalance.toLocaleString()} руб.
             </div>
           </div>
 
-          {/* Блоки статистики */}
+          {/* Блоки статистики с двумя строками */}
           <div className="stats-container">
-            {/* Блок МЕСТО В ТАБЛИЦЕ */}
             <div className="stat-block">
               <div className="stat-text">
-                МЕСТО В ТАБЛИЦЕ
+                МЕСТО В<br/>ТАБЛИЦЕ
               </div>
               <div className="stat-value">
                 #{currentPosition}
               </div>
             </div>
 
-            {/* Блок ВЫПОЛНЕНО ЗАДАНИЙ */}
             <div className="stat-block">
               <div className="stat-text">
-                ВЫПОЛНЕНО ЗАДАНИЙ
+                ВЫПОЛНЕНО<br/>ЗАДАНИЙ
               </div>
               <div className="stat-value">
                 {currentCompletedChallenges}
@@ -404,7 +446,7 @@ const MyTeamPage = () => {
             </div>
           </div>
 
-          {/* Большой блок КОТЛЫ КОМАНД */}
+          {/* Блок КОТЛЫ КОМАНД */}
           <div className="leaderboard-main-block">
             <div className="leaderboard-title">
               КОТЛЫ КОМАНД
@@ -426,13 +468,22 @@ const MyTeamPage = () => {
               {Array.isArray(leaderboard) && leaderboard.length > 0 ? (
                 leaderboard.map((team, index) => (
                   <div key={team.id || team.name} className="leaderboard-row">
-                    <div className="team-name">
-                      {team.name.toUpperCase()}
+                    <div className="team-name-cell">
+                      <div className="team-logo-name-wrapper">
+                        <img 
+                          src="/images/iconsa/icon-62.svg" 
+                          alt="Логотип" 
+                          className="team-logo"
+                        />
+                        <span className="team-name-text">
+                          {team.name.toUpperCase()}
+                        </span>
+                      </div>
                     </div>
-                    <div className="team-tasks">
+                    <div className="team-tasks-cell">
                       {team.completed_challenges || 0}
                     </div>
-                    <div className="team-balance">
+                    <div className="team-balance-cell">
                       {team.balance?.toLocaleString()} руб.
                     </div>
                   </div>

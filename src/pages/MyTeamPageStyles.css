@@ -17,7 +17,7 @@
     font-size: 18px;
 }
 
-/* Заголовок команды - СДВИНУТ ЛЕВЕЕ */
+/* Заголовок команды с иконкой */
 .team-header-title {
     position: absolute;
     margin-top: 10px;
@@ -29,12 +29,21 @@
     font-size: 68px;
     font-weight: 350;
     line-height: normal;
-    text-transform: uppercase;
     text-align: center;
     z-index: 3;
     white-space: nowrap;
     width: auto;
     min-width: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.team-header-icon {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
 }
 
 /* Основной контейнер */
@@ -46,18 +55,18 @@
     align-items: flex-start;
     position: relative;
     z-index: 2;
-    margin-top: 120px;
+    margin-top: 100px;
 }
 
-/* ЛЕВЫЙ БЛОК - ВСЕГДА БОЛЬШОЙ */
+/* ЛЕВЫЙ БЛОК - УМЕНЬШЕННЫЙ */
 .left-panel {
     width: 444px;
-    height: 741px; /* Фиксированная высота */
-    padding: 40px 45px;
+    height: 650px;
+    padding: 30px 35px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
     flex-shrink: 0;
     border: 1px solid #FF5000;
     background: linear-gradient(180deg, rgba(49, 49, 49, 0.80) 0%, rgba(15, 15, 15, 0.90) 100%);
@@ -65,7 +74,6 @@
     backdrop-filter: blur(10px);
 }
 
-/* Заголовок "ТЕКУЩЕЕ ЗАДАНИЕ" */
 .current-task-title {
     height: 51.073px;
     width: 100%;
@@ -82,10 +90,9 @@
     white-space: nowrap;
 }
 
-/* КОНТЕЙНЕР ДЛЯ КАРТОЧКИ ЗАДАНИЯ - ВСЕГДА ОДИНАКОВЫЙ */
 .challenge-card-container {
     width: 354px;
-    height: 536px;
+    height: 450px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -94,12 +101,110 @@
     background: radial-gradient(50% 50% at 50% 50%, rgba(18, 18, 18, 0.76) 0%, rgba(18, 18, 18, 0.95) 100%);
     border-radius: 0px;
     overflow: hidden;
+    position: relative;
 }
 
-/* Блок с фото из карточки */
-.challenge-image-block {
+/* ОБЩИЙ КОНТЕЙНЕР ДЛЯ ВСЕХ СОСТОЯНИЙ */
+.challenge-content-wrapper {
     width: 100%;
-    height: 216px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    padding: 40px 20px;
+}
+
+/* ОСНОВНОЙ ТЕКСТ ДЛЯ ВСЕХ СОСТОЯНИЙ */
+.challenge-main-text {
+    width: 270.79px;
+    height: 92px;
+    font-family: "MT Sans LC Test 3 VF";
+    font-weight: 350;
+    font-style: normal;
+    font-size: 42px;
+    line-height: 110%;
+    letter-spacing: 0%;
+    text-align: center;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ОПИСАНИЕ ДЛЯ ВСЕХ СОСТОЯНИЙ */
+.challenge-description-text {
+    font-family: "MT Sans LC Test 3 VF";
+    font-weight: 100;
+    font-style: normal;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* СОСТОЯНИЕ: НЕТ ЗАДАНИЙ */
+.challenge-content-wrapper.no-challenge .challenge-main-text {
+    color: #FDFDFD;
+    height: 46px;
+}
+
+.challenge-content-wrapper.no-challenge .challenge-description-text {
+    width: 231px;
+    height: 60px;
+    color: #FFFFFF;
+}
+
+/* СОСТОЯНИЕ: ОТМЕНА ЗАДАНИЯ */
+.challenge-content-wrapper.cancelled .challenge-main-text {
+    color: #FF5000;
+}
+
+.challenge-content-wrapper.cancelled .challenge-description-text {
+    width: 218px;
+    height: 60px;
+    color: #FFFFFF;
+}
+
+/* СОСТОЯНИЕ: МОДЕРАЦИЯ - С ФОНОМ КАРТИНКИ */
+.challenge-content-wrapper.moderation {
+    position: relative;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
+.moderation-overlay {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    background: rgba(0, 0, 0, 0.7); /* Темный оверлей для читаемости */
+    padding: 40px 20px;
+}
+
+.challenge-content-wrapper.moderation .challenge-main-text {
+    color: #FF5000;
+}
+
+.challenge-content-wrapper.moderation .challenge-description-text {
+    width: 215px;
+    height: 40px;
+    color: #FFFFFF;
+}
+
+/* БЛОК С ИЗОБРАЖЕНИЕМ ДЛЯ АКТИВНОГО ЗАДАНИЯ - ЗАНИМАЕТ ПОЛОВИНУ КАРТОЧКИ */
+.challenge-image-block.active {
+    width: 100%;
+    height: 250px; /* РОВНО ПОЛОВИНА ОТ 450px */
     position: relative;
     background-size: cover;
     background-position: center;
@@ -108,27 +213,26 @@
     display: flex;
     align-items: flex-end;
     justify-content: center;
+    opacity: 0.9;
 }
 
-/* Стиль для отсутствующего изображения */
-.challenge-image-block.no-challenge-image {
+/* КОНТЕЙНЕР ДЛЯ ТРАПЕЦИИ - В САМОМ НИЗУ КАРТИНКИ */
+.challenge-reward-container {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #1a1a1a;
+    
 }
 
-.no-challenge-icon {
-    font-size: 64px;
-    opacity: 0.5;
-}
-
-/* Оранжевый блок с наградой */
 .challenge-reward-overlay {
     position: relative;
     width: 233px;
     height: 43px;
-    margin-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -140,20 +244,33 @@
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 1;
 }
 
 .challenge-reward-text {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     color: #FFF;
     text-align: center;
     font-family: "MT Sans LC Test 3 VF";
     font-size: 28px;
     font-weight: 350;
     line-height: normal;
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+
+    @media (max-width: 768px) {
+        .challenge-reward-text {
+            font-size: 24px;
+            padding: 0 15px;
+        }
+    }
 }
 
-/* Блок с названием задания */
 .challenge-title-block {
     width: 100%;
     height: 80px;
@@ -165,7 +282,9 @@
     gap: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
-
+.challenge-reward-text-small {
+    font-size: 18px;
+}
 .challenge-rarity {
     color: #FF5000;
     text-align: center;
@@ -176,35 +295,14 @@
     margin: 0;
 }
 
-.moderation-status {
-    color: #FFA500;
-    text-align: center;
-    font-family: "MT Sans LC Test 3 VF";
-    font-size: 24px;
-    font-weight: 350;
-    line-height: normal;
-    margin: 0;
-}
-
-.no-challenge-title {
-    color: #888;
-    text-align: center;
-    font-family: "MT Sans LC Test 3 VF";
-    font-size: 20px;
-    font-weight: 350;
-    line-height: normal;
-    margin: 0;
-}
-
-/* Блок с описанием задания */
 .challenge-description-block {
     width: 100%;
-    height: 240px;
-    padding: 20px;
+    height: 145px; /* ОСТАВШАЯСЯ ВЫСОТА */
+    padding: 15px;
     color: #FFF;
     text-align: center;
     font-family: "MT Sans LC Test 3 VF";
-    font-size: 16px;
+    font-size: 15px;
     font-style: normal;
     font-weight: 100;
     line-height: 1.4;
@@ -213,23 +311,40 @@
     justify-content: center;
 }
 
-.moderation-description {
-    color: #FFF;
-    text-align: center;
-    font-size: 16px;
-    font-family: "MT Sans LC Test 3 VF";
-    line-height: 1.4;
+/* КНОПКА ВЗЯТЬ ЗАДАНИЕ - ВЫШЕ */
+.take-challenge-btn {
+    width: 354px;
+    height: 60px;
+    background: #FF5000;
+    border: none;
+    border-radius: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0;
 }
 
-.no-challenge-description {
-    color: #888;
-    text-align: center;
-    font-size: 14px;
-    font-family: "MT Sans LC Test 3 VF";
-    line-height: 1.4;
+.take-challenge-btn:hover {
+    background: #FF6A00;
+    transform: translateY(-2px);
 }
 
-/* Контейнер для кнопок */
+.take-challenge-text {
+    width: 354px;
+    height: 23.56px;
+    color: #FFFFFF;
+    font-family: "MT Sans LC Test 3 VF";
+    font-size: 20px;
+    font-weight: 100;
+    font-style: normal;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    margin: 0;
+}
+
 .buttons-container {
     display: flex;
     gap: 20px;
@@ -238,14 +353,13 @@
     align-items: center;
 }
 
-/* Кнопка "Выполнено" */
+/* КНОПКИ ВЫПОЛНЕНО И ОТМЕНИТЬ - ВЫШЕ И ОДИНАКОВОГО РАЗМЕРА */
 .btn-done {
-    width: 182px;
-    height: 54px;
-    flex-shrink: 0;
+    width: 167px;
+    height: 60px;
     background: #313131;
     border: none;
-    border-radius: 8px;
+    border-radius: 0px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -275,11 +389,9 @@
     margin: 0;
 }
 
-/* Кнопка "Отменить" */
 .btn-cancel {
-    width: 150.788px;
-    height: 54px;
-    flex-shrink: 0;
+    width: 167px;
+    height: 60px;
     border: 2px solid #5A5A5A;
     background: transparent;
     border-radius: 0px;
@@ -354,7 +466,6 @@
     line-height: normal;
 }
 
-/* ПРАВЫЙ БЛОК */
 .right-panel {
     display: flex;
     flex-direction: column;
@@ -363,10 +474,9 @@
     min-width: 709px;
 }
 
-/* ОРАНЖЕВЫЙ БЛОК КОТЁЛ КОМАНДЫ */
 .balance-orange-block {
     width: 709px;
-    height: 114px;
+    height: 95px;
     flex-shrink: 0;
     border: 1px solid #FE791A;
     background: rgba(255, 80, 0, 0.70);
@@ -378,31 +488,31 @@
 
 .balance-orange-text {
     width: 709px;
-    height: 51px;
+    height: 45px;
     flex-shrink: 0;
     color: #FFF;
     text-align: center;
     font-family: "MT Sans LC Test 3 VF";
-    font-size: 42px;
+    font-size: 38px;
     font-weight: 350;
     line-height: 120%;
 }
 
-/* Контейнер для статистики */
+/* Контейнер для статистики - ШИРОКИЙ */
 .stats-container {
     display: flex;
     gap: 20px;
     width: 709px;
-    height: 80px;
-    margin-bottom: 20px;
+    height: 70px;
+    margin-bottom: 15px;
 }
 
-/* Блок статистики */
+/* Блок статистики - ШИРОКИЙ */
 .stat-block {
     display: flex;
-    padding: 10px 15px;
+    padding: 10px 20px;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
     border: 1px solid #FFF;
     background: linear-gradient(0deg, rgba(255, 255, 255, 0.40) 0%, rgba(69, 69, 69, 0.40) 100%);
     border-radius: 0px;
@@ -410,7 +520,7 @@
     height: 100%;
     justify-content: space-between;
     min-width: 0;
-    max-width: 344px;
+    max-width: 400px;
 }
 
 .stat-text {
@@ -420,9 +530,9 @@
     font-weight: 350;
     line-height: 120%;
     text-align: center;
-    white-space: nowrap;
+    white-space: normal;
     flex-shrink: 0;
-    min-width: 140px;
+    min-width: 120px;
 }
 
 .stat-value {
@@ -437,12 +547,11 @@
     min-width: 50px;
 }
 
-/* Большой блок КОТЛЫ КОМАНД - ПЕРЕДЕЛАН */
 .leaderboard-main-block {
     display: flex;
     width: 709px;
-    height: 475px;
-    padding: 25px 40px;
+    height: 420px;
+    padding: 20px 35px;
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
@@ -465,14 +574,13 @@
     margin-bottom: 10px;
 }
 
-/* Заголовки таблицы - ПРОСТО И ЧЕТКО */
 .leaderboard-headers {
     display: flex;
     width: 100%;
     justify-content: space-between;
     align-items: center;
     padding: 12px 0 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 .header-team {
@@ -507,7 +615,6 @@
     padding-right: 0;
 }
 
-/* Список команд - ПРОСТО И ЧЕТКО */
 .leaderboard-list {
     display: flex;
     flex-direction: column;
@@ -523,43 +630,76 @@
     align-items: center;
     padding: 10px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    min-height: 35px;
+    min-height: 38px;
 }
 
-.team-name {
+.team-logo-name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.team-logo {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.team-name-cell {
     flex: 3;
     color: #FFF;
-    font-family: "MT Sans LC Test 3 VF";
-    font-size: 16px;
-    font-weight: 350;
+    font-family: "MT Sans LC Test 3 VF" !important;
+    font-size: 14px !important;
+    font-weight: 350 !important;
     line-height: normal;
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding-left: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
-.team-tasks {
+.team-name-text {
+    color: #FFF;
+    font-family: "MT Sans LC Test 3 VF" !important;
+    font-size: 14px !important;
+    font-weight: 350 !important;
+    line-height: normal;
+}
+
+.team-tasks-cell {
     flex: 1;
     color: #FFF;
-    font-family: "MT Sans LC Test 3 VF";
-    font-size: 16px;
-    font-weight: 350;
+    font-family: "MT Sans LC Test 3 VF" !important;
+    font-size: 14px !important;
+    font-weight: 350 !important;
     line-height: normal;
     text-align: center;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.team-balance {
+.team-balance-cell {
     flex: 2;
     color: #FFF;
-    font-family: "MT Sans LC Test 3 VF";
-    font-size: 5px !important;
-    font-weight: 350;
+    font-family: "MT Sans LC Test 3 VF" !important;
+    font-size: 14px !important;
+    font-weight: 350 !important;
     line-height: normal;
     text-align: right;
     white-space: nowrap;
     padding-right: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 .leaderboard-loading {
@@ -581,7 +721,7 @@
         width: 100%;
         max-width: 500px;
         height: auto;
-        min-height: 741px;
+        min-height: 600px;
     }
     
     .right-panel {
@@ -604,7 +744,18 @@
         width: 100%;
         max-width: 400px;
         height: auto;
-        min-height: 536px;
+        min-height: 450px;
+    }
+    
+    .take-challenge-btn,
+    .btn-done,
+    .btn-cancel {
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .buttons-container {
+        flex-direction: column;
     }
 }
 
@@ -619,21 +770,37 @@
         left: 45%;
     }
     
+    .team-header-icon {
+        width: 35px;
+        height: 35px;
+    }
+    
     .left-panel {
         padding: 20px;
         height: auto;
-        min-height: 700px;
+        min-height: 580px;
     }
     
     .challenge-card-container {
         width: 100%;
         max-width: 300px;
         height: auto;
-        min-height: 500px;
+        min-height: 420px;
     }
     
-    .challenge-image-block {
-        height: 180px;
+    .challenge-image-block.active {
+        height: 210px;
+    }
+    
+    .challenge-main-text {
+        font-size: 32px;
+        width: 200px;
+        height: 70px;
+    }
+    
+    .challenge-description-text {
+        font-size: 14px;
+        width: 180px;
     }
     
     .buttons-container {
@@ -646,6 +813,11 @@
         max-width: 200px;
     }
     
+    .take-challenge-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+    
     .leaderboard-main-block {
         height: auto;
         padding: 20px;
@@ -654,10 +826,10 @@
     .header-team,
     .header-tasks,
     .header-balance,
-    .team-name,
-    .team-tasks,
-    .team-balance {
-        font-size: 14px;
+    .team-name-cell,
+    .team-tasks-cell,
+    .team-balance-cell {
+        font-size: 12px !important;
     }
     
     .leaderboard-title {
@@ -673,6 +845,11 @@
     .stat-block {
         max-width: none;
     }
+    
+    .team-logo {
+        width: 16px;
+        height: 16px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -683,11 +860,42 @@
         transform: translateX(-50%);
     }
     
+    .team-header-icon {
+        width: 25px;
+        height: 25px;
+    }
+    
     .leaderboard-main-block {
         padding: 15px;
     }
     
     .leaderboard-title {
         font-size: 24px;
+    }
+    
+    .team-name-cell,
+    .team-tasks-cell,
+    .team-balance-cell {
+        font-size: 11px !important;
+    }
+    
+    .team-logo {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .challenge-main-text {
+        font-size: 24px;
+        width: 180px;
+        height: 60px;
+    }
+    
+    .challenge-description-text {
+        font-size: 12px;
+        width: 160px;
+    }
+    
+    .challenge-image-block.active {
+        height: 190px;
     }
 }

@@ -16,6 +16,15 @@ export const AuthProvider = ({ children }) => {
   const [teamData, setTeamData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Функции проверки ролей
+  const isModerator = () => {
+    return user && user.role === 'moderator';
+  };
+
+  const isAdmin = () => {
+    return user && user.role === 'admin';
+  };
+
   const checkAuth = async () => {
     try {
       const response = await api.checkAuth();
@@ -50,6 +59,7 @@ export const AuthProvider = ({ children }) => {
         setTeamData(null);
       }
     } catch (error) {
+      console.error('Auth check error:', error);
       setUser(null);
       setTeamData(null);
     } finally {
@@ -72,7 +82,6 @@ export const AuthProvider = ({ children }) => {
             cancelCount: 0,
             isModerator: true
           });
-          setLoading(false);
           return response;
         }
         
@@ -148,7 +157,9 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     checkAuth,
-    refreshTeamData
+    refreshTeamData,
+    isModerator,    // Добавляем функции проверки ролей
+    isAdmin
   };
 
   return (

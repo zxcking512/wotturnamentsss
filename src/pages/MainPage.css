@@ -14,45 +14,45 @@ body, html, #root, .app, .app-container, .main-page {
   width: 100vw !important;
   margin: 0 !important;
   overflow: hidden !important;
-  transform: translateY(40px) !important; /* СДВИГ ВСЕЙ СТРАНИЦЫ ВНИЗ */
+  transform: translateY(40px) !important;
 }
 
-/* 🎯 ГЛАВНЫЙ КОНТЕЙНЕР - СДВИНУТ ВНИЗ И СЖАТ ПО БОКАМ */
+/* 🎯 ГЛАВНЫЙ КОНТЕЙНЕР */
 .main-container {
   display: flex !important;
   gap: 1rem !important;
   width: 100% !important;
   max-width: none !important;
-  margin: 60px auto 0 auto !important; /* СДВИГ ВНИЗ */
+  margin: 60px auto 0 auto !important;
   align-items: flex-start !important;
   justify-content: space-between !important;
   padding: 0 2rem !important;
-  transform: translateY(45px) !important; /* ДОПОЛНИТЕЛЬНЫЙ СДВИГ ВНИЗ */
+  transform: translateY(45px) !important;
 }
 
-/* ◀️ ЛЕВАЯ КОЛОНКА - СДВИНУТА ВНИЗ И БЛИЖЕ */
+/* ◀️ ЛЕВАЯ КОЛОНКА */
 .left-column {
   width: 285px !important;
   flex-shrink: 0 !important;
   margin-left: 0 !important;
-  margin-top: 60px !important; /* СДВИГ ВНИЗ */
+  margin-top: 60px !important;
   display: flex;
   justify-content: center;
-  transform: translateX(100px) translateY(-10px) !important; /* СДВИГ БЛИЖЕ К ЦЕНТРУ */
+  transform: translateX(100px) translateY(-10px) !important;
 }
 
-/* ▶️ ПРАВАЯ КОЛОНКА - СДВИНУТА ВНИЗ И БЛИЖЕ */
+/* ▶️ ПРАВАЯ КОЛОНКА */
 .right-column {
   width: 285px !important;
   flex-shrink: 0 !important;
   margin-right: 0 !important;
-  margin-top: 60px !important; /* СДВИГ ВНИЗ */
+  margin-top: 60px !important;
   display: flex;
   justify-content: center;
-  transform: translateX(-100px) translateY(-10px) !important; /* СДВИГ БЛИЖЕ К ЦЕНТРУ */
+  transform: translateX(-100px) translateY(-10px) !important;
 }
 
-/* 🎯 ЦЕНТРАЛЬНАЯ КОЛОНКА - СДВИНУТА ВЛЕВО */
+/* 🎯 ЦЕНТРАЛЬНАЯ КОЛОНКА */
 .center-column {
   flex: 1 !important;
   display: flex !important;
@@ -62,10 +62,10 @@ body, html, #root, .app, .app-container, .main-page {
   max-width: none !important;
   margin: 0 !important;
   padding: 0 !important;
-  margin-left: -20px !important; /* СИЛЬНЫЙ СДВИГ ВЛЕВО */
+  margin-left: -20px !important;
 }
 
-/* 🃏 КАРТОЧКИ - СДВИНУТЫ ВЛЕВО */
+/* 🃏 КАРТОЧКИ */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -73,23 +73,95 @@ body, html, #root, .app, .app-container, .main-page {
   margin-bottom: 1.5rem;
   width: 100%;
   max-width: 1000px !important;
-  justify-self: start !important; /* ВЫРАВНИВАНИЕ ВЛЕВО */
-  margin-left: 30px !important; /* СДВИГ ВЛЕВО */
+  justify-self: center !important;
+  margin-left: auto !important;
   margin-right: auto !important;
   align-items: start;
-  justify-items: start; /* ВЫРАВНИВАНИЕ ВЛЕВО */
+  justify-items: center;
+}
+
+/* СТИЛИ ДЛЯ АКТИВНОГО ЗАДАНИЯ */
+.active-task-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0rem;
+  width: 100%;
+  justify-content: flex-start !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.active-task-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem !important;
+  width: 100%;
+  max-width: 1000px !important;
+  justify-self: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  justify-items: center;
+}
+
+.active-task-title {
+  color: #FFF;
+  text-align: center;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 42px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 110%;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.active-task-message {
+  color: #FFF;
+  text-align: center;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: 100%;
+  margin: 0;
+  max-width: 361px;
+}
+
+.active-task-button {
+  width: 366px;
+  height: 55px;
+  background: #FF5000;
+  color: #FFF;
+  border: none;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 100;
+  line-height: 100%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.active-task-button:hover {
+  background: #FF3D00;
+  transform: translateY(-2px);
 }
 
 /* ЛЕВЫЙ БЛОК "КАРТЫ И ДЕЙСТВИЯ" */
 .cards-actions-block {
   display: flex;
   width: 285px;
-  height: 360px;
-  padding: 40px;
+  height: 360px !important;
+  padding: 35px !important;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  gap: 13px !important;
+  gap: 16px !important;
   flex-shrink: 0;
   border: 1px solid #FFF;
   background: linear-gradient(0deg, rgba(255, 255, 255, 0.30) 0%, rgba(69, 69, 69, 0.30) 100%);
@@ -97,7 +169,6 @@ body, html, #root, .app, .app-container, .main-page {
   border-radius: 0px !important;
 }
 
-/* ЗАГОЛОВОК И РАЗДЕЛИТЕЛЬ ДЛЯ ЛЕВОГО БЛОКА */
 .block-title {
   width: 205px;
   color: #FFF;
@@ -140,7 +211,7 @@ body, html, #root, .app, .app-container, .main-page {
 }
 
 .teams-rating-title {
-  width: 240px !important; /* УВЕЛИЧИЛ ШИРИНУ ДЛЯ ОДНОЙ СТРОКИ */
+  width: 240px !important;
   color: #FFF !important;
   font-family: "MT Sans LC Test 3 VF", Arial, sans-serif !important;
   font-size: 23px !important;
@@ -150,11 +221,11 @@ body, html, #root, .app, .app-container, .main-page {
   margin: 0px !important;
   text-align: left !important;
   display: block !important;
-  white-space: nowrap !important; /* ЗАПРЕТ ПЕРЕНОСА НА НОВУЮ СТРОКУ */
+  white-space: nowrap !important;
 }
 
 .teams-rating-divider {
-  width: 210px !important; /* УВЕЛИЧИЛ ШИРИНУ */
+  width: 210px !important;
   height: 1px !important;
   background: #FFF !important;
   margin: 10px 0 0 0 !important;
@@ -218,7 +289,7 @@ body, html, #root, .app, .app-container, .main-page {
 
 .action-reward {
   color: #FFF;
-  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-family: "MT Sans LC Test 3 Vf", Arial, sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 100;
@@ -284,47 +355,39 @@ body, html, #root, .app, .app-container, .main-page {
   padding: 0;
 }
 
-/* БАЛАНС */
-.balance-display {
-  color: #FFF;
-  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 22px;
-  font-weight: 350;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  width: 100%;
-}
-
-/* Блок замены карт - СДВИНУТ ВЛЕВО */
+/* Блок замены карт */
 .replace-section {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
-  width: 100%;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-top: 1rem !important;
+  width: 100% !important;
   max-width: 320px;
-  margin-left: -10px !important; /* СДВИГ ВЛЕВО */
-  margin-top: 50px !important;
+  margin-left: 0 !important;
 }
 
 .replace-btn {
   width: 100%;
-  height: 45px;
+  height: 60px !important;
   background: rgba(255, 80, 0, 0.9);
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 0px !important;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   border: none;
+  margin-top: 10px !important;
+  padding: 0 20px;
+  position: relative;
 }
 
+/* УБИРАЕМ ПОДНЯТИЕ ПРИ НАВЕДЕНИИ */
 .replace-btn:hover {
   background: rgba(255, 106, 0, 0.9);
-  transform: translateY(-2px);
+  /* transform: translateY(-2px); УБРАТЬ ЭТУ СТРОЧКУ */
   box-shadow: 0 4px 12px rgba(255, 80, 0, 0.4);
 }
 
@@ -332,39 +395,103 @@ body, html, #root, .app, .app-container, .main-page {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+  background: rgba(255, 80, 0, 0.9) !important;
 }
 
 .replace-text {
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 15px;
+  font-size: 18px !important;
   font-weight: 100;
+  text-transform: none !important;
+  flex: 1;
+  text-align: center;
+}
+
+/* ОБНОВЛЕННЫЕ СТИЛИ ДЛЯ КВАДРАТНОЙ ИКОНКИ РЕРОЛА */
+.reroll-icon-container {
+  width: 62px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FE791A;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  opacity: 1;
+  margin-left: auto;
+  transform: translateX(19px);
+}
+
+/* ЗАМЕНА ВЕКТОРА - вставь свою ссылку вместо /images/mischieff/return.svg */
+.reroll-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  transform: rotate(45deg);
+  transition: transform 0.3s ease;
+  /* ЗАМЕНИ ССЫЛКУ НА СВОЙ ВЕКТОР */
+  content: url('/images/mischieff/return.svg');
+}
+
+/* УБИРАЕМ ПОДНЯТИЕ ИКОНКИ ПРИ НАВЕДЕНИИ */
+.replace-btn:hover .reroll-icon-container {
+  background: #FF8C3A;
+  /* transform: translateX(10px) scale(1.05); УБРАТЬ ЭТУ СТРОЧКУ */
+}
+
+.replace-btn:hover .reroll-icon {
+  transform: rotate(90deg); /* Оставляем только вращение, без scale */
+}
+
+.replace-btn:disabled .reroll-icon-container {
+  background: #FE791A !important;
+  opacity: 0.7;
+}
+
+.replace-btn:disabled .reroll-icon {
+  filter: brightness(0) invert(1) opacity(0.7);
 }
 
 .replace-cost {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: space-between !important;
+  width: 100% !important;
+  margin-top: 8px !important;
+  padding: 0 5px !important;
 }
 
-.cost-text {
+.cost-text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px !important;
+  flex: 1;
+}
+
+.cost-text-line {
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 11px;
+  font-size: 16px !important;
   font-weight: 100;
-  text-align: center;
+  text-align: left !important;
+  line-height: 1.2;
 }
 
 .cost-amount {
   color: #FD9A33;
   font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 16px;
+  font-size: 26px !important;
   font-weight: 350;
+  white-space: nowrap;
+  margin-top: 2px !important;
+  text-transform: uppercase !important;
 }
 
-/* 🔥 ФИКС ДЛЯ УВЕДОМЛЕНИЙ - НЕ СДВИГАЮТ КОНТЕНТ */
+/* 🔥 ФИКС ДЛЯ УВЕДОМЛЕНИЙ */
 .successMessage {
   position: fixed !important;
   top: 20px !important;
@@ -403,6 +530,221 @@ body, html, #root, .app, .app-container, .main-page {
   border: 1px solid rgba(255, 0, 0, 0.3);
 }
 
+/* НОВОЕ УВЕДОМЛЕНИЕ О ПАКОСТИ */
+.mischief-notification-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 9998 !important;
+  backdrop-filter: blur(5px);
+}
+
+.mischief-notification {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 440px !important;
+  height: 544.82px !important;
+  border: 1px solid;
+  border-image: linear-gradient(180deg, #8733FE 0%, #AC73FF 46.63%, #8733FE 96.63%) 1;
+  background: linear-gradient(360deg, rgba(157, 90, 254, 0.9) 0%, rgba(106, 1, 254, 0.9) 100%);
+  padding: 20px 40px 40px 40px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  z-index: 9999 !important;
+  margin: 0 !important;
+  box-sizing: border-box;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.mischief-notification-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  height: 100%;
+}
+
+.mischief-notification-image {
+  width: 362px;
+  height: 283.82px;
+  background-image: url('/images/mischieff/ftp.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin-bottom: 7px;
+  opacity: 1 !important;
+}
+
+.mischief-notification-title {
+  width: 360px;
+  height: 55px;
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 35px !important;
+  font-weight: 700;
+  font-stretch: condensed;
+  line-height: 110%;
+  text-align: center;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.mischief-notification-message {
+  width: 302px;
+  height: 80px;
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 16px !important;
+  font-weight: 100;
+  font-stretch: condensed;
+  line-height: 100%;
+  text-align: center;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mischief-attacker-name {
+  color: #FF5000;
+  font-weight: 400;
+}
+
+.mischief-notification-button {
+  width: 346px;
+  height: 55px;
+  background: #FF5000;
+  border: none;
+  color: #FFF;
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 20px !important;
+  font-weight: 100;
+  font-stretch: condensed;
+  line-height: 100%;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  text-transform: uppercase;
+}
+
+.mischief-notification-button:hover {
+  background: #FF3D00;
+  transform: translateY(-2px);
+}
+
+.mischief-notification-close {
+  position: absolute;
+  top: -25px;
+  right: -50px;
+  background: #FF5000;
+  color: #FFF;
+  border: 2px solid #FFF;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10001;
+}
+
+.mischief-notification-close:hover {
+  background: #FF3D00;
+  transform: scale(1.1);
+}
+
+/* Анимация появления */
+@keyframes mischiefAppear {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.mischief-notification {
+  animation: mischiefAppear 0.5s ease-out forwards;
+}
+
+/* Fallback если картинка не загрузилась */
+.mischief-notification-image {
+  position: relative;
+}
+
+.mischief-notification-image::before {
+  content: '🎭';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 80px;
+  opacity: 0.8;
+}
+
+.mischief-notification-image::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #8733FE 0%, #FF5000 100%);
+  opacity: 0.3;
+  border-radius: 10px;
+}
+
+
+/* Fallback если картинка не загрузилась */
+.mischief-notification-image {
+  position: relative;
+}
+
+.mischief-notification-image::before {
+  content: '🎭';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 80px;
+  opacity: 0.8;
+}
+
+.mischief-notification-image::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #8733FE 0%, #FF5000 100%);
+  opacity: 0.3;
+  border-radius: 10px;
+}
+
 .loading {
   color: #FFF;
   font-size: 18px;
@@ -434,31 +776,6 @@ body, html, #root, .app, .app-container, .main-page {
   background: rgba(255, 80, 0, 0.1);
 }
 
-.active-task-notification {
-  text-align: center;
-  color: #FFF;
-  margin: 1.5rem 0;
-  padding: 1.5rem;
-  border-radius: 12px;
-  background: rgba(255, 80, 0, 0.1);
-}
-
-.notification-content h2 {
-  color: #FF5000;
-  margin-bottom: 0.8rem;
-}
-
-.go-to-team-btn {
-  background: #FF5000;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 0.8rem;
-  font-size: 14px;
-}
-
 .no-teams-message {
   color: #FFF;
   text-align: center;
@@ -469,71 +786,25 @@ body, html, #root, .app, .app-container, .main-page {
   width: 100%;
 }
 
-/* МОДАЛКА ДЛЯ ПАКОСТИ */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  max-width: 380px;
-  width: 90%;
+/* БАЛАНС КОМАНДЫ ДЛЯ СТРАНИЦЫ "ВЗЯТЬ ЗАДАНИЕ" */
+.team-balance-display {
+  color: #FFF;
   text-align: center;
-}
-
-.modal-content h3 {
-  margin-bottom: 0.8rem;
-  color: #333;
-  font-size: 18px;
-}
-
-.mischief-select {
+  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 350;
+  line-height: normal;
+  margin: 2rem 0;
+  padding: 1rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(69, 69, 69, 0.1) 100%);
+  border: 1px solid #FFF;
+  border-radius: 12px;
+  backdrop-filter: blur(15px);
   width: 100%;
-  padding: 8px;
-  margin-bottom: 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 0.8rem;
-  justify-content: center;
-}
-
-.modal-actions button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.modal-actions button:first-child {
-  background: #6b7280;
-  color: white;
-}
-
-.card.disabled {
-  cursor: not-allowed !important;
-  opacity: 0.6 !important;
-  pointer-events: none !important;
-}
-
-.card.disabled .card-inner {
-  transform: none !important;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* АДАПТИВНОСТЬ */
@@ -546,6 +817,12 @@ body, html, #root, .app, .app-container, .main-page {
 
 @media (max-width: 1200px) {
   .cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 950px !important;
+  }
+  
+  .active-task-cards-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
     max-width: 950px !important;
@@ -584,13 +861,34 @@ body, html, #root, .app, .app-container, .main-page {
     margin-left: 0 !important;
   }
   
+  .active-task-cards-grid {
+    grid-template-columns: repeat(3, 300px);
+    justify-content: center;
+    max-width: 950px !important;
+    margin-left: 0 !important;
+  }
+  
   .replace-section {
     margin-left: 0 !important;
+  }
+
+  .mischief-notification {
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90% !important;
+    max-width: 400px;
   }
 }
 
 @media (max-width: 968px) {
   .cards-grid {
+    grid-template-columns: repeat(2, 300px);
+    justify-content: center;
+    max-width: 650px !important;
+  }
+  
+  .active-task-cards-grid {
     grid-template-columns: repeat(2, 300px);
     justify-content: center;
     max-width: 650px !important;
@@ -632,6 +930,13 @@ body, html, #root, .app, .app-container, .main-page {
     margin-left: 0 !important;
   }
   
+  .active-task-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: 650px;
+    margin-left: 0 !important;
+  }
+  
   .cards-actions-block,
   .teams-rating-block {
     height: 340px;
@@ -640,6 +945,57 @@ body, html, #root, .app, .app-container, .main-page {
   
   .replace-section {
     margin-left: 0 !important;
+  }
+  
+  .replace-btn {
+    padding: 0 15px;
+    height: 55px !important;
+  }
+  
+  .reroll-icon-container {
+    width: 55px;
+    height: 56px;
+    transform: translateX(8px);
+  }
+  
+  .reroll-icon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .replace-btn:hover .reroll-icon-container {
+    transform: translateX(8px) scale(1.05);
+  }
+  
+  .replace-text {
+    font-size: 16px !important;
+  }
+  
+  .mischief-notification {
+    padding: 20px;
+    max-width: 400px;
+    height: auto !important;
+    min-height: 500px;
+  }
+  
+  .mischief-notification-image {
+    width: 300px;
+    height: 234px;
+  }
+  
+  .mischief-notification-title {
+    width: 100%;
+    font-size: 36px !important;
+  }
+  
+  .mischief-notification-message {
+    width: 100%;
+    font-size: 14px !important;
+  }
+  
+  .mischief-notification-button {
+    width: 100%;
+    max-width: 300px;
   }
 }
 
@@ -650,9 +1006,10 @@ body, html, #root, .app, .app-container, .main-page {
     gap: 1.5rem;
   }
   
-  .balance-display {
-    font-size: 20px;
-    margin-bottom: 1rem;
+  .active-task-cards-grid {
+    grid-template-columns: 1fr;
+    max-width: 320px;
+    gap: 1.5rem;
   }
   
   .replace-section {
@@ -682,6 +1039,52 @@ body, html, #root, .app, .app-container, .main-page {
     width: 24px !important;
     height: 32px !important;
   }
+  
+  .replace-btn {
+    padding: 0 12px;
+    height: 50px !important;
+  }
+  
+  .reroll-icon-container {
+    width: 50px;
+    height: 51px;
+    transform: translateX(6px);
+  }
+  
+  .reroll-icon {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .replace-btn:hover .reroll-icon-container {
+    transform: translateX(6px) scale(1.05);
+  }
+  
+  .replace-text {
+    font-size: 15px !important;
+  }
+  
+  .mischief-notification {
+    padding: 15px;
+    max-width: 350px;
+  }
+  
+  .mischief-notification-image {
+    width: 250px;
+    height: 195px;
+  }
+  
+  .mischief-notification-title {
+    font-size: 28px !important;
+  }
+  
+  .mischief-notification-message {
+    font-size: 13px !important;
+  }
+  
+  .mischief-notification-button {
+    font-size: 18px !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -699,24 +1102,40 @@ body, html, #root, .app, .app-container, .main-page {
     max-width: 300px;
   }
   
-  .balance-display {
-    font-size: 18px;
+  .active-task-cards-grid {
+    max-width: 300px;
   }
   
   .replace-btn {
-    height: 40px;
+    height: 50px !important;
+    padding: 0 10px;
   }
   
   .replace-text {
-    font-size: 14px;
+    font-size: 14px !important;
   }
   
-  .cost-text {
-    font-size: 10px;
+  .reroll-icon-container {
+    width: 45px;
+    height: 46px;
+    transform: translateX(4px);
+  }
+  
+  .reroll-icon {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .replace-btn:hover .reroll-icon-container {
+    transform: translateX(4px) scale(1.05);
+  }
+  
+  .cost-text-line {
+    font-size: 14px !important;
   }
   
   .cost-amount {
-    font-size: 14px;
+    font-size: 22px !important;
   }
   
   .cards-actions-block,
@@ -741,5 +1160,36 @@ body, html, #root, .app, .app-container, .main-page {
   .teams-rating-icon {
     width: 22px !important;
     height: 30px !important;
+  }
+  
+  .mischief-notification {
+    padding: 12px;
+    max-width: 300px;
+  }
+  
+  .mischief-notification-image {
+    width: 200px;
+    height: 156px;
+  }
+  
+  .mischief-notification-title {
+    font-size: 24px !important;
+  }
+  
+  .mischief-notification-message {
+    font-size: 12px !important;
+  }
+  
+  .mischief-notification-button {
+    height: 50px;
+    font-size: 16px !important;
+  }
+  
+  .mischief-notification-close {
+    top: -5px;
+    right: -5px;
+    width: 25px;
+    height: 25px;
+    font-size: 14px;
   }
 }

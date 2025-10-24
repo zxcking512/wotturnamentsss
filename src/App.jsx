@@ -32,7 +32,7 @@ const Layout = ({ children }) => {
   );
 };
 
-// Protected Route component
+// Protected Route component - для авторизованных пользователей
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   
@@ -47,15 +47,39 @@ const ProtectedRoute = ({ children }) => {
   return user ? children : <Navigate to="/login" />;
 };
 
-// Role-based route component
+// Role-based route component - только для модераторов
 const ModeratorRoute = ({ children }) => {
+  const { user, loading, isModerator } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading">Проверка прав доступа...</div>
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+  
+  // Используем функцию isModerator для проверки роли
+  return isModerator() ? children : <Navigate to="/" />;
+};
+
+// Public Only Route - только для неавторизованных
+const PublicOnlyRoute = ({ children }) => {
   const { user, loading } = useAuth();
   
   if (loading) {
-    return <div className="loading">Загрузка...</div>;
+    return (
+      <div className="loading-container">
+        <div className="loading">Загрузка...</div>
+      </div>
+    );
   }
   
-  return user && user.role === 'moderator' ? children : <Navigate to="/" />;
+  return !user ? children : <Navigate to="/" />;
 };
 
 function App() {
@@ -64,7 +88,17 @@ function App() {
       <AuthProvider>
         <Layout>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
+            {/* Публичный маршрут - только для неавторизованных */}
+            <Route 
+              path="/login" 
+              element={
+                <PublicOnlyRoute>
+                  <LoginPage />
+                </PublicOnlyRoute>
+              } 
+            />
+            
+            {/* Защищенные маршруты для всех авторизованных */}
             <Route 
               path="/" 
               element={
@@ -89,6 +123,8 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            
+            {/* Маршрут только для модераторов */}
             <Route 
               path="/moderator" 
               element={
@@ -97,6 +133,8 @@ function App() {
                 </ModeratorRoute>
               } 
             />
+            
+            {/* Резервный маршрут */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Layout>

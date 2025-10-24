@@ -18,11 +18,15 @@ const MainPage = () => {
   const [myTeamData, setMyTeamData] = useState(null);
   const [replacingCards, setReplacingCards] = useState(false);
   const [completedMischiefCards, setCompletedMischiefCards] = useState(new Set());
-  const [acceptedTaskCard, setAcceptedTaskCard] = useState(null);
+  const [acceptedTaskCards, setAcceptedTaskCards] = useState(new Set());
   
   // НОВЫЕ СОСТОЯНИЯ ДЛЯ ЛОГИКИ ОТКРЫТИЯ
   const [openedCardId, setOpenedCardId] = useState(null);
   const [openedCardRarity, setOpenedCardRarity] = useState(null);
+  
+  // НОВОЕ СОСТОЯНИЕ ДЛЯ УВЕДОМЛЕНИЙ О ПАКОСТЯХ
+  const [mischiefNotification, setMischiefNotification] = useState(null);
+  const [isInterfaceBlocked, setIsInterfaceBlocked] = useState(false);
 
   useEffect(() => {
     loadAllData();
@@ -30,6 +34,7 @@ const MainPage = () => {
     const interval = setInterval(() => {
       loadTeams();
       loadMyTeamData();
+      checkMischiefNotifications();
     }, 3000);
 
     return () => clearInterval(interval);
@@ -41,6 +46,20 @@ const MainPage = () => {
       loadTeams(),
       loadMyTeamData()
     ]);
+  };
+
+  const checkMischiefNotifications = async () => {
+    try {
+      const response = await api.checkMischiefNotifications();
+      if (response.hasNewMischief && response.mischiefData) {
+        if (!mischiefNotification || mischiefNotification.id !== response.mischiefData.id) {
+          setMischiefNotification(response.mischiefData);
+          setIsInterfaceBlocked(true);
+        }
+      }
+    } catch (error) {
+      console.error('Check mischief notifications error:', error);
+    }
   };
 
   const loadMyTeamData = async () => {
@@ -96,8 +115,7 @@ const MainPage = () => {
       } else {
         setHasActiveTask(false);
         setActiveTask(null);
-        setAcceptedTaskCard(null);
-        // СБРАСЫВАЕМ СОСТОЯНИЯ ПРИ ЗАГРУЗКЕ НОВЫХ КАРТ
+        setAcceptedTaskCards(new Set());
         setOpenedCardId(null);
         setOpenedCardRarity(null);
         const cardsWithAnimationState = (response.challenges || []).map((card, index) => ({
@@ -115,21 +133,26 @@ const MainPage = () => {
     }
   };
 
-  // НОВАЯ ФУНКЦИЯ: обработка открытия карточки
   const handleCardOpen = (cardId, rarity) => {
+    if (isInterfaceBlocked) return;
     console.log('Card opened:', cardId, rarity);
     setOpenedCardId(cardId);
     setOpenedCardRarity(rarity);
   };
 
-  // ИСПРАВЛЕННАЯ ФУНКЦИЯ: проверка блокировки карточки
   const isCardBlocked = (card) => {
-    // Если нет открытой карты - ничего не блокируем
+    if (hasActiveTask) {
+      return true;
+    }
+    
+    if (isInterfaceBlocked) {
+      return true;
+    }
+    
     if (openedCardId === null) {
       return false;
     }
     
-    // БЛОКИРУЕМ ВСЕ карты кроме открытой
     return card.uniqueKey !== openedCardId;
   };
 
@@ -167,7 +190,7 @@ const MainPage = () => {
   };
 
   const handleTakeTask = async (card, selectedTeamId = null) => {
-    if (!card || hasActiveTask || loading) return;
+    if (!card || hasActiveTask || loading || isInterfaceBlocked) return;
 
     try {
       let response;
@@ -177,15 +200,14 @@ const MainPage = () => {
           setError('Пожалуйста, выберите команду для пакости!');
           return;
         }
+        
         response = await api.selectMischiefTarget(card.id, parseInt(selectedTeamId));
         
         if (response.success) {
-          // Добавляем карточку в множество завершенных пакостей
+          // УБРАЛ СООБЩЕНИЕ О ВЫПОЛНЕНИИ ПАКОСТИ
           setCompletedMischiefCards(prev => new Set([...prev, card.uniqueKey]));
-          setSuccessMessage(`Пакость "${card.title}" выполнена!`);
-          setTimeout(() => setSuccessMessage(''), 3000);
           
-          // СБРАСЫВАЕМ СОСТОЯНИЯ ОТКРЫТИЯ ПОСЛЕ УСПЕШНОГО ВЫПОЛНЕНИЯ ПАКОСТИ
+          // СБРАСЫВАЕМ СОСТОЯНИЯ ОТКРЫТИЯ
           setOpenedCardId(null);
           setOpenedCardRarity(null);
           
@@ -194,26 +216,22 @@ const MainPage = () => {
             window.dispatchEvent(new Event('balanceUpdate'));
           }, 500);
           
-          // Не загружаем все данные заново, чтобы не сбрасывать состояние
-          await loadTeams(); // Обновляем только балансы команд
-          await loadMyTeamData(); // Обновляем данные своей команды
+          await loadTeams();
+          await loadMyTeamData();
         }
       } else {
         response = await api.selectChallenge(card.id);
         
         if (response.success) {
-          // Сохраняем выбранную карточку как принятую
-          setAcceptedTaskCard(card);
+          setAcceptedTaskCards(prev => new Set([...prev, card.uniqueKey]));
           setHasActiveTask(true);
           setSuccessMessage(`Задание "${card.title}" принято!`);
           setTimeout(() => setSuccessMessage(''), 3000);
           
-          // ТРИГГЕРИМ ОБНОВЛЕНИЕ БАЛАНСА
           setTimeout(() => {
             window.dispatchEvent(new Event('balanceUpdate'));
           }, 500);
           
-          // Создаем фейковые карточки для отображения
           const fakeCards = [
             {
               id: 1,
@@ -253,11 +271,12 @@ const MainPage = () => {
   };
 
   const handleTeamSelect = (card, teamId) => {
+    if (isInterfaceBlocked) return;
     console.log(`Selected team ${teamId} for card ${card.id}`);
   };
 
   const handleReplaceCards = async () => {
-    if (hasActiveTask || loading || replacingCards) {
+    if (hasActiveTask || loading || replacingCards || isInterfaceBlocked) {
       alert('Нельзя заменять карточки при активном задании!');
       return;
     }
@@ -266,9 +285,9 @@ const MainPage = () => {
       setReplacingCards(true);
       setLoading(true);
       
-      // Сбрасываем состояние завершенных пакостей при замене
+      // Сбрасываем состояния
       setCompletedMischiefCards(new Set());
-      // СБРАСЫВАЕМ СОСТОЯНИЯ ОТКРЫТИЯ ПРИ ЗАМЕНЕ
+      setAcceptedTaskCards(new Set());
       setOpenedCardId(null);
       setOpenedCardRarity(null);
       
@@ -282,7 +301,6 @@ const MainPage = () => {
       
       if (response.success) {
         await loadChallenges();
-        // УБРАЛИ СООБЩЕНИЕ О ЗАМЕНЕ КАРТОЧЕК
         setTimeout(() => {
           window.dispatchEvent(new Event('balanceUpdate'));
         }, 500);
@@ -309,6 +327,19 @@ const MainPage = () => {
     return new Intl.NumberFormat('ru-RU').format(balance) + ' руб.';
   };
 
+  const handleCloseMischiefNotification = async () => {
+    if (mischiefNotification) {
+      try {
+        await api.markMischiefAsRead(mischiefNotification.id);
+      } catch (error) {
+        console.error('Error marking notification as read:', error);
+      }
+      
+      setMischiefNotification(null);
+      setIsInterfaceBlocked(false);
+    }
+  };
+
   const renderActiveTaskView = () => {
     return (
       <div className="active-task-container">
@@ -323,26 +354,11 @@ const MainPage = () => {
               canSelect={false}
               isReplacing={false}
               isMischiefCompleted={completedMischiefCards.has(card.uniqueKey)}
-              isTaskAccepted={acceptedTaskCard && acceptedTaskCard.uniqueKey === card.uniqueKey}
+              isTaskAccepted={acceptedTaskCards.has(card.uniqueKey)}
               isBlocked={false}
               onCardOpen={handleCardOpen}
             />
           ))}
-        </div>
-
-        <div className="active-task-notification-block">
-          <div className="active-task-title">
-            У ВАС УЖЕ ЕСТЬ АКТИВНОЕ ЗАДАНИЕ!
-          </div>
-          <div className="active-task-message">
-            Отметить, как выполненное или отменить текущее задание вы можете на странице "Моя команда". Если задание на модерации, дождитесь его окончания
-          </div>
-          <button
-            onClick={() => navigate('/my-team')}
-            className="active-task-button"
-          >
-            МОЯ КОМАНДА
-          </button>
         </div>
 
         <div className="replace-section">
@@ -356,11 +372,10 @@ const MainPage = () => {
             </span>
             <div className="reroll-icon-container">
               <img 
-                src="/images/icons/icon-4.png" 
+                src="/images/mischieff/return.svg" 
                 alt="Reroll" 
                 className="reroll-icon"
                 onError={(e) => {
-                  // Fallback если изображение не загрузится
                   e.target.style.display = 'none';
                   e.target.nextSibling?.remove();
                   const text = document.createElement('span');
@@ -401,56 +416,54 @@ const MainPage = () => {
       );
     }
 
+    if (cards.length === 0 && !replacingCards) {
+      return (
+        <div className="no-cards-message">
+          <h3>Нет доступных заданий</h3>
+          <p>Попробуйте обновить страницу или обратитесь к модератору</p>
+          <button onClick={loadChallenges} className="retry-btn">
+            Обновить
+          </button>
+        </div>
+      );
+    }
+
     return (
       <>
-        <div className="cards-grid-container">
-          <div className="cards-grid">
-            {cards.length === 0 && !replacingCards ? (
-              <div className="no-cards-message">
-                <h3>Нет доступных заданий</h3>
-                <p>Попробуйте обновить страницу или обратитесь к модератору</p>
-                <button onClick={loadChallenges} className="retry-btn">
-                  Обновить
-                </button>
-              </div>
-            ) : (
-              cards.map((card) => (
-                <AnimatedCard
-                  key={card.uniqueKey}
-                  challenge={card}
-                  onSelect={handleTakeTask}
-                  onTeamSelect={handleTeamSelect}
-                  teams={teams.filter(team => team.id !== (myTeamData?.team?.id))}
-                  canSelect={!loading && !replacingCards}
-                  isReplacing={card.isReplacing}
-                  onReplaceComplete={() => handleCardReplaceComplete(card.uniqueKey)}
-                  isMischiefCompleted={completedMischiefCards.has(card.uniqueKey)}
-                  isTaskAccepted={false}
-                  isBlocked={isCardBlocked(card)}
-                  onCardOpen={handleCardOpen}
-                />
-              ))
-            )}
-          </div>
+        <div className="cards-grid">
+          {cards.map((card) => (
+            <AnimatedCard
+              key={card.uniqueKey}
+              challenge={card}
+              onSelect={handleTakeTask}
+              onTeamSelect={handleTeamSelect}
+              teams={teams.filter(team => team.id !== (myTeamData?.team?.id))}
+              canSelect={!loading && !replacingCards && !hasActiveTask && !isInterfaceBlocked}
+              isReplacing={card.isReplacing}
+              onReplaceComplete={() => handleCardReplaceComplete(card.uniqueKey)}
+              isMischiefCompleted={completedMischiefCards.has(card.uniqueKey)}
+              isTaskAccepted={acceptedTaskCards.has(card.uniqueKey)}
+              isBlocked={isCardBlocked(card)}
+              onCardOpen={handleCardOpen}
+            />
+          ))}
         </div>
 
-        {/* БЛОК ЗАМЕНЫ КАРТ ВСЕГДА ОТОБРАЖАЕТСЯ В НОРМАЛЬНОМ РЕЖИМЕ */}
         <div className="replace-section">
           <button 
             onClick={handleReplaceCards}
             className="replace-btn"
-            disabled={loading || replacingCards || (myTeamData && myTeamData.team && myTeamData.team.balance < 5000)}
+            disabled={loading || replacingCards || hasActiveTask || isInterfaceBlocked || (myTeamData && myTeamData.team && myTeamData.team.balance < 5000)}
           >
             <span className="replace-text">
               {replacingCards ? 'Замена...' : 'Заменить карты'}
             </span>
             <div className="reroll-icon-container">
               <img 
-                src="/images/icons/icon-4.png" 
+                src="/images/mischieff/return.svg" 
                 alt="Reroll" 
                 className="reroll-icon"
                 onError={(e) => {
-                  // Fallback если изображение не загрузится
                   e.target.style.display = 'none';
                   e.target.nextSibling?.remove();
                   const text = document.createElement('span');
@@ -477,8 +490,43 @@ const MainPage = () => {
 
   return (
     <div className="main-page">
-      {successMessage && <div className="successMessage">{successMessage}</div>}
+      {/* УБРАЛ successMessage для пакостей, оставил только для обычных заданий */}
+      {successMessage && !successMessage.includes('Пакость') && <div className="successMessage">{successMessage}</div>}
       {error && <div className="error-message">{error}</div>}
+      
+      {mischiefNotification && (
+        <>
+          <div className="mischief-notification-overlay"></div>
+          
+          <div className="mischief-notification">
+            <div className="mischief-notification-content">
+              <button 
+                className="mischief-notification-close"
+                onClick={handleCloseMischiefNotification}
+              >
+                ×
+              </button>
+              
+              <div className="mischief-notification-image"></div>
+              
+              <div className="mischief-notification-title">
+                ВАМ НАПАКОСТИЛИ!
+              </div>
+              
+              <div className="mischief-notification-message">
+                Команда <span className="mischief-attacker-name">{mischiefNotification.attacker}</span> отправила вам пакость! Вы получаете -{mischiefNotification.amount?.toLocaleString('ru-RU')} руб. к балансу команды
+              </div>
+              
+              <button 
+                className="mischief-notification-button"
+                onClick={handleCloseMischiefNotification}
+              >
+                О как!
+              </button>
+            </div>
+          </div>
+        </>
+      )}
       
       <div className="main-container">
         

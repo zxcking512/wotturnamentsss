@@ -377,6 +377,45 @@ const api = {
       console.error('Reset challenges API error:', error);
       throw new Error(`Ошибка сброса заданий: ${error.message}`);
     }
+  },
+
+  // НОВЫЕ МЕТОДЫ ДЛЯ УВЕДОМЛЕНИЙ О ПАКОСТЯХ
+  async checkMischiefNotifications() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/mischief/notifications`, {
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Check mischief notifications API error:', error);
+      return {
+        hasNewMischief: false,
+        mischiefData: null
+      };
+    }
+  },
+
+  async markMischiefAsRead(notificationId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/mischief/notifications/${notificationId}/read`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Mark mischief as read API error:', error);
+      throw error;
+    }
   }
 };
 

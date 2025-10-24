@@ -58,14 +58,29 @@
   font-style: normal;
   font-weight: 100;
   line-height: normal;
-  background: transparent;
-  border: none;
+  
+  /* ПОЛНЫЙ СБРОС СТИЛЕЙ КНОПКИ */
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
   cursor: pointer;
   padding: 0;
+  margin: 0;
+  
   transition: color 0.3s ease;
   white-space: nowrap;
   text-transform: none !important;
   position: relative;
+  
+  /* Убираем все стандартные эффекты браузера */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  
+  /* Убираем выделение при клике */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .nav-button::after {
@@ -89,6 +104,26 @@
 .nav-button:hover,
 .nav-button.active {
   color: #FEC346;
+  
+  /* ЕЩЕ РАЗ ПОДТВЕРЖДАЕМ ЧТО ФОНА НЕТ */
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Убираем любые эффекты фона и обводки при фокусе */
+.nav-button:focus {
+  outline: none !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.nav-button:active {
+  background: transparent !important;
+  border: none !important;
+  transform: none !important;
 }
 
 /* Стиль для заблокированной кнопки */
@@ -96,6 +131,7 @@
   color: #666;
   cursor: not-allowed;
   opacity: 0.5;
+  background: transparent !important;
 }
 
 .nav-button.disabled:hover::after {
@@ -104,6 +140,7 @@
 
 .nav-button.disabled:hover {
   color: #666;
+  background: transparent !important;
 }
 
 .nav-button:nth-child(1),
@@ -359,92 +396,5 @@
   
   .team-balance {
     font-size: 18px !important;
-  }
-}
-/* Стиль для заблокированной кнопки */
-.nav-button.disabled {
-  color: #666;
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.nav-button.disabled:hover::after {
-  width: 0;
-}
-
-.nav-button.disabled:hover {
-  color: #666;
-}
-/* АНИМАЦИИ ДЛЯ СЧЕТЧИКА БАЛАНСА */
-.team-balance {
-  width: 660px;
-  height: 50px;
-  flex-shrink: 0;
-  color: #FFF;
-  text-align: center;
-  font-family: "MT Sans LC Test 3 VF";
-  font-size: 32px !important;
-  font-style: normal;
-  font-weight: 350;
-  line-height: normal;
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-/* Анимация при увеличении баланса */
-.balance-increase {
-  animation: balanceIncrease 0.8s ease-out;
-}
-
-/* Анимация при уменьшении баланса */
-.balance-decrease {
-  animation: balanceDecrease 0.8s ease-out;
-}
-
-@keyframes balanceIncrease {
-  0% {
-    color: #FFF;
-    transform: scale(1);
-  }
-  50% {
-    color: #4CAF50;
-    transform: scale(1.05);
-  }
-  100% {
-    color: #FFF;
-    transform: scale(1);
-  }
-}
-
-@keyframes balanceDecrease {
-  0% {
-    color: #FFF;
-    transform: scale(1);
-  }
-  50% {
-    color: #F44336;
-    transform: scale(0.95);
-  }
-  100% {
-    color: #FFF;
-    transform: scale(1);
-  }
-}
-
-/* Мигание при изменении баланса */
-.balance-change {
-  animation: balanceChange 0.5s ease-in-out;
-}
-
-@keyframes balanceChange {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
   }
 }

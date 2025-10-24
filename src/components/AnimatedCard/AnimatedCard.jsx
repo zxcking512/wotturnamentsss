@@ -383,6 +383,7 @@ const AnimatedCard = ({
 
         </div>
         
+        {/* ОВЕРЛЕЙ ДЛЯ УСПЕШНОЙ ПАКОСТИ */}
         {isMischiefCompleted && !isBlocked && (
           <div className="mischief-completed-overlay">
             <div className="mischief-success-title">
@@ -394,7 +395,8 @@ const AnimatedCard = ({
           </div>
         )}
         
-        {isTaskAccepted && (
+        {/* ОВЕРЛЕЙ ДЛЯ ПРИНЯТЫХ ЗАДАНИЙ (ЭПИК И КОММОН) */}
+        {isTaskAccepted && !isBlocked && (
           <div className="task-accepted-overlay">
             <div className="task-accepted-title">
               ЗАДАНИЕ<br />ПРИНЯТО!
