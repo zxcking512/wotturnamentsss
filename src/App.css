@@ -964,3 +964,44 @@ body, html, #root, .app, .app-container {
   width: 100vw !important;
   height: 100vh !important;
 }
+/* 🔥 ФИКС ДЛЯ ГЛАВНОЙ СТРАНИЦЫ - УБИРАЕМ ВСЕ ОГРАНИЧЕНИЯ */
+.main-page-container {
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+}
+
+/* ФИКС ПОЗИЦИОНИРОВАНИЯ ЭЛЕМЕНТОВ */
+.main-page-wrapper {
+  position: relative;
+  width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* СДВИГ ВСЕГО КОНТЕНТА ВНИЗ */
+.main-content-shifted {
+  margin-top: 60px !important;
+  transform: translateY(40px) !important;
+}
+
+/* ФИКС ДЛЯ УВЕДОМЛЕНИЙ */
+.notification-fixed {
+  position: fixed !important;
+  top: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+}
+
+/* ФИКС ДЛЯ КАРТОЧЕК - СДВИГ ВЛЕВО */
+.cards-shifted {
+  margin-left: -50px !important;
+}
+
+/* ФИКС ДЛЯ БОКОВЫХ БЛОКОВ - СДВИГ ВНИЗ И БЛИЖЕ */
+.side-blocks-shifted {
+  margin-top: 100px !important;
+}

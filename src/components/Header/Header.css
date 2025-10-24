@@ -1,9 +1,9 @@
 .header {
   width: 100%;
-  height: 100px;
+  height: 75px !important;
   flex-shrink: 0;
-  border: 1px solid #454545;
-  background: rgba(18, 18, 18, 0.80);
+  border: none !important;
+  background: rgba(18, 18, 18, 0.95);
   position: relative;
   margin-bottom: 42px;
 }
@@ -13,27 +13,28 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 2rem;
-  height: 100px;
+  height: 75px !important;
   gap: 1rem;
+  position: relative;
 }
 
-/* Логотип - ТЕПЕРЬ КАРТИНКА */
 .logo {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  margin-left: 270px;
+  margin-bottom: 5px;
 }
 
 .game-logo {
-  width: 219.838px;
-  height: 45.033px;
+  width: 132px;
+  height: 33px;
   flex-shrink: 0;
   background: url('/images/cards/logphoto/Logo-mt.png') no-repeat center center;
   background-size: contain;
   display: block;
 }
 
-/* Навигация - СДВИНУТА ПРАВЕЕ */
 .navigation {
   display: flex;
   gap: 3rem;
@@ -41,7 +42,9 @@
   justify-content: center;
   flex: 1;
   max-width: 500px;
-  margin: 0 0 0 100px; /* СДВИГ ВПРАВО */
+  margin: 0px 0px 0 0px;
+  position: relative;
+  height: 100%;
 }
 
 .nav-button {
@@ -51,7 +54,7 @@
   color: #FFF;
   text-align: center;
   font-family: "MT Sans LC Test 3 VF";
-  font-size: 18px;
+  font-size: 14px;
   font-style: normal;
   font-weight: 100;
   line-height: normal;
@@ -61,17 +64,48 @@
   padding: 0;
   transition: color 0.3s ease;
   white-space: nowrap;
+  text-transform: none !important;
+  position: relative;
 }
 
+.nav-button::after {
+  content: '';
+  position: absolute;
+  bottom: -25px; /* Располагаем полоску под шапкой */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 3px;
+  background: #FEC346;
+  transition: width 0.3s ease;
+  border-radius: 1px;
+}
+
+.nav-button:hover::after,
+.nav-button.active::after {
+  width: 100%; /* Полная ширина кнопки */
+}
+
+.nav-button:hover,
 .nav-button.active {
   color: #FEC346;
 }
 
-.nav-button:hover {
-  color: #FEC346;
+/* Стиль для заблокированной кнопки */
+.nav-button.disabled {
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
-/* Убираем фиксированные ширины для кнопок */
+.nav-button.disabled:hover::after {
+  width: 0;
+}
+
+.nav-button.disabled:hover {
+  color: #666;
+}
+
 .nav-button:nth-child(1),
 .nav-button:nth-child(2),
 .nav-button:nth-child(3) {
@@ -79,42 +113,61 @@
   min-width: 120px;
 }
 
-/* Информация о команде - УВЕЛИЧИМ МЕСТО */
 .team-info {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 12px;
   flex-shrink: 0;
-  min-width: 200px; /* МИНИМАЛЬНАЯ ШИРИНА */
+  margin-right: 200px;
+}
+
+.team-avatar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 3px solid #FF5000;
+  border-radius: 4px;
+  background: url('/images/avatar/avatar.png') no-repeat center center;
+  background-size: cover;
+  display: block;
+}
+
+.team-text-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 .team-name {
   width: auto;
-  max-width: 220px; /* УВЕЛИЧИЛИ ШИРИНУ */
-  height: 25px;
+  max-width: 180px;
+  height: 20px;
   flex-shrink: 0;
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF";
-  font-size: 16px; /* УМЕНЬШИЛИ ШРИФТ */
+  font-size: 14px !important;
   font-style: normal;
   font-weight: 350;
   line-height: normal;
-  text-align: right;
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-transform: uppercase !important;
+  margin-left: 0;
 }
 
 .logout-button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 6px;
   background: transparent;
   border: none;
   cursor: pointer;
   padding: 0;
   transition: all 0.3s ease;
+  margin-left: 0;
 }
 
 .logout-button:hover {
@@ -123,32 +176,32 @@
 
 .logout-text {
   width: auto;
-  height: 20px;
+  height: 16px;
   flex-shrink: 0;
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF";
-  font-size: 14px; /* УМЕНЬШИЛИ ШРИФТ */
+  font-size: 13px;
   font-style: normal;
   font-weight: 100;
   line-height: normal;
-  text-align: right;
+  text-align: left;
   white-space: nowrap;
+  text-transform: none !important;
 }
 
 .logout-icon {
-  width: 14.253px;
-  height: 14.25px;
+  width: 12px;
+  height: 12px;
   flex-shrink: 0;
 }
 
-/* Котел команды - УМЕНЬШЕННАЯ ВЫСОТА */
 .team-balance-container {
   position: absolute;
-  bottom: -50px;
+  bottom: -75px;
   left: 50%;
-  transform: translateX(-50%);
-  width: 744px;
-  height: 50px;
+  transform: translateX(-51%);
+  width: 544px;
+  height: 85px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -165,12 +218,12 @@
 
 .team-balance {
   width: 660px;
-  height: 35px;
+  height: 50px;
   flex-shrink: 0;
   color: #FFF;
   text-align: center;
   font-family: "MT Sans LC Test 3 VF";
-  font-size: 28px;
+  font-size: 32px !important;
   font-style: normal;
   font-weight: 350;
   line-height: normal;
@@ -181,95 +234,27 @@
   justify-content: center;
 }
 
-/* Адаптивность */
-@media (max-width: 1920px) {
-  .header {
-    width: 100%;
-  }
-}
-
 @media (max-width: 1200px) {
-  .header-content {
-    padding: 0 1.5rem;
-    gap: 0.8rem;
-  }
-  
-  .navigation {
-    gap: 2.5rem;
-    max-width: 450px;
-    margin-left: 80px; /* АДАПТИВНЫЙ СДВИГ */
-  }
-  
-  .nav-button {
-    font-size: 16px;
-    min-width: 110px;
+  .team-balance {
+    font-size: 30px !important;
   }
   
   .team-info {
-    min-width: 180px;
-  }
-  
-  .team-name {
-    max-width: 200px;
-    font-size: 15px;
+    margin-right: 150px;
   }
 }
 
 @media (max-width: 1024px) {
-  .header-content {
-    padding: 0 1rem;
-  }
-  
-  .navigation {
-    gap: 2rem;
-    max-width: 400px;
-    margin-left: 60px;
-  }
-  
-  .nav-button {
-    font-size: 15px;
-    min-width: 100px;
+  .team-balance {
+    font-size: 26px !important;
   }
   
   .team-info {
-    min-width: 160px;
-  }
-  
-  .team-name {
-    max-width: 180px;
-    font-size: 14px;
-  }
-  
-  .logout-text {
-    font-size: 13px;
+    margin-right: 100px;
   }
 }
 
 @media (max-width: 900px) {
-  .header-content {
-    flex-wrap: wrap;
-    height: auto;
-    padding: 1rem;
-    gap: 1rem;
-  }
-  
-  .logo {
-    order: 1;
-  }
-  
-  .team-info {
-    order: 2;
-    min-width: auto;
-  }
-  
-  .navigation {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-    margin: 0.5rem 0 0 0; /* СБРАСЫВАЕМ СДВИГ НА МОБИЛЬНЫХ */
-    gap: 1.5rem;
-  }
-  
   .team-balance-container {
     position: relative;
     bottom: auto;
@@ -278,126 +263,188 @@
     margin-top: 1rem;
     width: 100%;
     max-width: 744px;
-    height: 45px;
+    height: 65px;
     order: 4;
   }
   
   .team-balance {
-    font-size: 22px;
-    height: 30px;
+    font-size: 24px !important;
+    height: 40px;
+  }
+  
+  .team-info {
+    margin-right: 80px;
   }
 }
 
 @media (max-width: 768px) {
-  .navigation {
-    gap: 1rem;
+  .team-info {
+    margin-right: 60px;
   }
   
-  .nav-button {
-    font-size: 14px;
-    min-width: 90px;
-  }
-  
-  .game-logo {
-    width: 180px;
+  .team-avatar {
+    width: 35px;
     height: 35px;
   }
   
-  .team-balance-container {
-    height: 40px;
+  .team-name {
+    font-size: 13px !important;
+    max-width: 150px;
+  }
+  
+  .logout-text {
+    font-size: 12px;
   }
   
   .team-balance {
-    font-size: 20px;
-    height: 28px;
-  }
-  
-  .team-name {
-    font-size: 14px;
-    max-width: 150px;
+    font-size: 22px !important;
   }
 }
 
 @media (max-width: 640px) {
-  .header-content {
-    padding: 0.8rem;
-  }
-  
-  .navigation {
-    gap: 0.8rem;
-    flex-wrap: wrap;
-  }
-  
-  .nav-button {
-    font-size: 13px;
-    min-width: 80px;
-    height: 20px;
-  }
-  
-  .game-logo {
-    width: 150px;
-    height: 30px;
-  }
-  
   .team-info {
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
+    margin-right: 40px;
+    gap: 8px;
+  }
+  
+  .team-avatar {
+    width: 30px;
+    height: 30px;
+    border-width: 2px;
+  }
+  
+  .team-text-info {
+    gap: 2px;
   }
   
   .team-name {
-    font-size: 13px;
+    font-size: 12px !important;
     max-width: 120px;
+    height: 18px;
+  }
+  
+  .logout-button {
+    gap: 4px;
   }
   
   .logout-text {
-    font-size: 12px;
+    font-size: 11px;
+    height: 14px;
   }
   
   .logout-icon {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
+  }
+  
+  .team-balance {
+    font-size: 20px !important;
   }
 }
 
 @media (max-width: 480px) {
-  .header {
-    margin-bottom: 30px;
+  .team-info {
+    margin-right: 20px;
   }
   
-  .navigation {
-    gap: 0.5rem;
-  }
-  
-  .nav-button {
-    font-size: 12px;
-    min-width: 70px;
-  }
-  
-  .game-logo {
-    width: 130px;
-    height: 25px;
-  }
-  
-  .team-balance-container {
-    height: 35px;
-  }
-  
-  .team-balance {
-    font-size: 18px;
+  .team-avatar {
+    width: 25px;
     height: 25px;
   }
   
   .team-name {
-    font-size: 12px;
+    font-size: 11px !important;
     max-width: 100px;
   }
   
-  .logout-text {
-    display: none;
+  .team-balance {
+    font-size: 18px !important;
   }
-  
-  .logout-button {
-    gap: 0;
+}
+/* Стиль для заблокированной кнопки */
+.nav-button.disabled {
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.nav-button.disabled:hover::after {
+  width: 0;
+}
+
+.nav-button.disabled:hover {
+  color: #666;
+}
+/* АНИМАЦИИ ДЛЯ СЧЕТЧИКА БАЛАНСА */
+.team-balance {
+  width: 660px;
+  height: 50px;
+  flex-shrink: 0;
+  color: #FFF;
+  text-align: center;
+  font-family: "MT Sans LC Test 3 VF";
+  font-size: 32px !important;
+  font-style: normal;
+  font-weight: 350;
+  line-height: normal;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+/* Анимация при увеличении баланса */
+.balance-increase {
+  animation: balanceIncrease 0.8s ease-out;
+}
+
+/* Анимация при уменьшении баланса */
+.balance-decrease {
+  animation: balanceDecrease 0.8s ease-out;
+}
+
+@keyframes balanceIncrease {
+  0% {
+    color: #FFF;
+    transform: scale(1);
+  }
+  50% {
+    color: #4CAF50;
+    transform: scale(1.05);
+  }
+  100% {
+    color: #FFF;
+    transform: scale(1);
+  }
+}
+
+@keyframes balanceDecrease {
+  0% {
+    color: #FFF;
+    transform: scale(1);
+  }
+  50% {
+    color: #F44336;
+    transform: scale(0.95);
+  }
+  100% {
+    color: #FFF;
+    transform: scale(1);
+  }
+}
+
+/* Мигание при изменении баланса */
+.balance-change {
+  animation: balanceChange 0.5s ease-in-out;
+}
+
+@keyframes balanceChange {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
   }
 }

@@ -1,4 +1,4 @@
-/* LoginPage.css - ДОБАВЛЯЕМ ОТСТУПЫ МЕЖДУ БЛОКАМИ */
+/* LoginPage.css - ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ ПОЛЕЙ ВВОДА */
 
 .login-page {
   min-height: 100vh;
@@ -18,14 +18,14 @@
   gap: 30px;
 }
 
-/* Основной блок авторизации - ДОБАВЛЯЕМ ОТСТУПЫ МЕЖДУ ЭЛЕМЕНТАМИ */
+/* Основной блок авторизации */
 .login-auth-block {
   display: flex;
   width: 400px;
   padding: 40px;
   flex-direction: column;
   align-items: center;
-  gap: 20px; /* ОТСТУПЫ МЕЖДУ ВСЕМИ ЭЛЕМЕНТАМИ ВНУТРИ БЛОКА */
+  gap: 20px;
   border: 1px solid #FFF;
   background: linear-gradient(180deg, rgba(49, 49, 49, 0.80) 0%, rgba(15, 15, 15, 0.90) 100%);
   backdrop-filter: blur(15px);
@@ -33,7 +33,7 @@
   box-sizing: border-box;
 }
 
-/* Блок с логотипом - УБИРАЕМ СЕРЫЙ ФОН */
+/* Блок с логотипом */
 .login-logo-block {
   width: 290px;
   height: 165px;
@@ -42,7 +42,7 @@
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  margin-bottom: 10px; /* ДОПОЛНИТЕЛЬНЫЙ ОТСТУП СНИЗУ */
+  margin-bottom: 10px;
 }
 
 /* Текст инструкции */
@@ -56,32 +56,20 @@
   font-weight: 100;
   line-height: normal;
   margin: 0;
-  margin-bottom: 15px; /* ОТСТУП ПОД ИНСТРУКЦИЕЙ */
+  margin-bottom: 15px;
 }
 
-/* Форма - ДОБАВЛЯЕМ ОТСТУПЫ МЕЖДУ ПОЛЯМИ ВВОДА */
+/* Форма */
 .login-form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px; /* ОТСТУПЫ МЕЖДУ ПОЛЯМИ ВВОДА В ФОРМЕ */
+  gap: 15px;
   width: 100%;
 }
 
-/* Блок для логина */
-.login-input-block {
-  width: 320px;
-  height: 60px;
-  flex-shrink: 0;
-  border: 1px solid #FFF;
-  background: rgba(57, 57, 57, 0.40);
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
-  box-sizing: border-box;
-}
-
-/* Блок для пароля */
+/* ОБЩИЕ СТИЛИ ДЛЯ БЛОКОВ ВВОДА */
+.login-input-block,
 .login-password-block {
   width: 320px;
   height: 60px;
@@ -90,36 +78,21 @@
   background: rgba(57, 57, 57, 0.40);
   display: flex;
   align-items: center;
-  padding: 0 20px;
+  padding: 0;
   box-sizing: border-box;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
-/* Поле ввода логина */
-.login-username-input {
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  border: none;
-  color: #FFF;
-  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 100;
-  line-height: normal;
-  outline: none;
+/* Стили при фокусе на блоке ввода */
+.login-input-block:focus-within,
+.login-password-block:focus-within {
+  border-color: #FF5000;
+  background: rgba(57, 57, 57, 0.60);
 }
 
-.login-username-input::placeholder {
-  color: #FFF;
-  font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 100;
-  line-height: normal;
-  opacity: 0.8;
-}
-
-/* Поле ввода пароля */
+/* ОБЩИЕ СТИЛИ ДЛЯ ПОЛЕЙ ВВОДА */
+.login-username-input,
 .login-password-input {
   width: 100%;
   height: 100%;
@@ -132,8 +105,22 @@
   font-weight: 100;
   line-height: normal;
   outline: none;
+  padding: 0 20px;
+  box-sizing: border-box;
+  margin: 0;
 }
 
+/* Убираем стандартные стили браузера для полей ввода */
+.login-username-input:focus,
+.login-password-input:focus {
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+/* Плейсхолдеры */
+.login-username-input::placeholder,
 .login-password-input::placeholder {
   color: #FFF;
   font-family: "MT Sans LC Test 3 VF", Arial, sans-serif;
@@ -142,6 +129,21 @@
   font-weight: 100;
   line-height: normal;
   opacity: 0.8;
+}
+
+/* Убираем автозаполнение стилей в Chrome */
+.login-username-input:-webkit-autofill,
+.login-password-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  -webkit-text-fill-color: #FFF !important;
+  transition: background-color 5000s ease-in-out 0s;
+  background-clip: content-box;
+}
+
+.login-username-input:-webkit-autofill:focus,
+.login-password-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  -webkit-text-fill-color: #FFF !important;
 }
 
 /* Кнопка входа */
@@ -157,7 +159,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   border-radius: 4px;
-  margin-top: 10px; /* ОТСТУП СВЕРХУ ДЛЯ КНОПКИ */
+  margin-top: 10px;
 }
 
 .login-submit-button:hover:not(:disabled) {
@@ -182,7 +184,7 @@
   line-height: normal;
 }
 
-/* Блок с лого МИР ТАНКОВ - ОТДЕЛЬНО ОТ ОСНОВНОГО БЛОКА */
+/* Блок с лого МИР ТАНКОВ */
 .login-mt-logo {
   width: 219.838px;
   height: 45.033px;
@@ -208,7 +210,7 @@
   border-radius: 6px;
   width: 100%;
   box-sizing: border-box;
-  margin: 5px 0; /* ОТСТУПЫ ДЛЯ СООБЩЕНИЯ ОБ ОШИБКЕ */
+  margin: 5px 0;
 }
 
 /* Индикатор загрузки */

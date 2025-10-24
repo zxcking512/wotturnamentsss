@@ -1,4 +1,3 @@
-// MainPage.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../contexts/AuthContext";
@@ -18,14 +17,14 @@ const MainPage = () => {
   const [teams, setTeams] = useState([]);
   const [myTeamData, setMyTeamData] = useState(null);
   const [replacingCards, setReplacingCards] = useState(false);
+  const [completedMischiefCards, setCompletedMischiefCards] = useState(new Set());
+  const [acceptedTaskCard, setAcceptedTaskCard] = useState(null);
   
-  const [showMischiefModal, setShowMischiefModal] = useState(false);
-  const [selectedMischiefCard, setSelectedMischiefCard] = useState(null);
-  const [mischiefTeams, setMischiefTeams] = useState([]);
-  const [selectedTargetTeam, setSelectedTargetTeam] = useState('');
+  // НОВЫЕ СОСТОЯНИЯ ДЛЯ ЛОГИКИ ОТКРЫТИЯ
+  const [openedCardId, setOpenedCardId] = useState(null);
+  const [openedCardRarity, setOpenedCardRarity] = useState(null);
 
   useEffect(() => {
-    console.log('MainPage mounted, loading challenges...');
     loadAllData();
     
     const interval = setInterval(() => {
@@ -57,18 +56,50 @@ const MainPage = () => {
     try {
       setLoading(true);
       setError('');
-      console.log('Fetching available challenges...');
       
       const response = await api.getAvailableChallenges();
-      console.log('Challenges response:', response);
       
       if (response.hasActiveChallenge) {
-        console.log('Has active challenge:', response.activeChallenge);
         setHasActiveTask(true);
         setActiveTask(response.activeChallenge);
+        
+        const fakeCards = [
+          {
+            id: 1,
+            uniqueKey: 'card_1',
+            rarity: 'common',
+            title: 'Карта 1',
+            description: 'Описание карты 1',
+            reward: 25000,
+            isFake: true
+          },
+          {
+            id: 2,
+            uniqueKey: 'card_2', 
+            rarity: 'epic',
+            title: 'Карта 2',
+            description: 'Описание карты 2',
+            reward: 50000,
+            isFake: true
+          },
+          {
+            id: 3,
+            uniqueKey: 'card_3',
+            rarity: 'troll', 
+            title: 'Карта 3',
+            description: 'Описание карты 3',
+            reward: -10000,
+            isFake: true
+          }
+        ];
+        setCards(fakeCards);
       } else {
-        console.log('No active challenge, setting cards:', response.challenges);
         setHasActiveTask(false);
+        setActiveTask(null);
+        setAcceptedTaskCard(null);
+        // СБРАСЫВАЕМ СОСТОЯНИЯ ПРИ ЗАГРУЗКЕ НОВЫХ КАРТ
+        setOpenedCardId(null);
+        setOpenedCardRarity(null);
         const cardsWithAnimationState = (response.challenges || []).map((card, index) => ({
           ...card,
           isReplacing: false,
@@ -82,6 +113,24 @@ const MainPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // НОВАЯ ФУНКЦИЯ: обработка открытия карточки
+  const handleCardOpen = (cardId, rarity) => {
+    console.log('Card opened:', cardId, rarity);
+    setOpenedCardId(cardId);
+    setOpenedCardRarity(rarity);
+  };
+
+  // ИСПРАВЛЕННАЯ ФУНКЦИЯ: проверка блокировки карточки
+  const isCardBlocked = (card) => {
+    // Если нет открытой карты - ничего не блокируем
+    if (openedCardId === null) {
+      return false;
+    }
+    
+    // БЛОКИРУЕМ ВСЕ карты кроме открытой
+    return card.uniqueKey !== openedCardId;
   };
 
   const loadTeams = async () => {
@@ -117,69 +166,94 @@ const MainPage = () => {
     }
   };
 
-  const loadTeamsForMischief = async () => {
-    try {
-      const teams = await api.getTeamsForMischief();
-      setMischiefTeams(teams);
-    } catch (error) {
-      console.error('Error loading teams for mischief:', error);
-    }
-  };
-
-  const handleTakeTask = async (card) => {
+  const handleTakeTask = async (card, selectedTeamId = null) => {
     if (!card || hasActiveTask || loading) return;
 
-    if (card.rarity === 'troll') {
-      setSelectedMischiefCard(card);
-      await loadTeamsForMischief();
-      setShowMischiefModal(true);
-    } else {
-      try {
-        console.log('Selecting challenge:', card.id);
-        const response = await api.selectChallenge(card.id);
-        console.log('Select challenge response:', response);
+    try {
+      let response;
+      
+      if (card.rarity === 'troll') {
+        if (!selectedTeamId) {
+          setError('Пожалуйста, выберите команду для пакости!');
+          return;
+        }
+        response = await api.selectMischiefTarget(card.id, parseInt(selectedTeamId));
         
         if (response.success) {
+          // Добавляем карточку в множество завершенных пакостей
+          setCompletedMischiefCards(prev => new Set([...prev, card.uniqueKey]));
+          setSuccessMessage(`Пакость "${card.title}" выполнена!`);
+          setTimeout(() => setSuccessMessage(''), 3000);
+          
+          // СБРАСЫВАЕМ СОСТОЯНИЯ ОТКРЫТИЯ ПОСЛЕ УСПЕШНОГО ВЫПОЛНЕНИЯ ПАКОСТИ
+          setOpenedCardId(null);
+          setOpenedCardRarity(null);
+          
+          // ТРИГГЕРИМ ОБНОВЛЕНИЕ БАЛАНСА
+          setTimeout(() => {
+            window.dispatchEvent(new Event('balanceUpdate'));
+          }, 500);
+          
+          // Не загружаем все данные заново, чтобы не сбрасывать состояние
+          await loadTeams(); // Обновляем только балансы команд
+          await loadMyTeamData(); // Обновляем данные своей команды
+        }
+      } else {
+        response = await api.selectChallenge(card.id);
+        
+        if (response.success) {
+          // Сохраняем выбранную карточку как принятую
+          setAcceptedTaskCard(card);
           setHasActiveTask(true);
           setSuccessMessage(`Задание "${card.title}" принято!`);
           setTimeout(() => setSuccessMessage(''), 3000);
-          await loadAllData();
-          navigate('/my-team');
+          
+          // ТРИГГЕРИМ ОБНОВЛЕНИЕ БАЛАНСА
+          setTimeout(() => {
+            window.dispatchEvent(new Event('balanceUpdate'));
+          }, 500);
+          
+          // Создаем фейковые карточки для отображения
+          const fakeCards = [
+            {
+              id: 1,
+              uniqueKey: 'card_1',
+              rarity: 'common',
+              title: 'Карта 1',
+              description: 'Описание карты 1',
+              reward: 25000,
+              isFake: true
+            },
+            {
+              id: 2,
+              uniqueKey: 'card_2', 
+              rarity: 'epic',
+              title: 'Карта 2',
+              description: 'Описание карты 2',
+              reward: 50000,
+              isFake: true
+            },
+            {
+              id: 3,
+              uniqueKey: 'card_3',
+              rarity: 'troll', 
+              title: 'Карта 3',
+              description: 'Описание карты 3',
+              reward: -10000,
+              isFake: true
+            }
+          ];
+          setCards(fakeCards);
         }
-      } catch (error) {
-        console.error('Take task error:', error);
-        setError('Ошибка при выборе задания: ' + (error.message || 'Неизвестная ошибка'));
       }
+    } catch (error) {
+      console.error('Take task error:', error);
+      setError('Ошибка при выборе задания: ' + (error.message || 'Неизвестная ошибка'));
     }
   };
 
-  const handleMischiefConfirm = async () => {
-    if (!selectedMischiefCard || !selectedTargetTeam) {
-      alert('Выберите команду для пакости!');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      console.log('Performing mischief:', selectedMischiefCard.id, selectedTargetTeam);
-      
-      const response = await api.selectMischiefTarget(selectedMischiefCard.id, parseInt(selectedTargetTeam));
-      console.log('Mischief response:', response);
-      
-      if (response.success) {
-        setSuccessMessage(response.message || 'Пакость успешно выполнена!');
-        setTimeout(() => setSuccessMessage(''), 5000);
-        setShowMischiefModal(false);
-        setSelectedMischiefCard(null);
-        setSelectedTargetTeam('');
-        await loadAllData();
-      }
-    } catch (error) {
-      console.error('Mischief error:', error);
-      setError('Ошибка выполнения пакости: ' + (error.message || 'Неизвестная ошибка'));
-    } finally {
-      setLoading(false);
-    }
+  const handleTeamSelect = (card, teamId) => {
+    console.log(`Selected team ${teamId} for card ${card.id}`);
   };
 
   const handleReplaceCards = async () => {
@@ -192,6 +266,12 @@ const MainPage = () => {
       setReplacingCards(true);
       setLoading(true);
       
+      // Сбрасываем состояние завершенных пакостей при замене
+      setCompletedMischiefCards(new Set());
+      // СБРАСЫВАЕМ СОСТОЯНИЯ ОТКРЫТИЯ ПРИ ЗАМЕНЕ
+      setOpenedCardId(null);
+      setOpenedCardRarity(null);
+      
       setCards(prevCards => 
         prevCards.map(card => ({ ...card, isReplacing: true }))
       );
@@ -199,12 +279,13 @@ const MainPage = () => {
       await new Promise(resolve => setTimeout(resolve, 800));
       
       const response = await api.replaceChallenges();
-      console.log('Replace cards response:', response);
       
       if (response.success) {
         await loadChallenges();
-        setSuccessMessage('Карточки заменены! Спиcано 10 000 руб.');
-        setTimeout(() => setSuccessMessage(''), 3000);
+        // УБРАЛИ СООБЩЕНИЕ О ЗАМЕНЕ КАРТОЧЕК
+        setTimeout(() => {
+          window.dispatchEvent(new Event('balanceUpdate'));
+        }, 500);
       }
     } catch (error) {
       console.error('Replace cards error:', error);
@@ -221,7 +302,6 @@ const MainPage = () => {
   };
 
   const handleCardReplaceComplete = (uniqueKey) => {
-    console.log(`Card ${uniqueKey} replace animation complete`);
     setCards(prevCards => prevCards.filter(card => card.uniqueKey !== uniqueKey));
   };
 
@@ -229,25 +309,83 @@ const MainPage = () => {
     return new Intl.NumberFormat('ru-RU').format(balance) + ' руб.';
   };
 
-  const renderActiveTaskBlock = () => {
+  const renderActiveTaskView = () => {
     return (
-      <div className="active-task-notification">
-        <div className="notification-content">
-          <h2>У ВАС УЖЕ ЕСТЬ АКТИВНОЕ ЗАДАНИЕ!</h2>
-          <p>Отметить как выполненное или отменить текущее задание вы можете на странице "Моя команда"</p>
-          
+      <div className="active-task-container">
+        <div className="active-task-cards-grid">
+          {cards.map((card, index) => (
+            <AnimatedCard
+              key={card.uniqueKey}
+              challenge={card}
+              onSelect={handleTakeTask}
+              onTeamSelect={handleTeamSelect}
+              teams={teams.filter(team => team.id !== (myTeamData?.team?.id))}
+              canSelect={false}
+              isReplacing={false}
+              isMischiefCompleted={completedMischiefCards.has(card.uniqueKey)}
+              isTaskAccepted={acceptedTaskCard && acceptedTaskCard.uniqueKey === card.uniqueKey}
+              isBlocked={false}
+              onCardOpen={handleCardOpen}
+            />
+          ))}
+        </div>
+
+        <div className="active-task-notification-block">
+          <div className="active-task-title">
+            У ВАС УЖЕ ЕСТЬ АКТИВНОЕ ЗАДАНИЕ!
+          </div>
+          <div className="active-task-message">
+            Отметить, как выполненное или отменить текущее задание вы можете на странице "Моя команда". Если задание на модерации, дождитесь его окончания
+          </div>
           <button
             onClick={() => navigate('/my-team')}
-            className="go-to-team-btn"
+            className="active-task-button"
           >
             МОЯ КОМАНДА
           </button>
+        </div>
+
+        <div className="replace-section">
+          <button 
+            onClick={handleReplaceCards}
+            className="replace-btn"
+            disabled={true}
+          >
+            <span className="replace-text">
+              Заменить карты
+            </span>
+            <div className="reroll-icon-container">
+              <img 
+                src="/images/icons/icon-4.png" 
+                alt="Reroll" 
+                className="reroll-icon"
+                onError={(e) => {
+                  // Fallback если изображение не загрузится
+                  e.target.style.display = 'none';
+                  e.target.nextSibling?.remove();
+                  const text = document.createElement('span');
+                  text.textContent = '⟳';
+                  text.style.color = 'white';
+                  text.style.fontSize = '20px';
+                  text.style.fontWeight = 'bold';
+                  e.target.parentNode.appendChild(text);
+                }}
+              />
+            </div>
+          </button>
+          <div className="replace-cost">
+            <div className="cost-text-container">
+              <div className="cost-text-line">Стоимость каждой</div>
+              <div className="cost-text-line">замены карт испытаний</div>
+            </div>
+            <div className="cost-amount">-5 000 РУБ.</div>
+          </div>
         </div>
       </div>
     );
   };
 
-  const renderCardsSection = () => {
+  const renderNormalView = () => {
     if (loading && !replacingCards) {
         return <div className="loading">Обновление карточек...</div>;
     }
@@ -263,50 +401,74 @@ const MainPage = () => {
       );
     }
 
-    if (hasActiveTask) {
-      return renderActiveTaskBlock();
-    }
-
-    if (cards.length === 0 && !replacingCards) {
-      return (
-        <div className="no-cards-message">
-          <h3>Нет доступных заданий</h3>
-          <p>Попробуйте обновить страницу или обратитесь к модератору</p>
-          <button onClick={loadChallenges} className="retry-btn">
-            Обновить
-          </button>
-        </div>
-      );
-    }
-
     return (
       <>
-        <div className="cards-grid">
-          {cards.map((card) => (
-            <AnimatedCard
-              key={card.uniqueKey}
-              challenge={card}
-              onSelect={handleTakeTask}
-              canSelect={!loading && !replacingCards}
-              isReplacing={card.isReplacing}
-              onReplaceComplete={() => handleCardReplaceComplete(card.uniqueKey)}
-            />
-          ))}
+        <div className="cards-grid-container">
+          <div className="cards-grid">
+            {cards.length === 0 && !replacingCards ? (
+              <div className="no-cards-message">
+                <h3>Нет доступных заданий</h3>
+                <p>Попробуйте обновить страницу или обратитесь к модератору</p>
+                <button onClick={loadChallenges} className="retry-btn">
+                  Обновить
+                </button>
+              </div>
+            ) : (
+              cards.map((card) => (
+                <AnimatedCard
+                  key={card.uniqueKey}
+                  challenge={card}
+                  onSelect={handleTakeTask}
+                  onTeamSelect={handleTeamSelect}
+                  teams={teams.filter(team => team.id !== (myTeamData?.team?.id))}
+                  canSelect={!loading && !replacingCards}
+                  isReplacing={card.isReplacing}
+                  onReplaceComplete={() => handleCardReplaceComplete(card.uniqueKey)}
+                  isMischiefCompleted={completedMischiefCards.has(card.uniqueKey)}
+                  isTaskAccepted={false}
+                  isBlocked={isCardBlocked(card)}
+                  onCardOpen={handleCardOpen}
+                />
+              ))
+            )}
+          </div>
         </div>
 
+        {/* БЛОК ЗАМЕНЫ КАРТ ВСЕГДА ОТОБРАЖАЕТСЯ В НОРМАЛЬНОМ РЕЖИМЕ */}
         <div className="replace-section">
           <button 
             onClick={handleReplaceCards}
             className="replace-btn"
-            disabled={loading || replacingCards || (myTeamData && myTeamData.team && myTeamData.team.balance < 10000)}
+            disabled={loading || replacingCards || (myTeamData && myTeamData.team && myTeamData.team.balance < 5000)}
           >
             <span className="replace-text">
-              {replacingCards ? 'ЗАМЕНА...' : 'ЗАМЕНИТЬ КАРТЫ*'}
+              {replacingCards ? 'Замена...' : 'Заменить карты'}
             </span>
+            <div className="reroll-icon-container">
+              <img 
+                src="/images/icons/icon-4.png" 
+                alt="Reroll" 
+                className="reroll-icon"
+                onError={(e) => {
+                  // Fallback если изображение не загрузится
+                  e.target.style.display = 'none';
+                  e.target.nextSibling?.remove();
+                  const text = document.createElement('span');
+                  text.textContent = '⟳';
+                  text.style.color = 'white';
+                  text.style.fontSize = '20px';
+                  text.style.fontWeight = 'bold';
+                  e.target.parentNode.appendChild(text);
+                }}
+              />
+            </div>
           </button>
           <div className="replace-cost">
-            <span className="cost-text">*Стоимость каждой замены карт испытаний</span>
-            <span className="cost-amount">-10 000 руб.</span>
+            <div className="cost-text-container">
+              <div className="cost-text-line">Стоимость каждой</div>
+              <div className="cost-text-line">замены карт испытаний</div>
+            </div>
+            <div className="cost-amount">-5 000 РУБ.</div>
           </div>
         </div>
       </>
@@ -316,84 +478,102 @@ const MainPage = () => {
   return (
     <div className="main-page">
       {successMessage && <div className="successMessage">{successMessage}</div>}
+      {error && <div className="error-message">{error}</div>}
       
       <div className="main-container">
         
-        {/* ЛЕВЫЙ БЛОК - С ИКОНКАМИ */}
         <div className="left-column">
-  <div className="cards-actions-block">
-    <div className="cards-actions-title">КАРТЫ И ДЕЙСТВИЯ</div>
-    <div className="cards-actions-divider"></div>
-    
-    <div className="cards-actions-list">
-      <div className="action-item">
-        <div className="action-icon-container">
-          <img src="/images/icons/icon-1.svg" alt="Эпическое безумство" className="action-icon" />
-        </div>
-        <div className="action-text">
-          <div className="action-name">ЭПИЧЕСКОЕ БЕЗУМСТВО</div>
-          <div className="action-reward">+50 000 руб.</div>
-        </div>
-      </div>
-      
-      <div className="action-item">
-        <div className="action-icon-container">
-          <img src="/images/icons/icon-2.svg" alt="Простая шалость" className="action-icon" />
-        </div>
-        <div className="action-text">
-          <div className="action-name">ПРОСТАЯ ШАЛОСТЬ</div>
-          <div className="action-reward">+25 000 руб.</div>
-        </div>
-      </div>
-      
-      <div className="action-item">
-        <div className="action-icon-container">
-          <img src="/images/icons/icon-3.svg" alt="Пакость противнику" className="action-icon" />
-        </div>
-        <div className="action-text">
-          <div className="action-name">ПАКОСТЬ ПРОТИВНИКУ</div>
-          <div className="action-reward">-10 000 руб.</div>
-        </div>
-      </div>
-      
-      <div className="action-item">
-        <div className="action-icon-container">
-          <img src="/images/icons/icon-4.svg" alt="Замена карт" className="action-icon" />
-        </div>
-        <div className="action-text">
-          <div className="action-name">ЗАМЕНА КАРТ</div>
-          <div className="action-reward">-10 000 руб.</div>
-                </div>
+          <div className="cards-actions-block">
+            <div className="block-title">КАРТЫ И ДЕЙСТВИЯ</div>
+            <div className="title-divider"></div>
+            
+            <div className="action-item">
+              <div className="action-icon-container">
+                <img 
+                  src="/images/icons/icon-1.svg" 
+                  alt="Эпическое безумие" 
+                  className="action-icon"
+                />
+              </div>
+              <div className="action-content">
+                <div className="action-name">ЭПИЧЕСКОЕ БЕЗУМСТВИЕ</div>
+                <div className="action-reward">+50 000 руб.</div>
+              </div>
+            </div>
+            
+            <div className="action-item">
+              <div className="action-icon-container">
+                <img 
+                  src="/images/icons/icon-2.svg" 
+                  alt="Простая шалость" 
+                  className="action-icon"
+                />
+              </div>
+              <div className="action-content">
+                <div className="action-name">ПРОСТАЯ ШАЛОСТЬ</div>
+                <div className="action-reward">+25 000 руб.</div>
+              </div>
+            </div>
+            
+            <div className="action-item">
+              <div className="action-icon-container">
+                <img 
+                  src="/images/icons/icon-3.svg" 
+                  alt="Пакость противнику" 
+                  className="action-icon"
+                />
+              </div>
+              <div className="action-content">
+                <div className="action-name">ПАКОСТЬ ПРОТИВНИКУ</div>
+                <div className="action-reward">-10 000 руб.</div>
+              </div>
+            </div>
+            
+            <div className="action-item">
+              <div className="action-icon-container">
+                <img 
+                  src="/images/icons/icon-4.svg" 
+                  alt="Замена карт" 
+                  className="action-icon"
+                />
+              </div>
+              <div className="action-content">
+                <div className="action-name">ЗАМЕНА КАРТ</div>
+                <div className="action-reward">-5 000 руб.</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ЦЕНТРАЛЬНАЯ КОЛОНКА С КАРТОЧКАМИ */}
         <div className="center-column">
-          {renderCardsSection()}
+          {hasActiveTask ? renderActiveTaskView() : renderNormalView()}
         </div>
 
-        {/* ПРАВЫЙ БЛОК С ИКОНКАМИ */}
         <div className="right-column">
-  <div className="teams-rating-block">
-    <div className="teams-rating-title">КОТЛЫ КОМАНД</div>
-    <div className="teams-rating-divider"></div>
-    
-    <div className="teams-rating-list">
-      {teams.length > 0 ? (
-        teams.map((team, index) => (
-          <div key={team.id || team.name} className="teams-rating-item">
-            <div className="teams-rating-icon-container">
-              <img src="/images/icons/icon-52.svg" alt="Команда" className="teams-rating-icon" />
-            </div>
-            <div className="teams-rating-name">{team.name}</div>
-            <div className="teams-rating-balance">{formatBalance(team.balance)}</div>
-          </div>
-        ))
-      ) : (
-        <div className="no-teams-message">
-          Загрузка данных команд...
+          <div className="teams-rating-block">
+            <div className="teams-rating-title">ТУРНИРНАЯ ТАБЛИЦА</div>
+            <div className="teams-rating-divider"></div>
+            
+            <div className="teams-rating-list">
+              {teams.length > 0 ? (
+                teams.map((team, index) => (
+                  <div key={team.id || team.name} className="teams-rating-item">
+                    <div className="teams-rating-icon-container">
+                      <img 
+                        src="/images/icons/icon-52.svg" 
+                        alt={team.name} 
+                        className="teams-rating-icon"
+                      />
+                    </div>
+                    <div className="teams-rating-content">
+                      <div className="teams-rating-name">{team.name}</div>
+                      <div className="teams-rating-balance">{formatBalance(team.balance)}</div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="no-teams-message">
+                  Загрузка данных команд...
                 </div>
               )}
             </div>
@@ -401,37 +581,6 @@ const MainPage = () => {
         </div>
 
       </div>
-
-      {/* МОДАЛЬНОЕ ОКНО ДЛЯ ПАКОСТИ */}
-      {showMischiefModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Выберите команду для пакости</h3>
-            <select 
-              value={selectedTargetTeam} 
-              onChange={(e) => setSelectedTargetTeam(e.target.value)}
-              className="mischief-select"
-            >
-              <option value="">Выберите команду</option>
-              {mischiefTeams.map(team => (
-                <option key={team.id} value={team.id}>
-                  {team.name} ({team.balance?.toLocaleString('ru-RU')} руб.)
-                </option>
-              ))}
-            </select>
-            <div className="modal-actions">
-              <button onClick={() => setShowMischiefModal(false)}>Отмена</button>
-              <button 
-                onClick={handleMischiefConfirm}
-                disabled={!selectedTargetTeam || loading}
-                className="mischief-btn"
-              >
-                {loading ? 'Выполняется...' : 'СДЕЛАТЬ ПАКОСТЬ'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

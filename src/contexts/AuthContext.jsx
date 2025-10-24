@@ -18,16 +18,12 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      console.log('Checking authentication...');
       const response = await api.checkAuth();
-      console.log('Auth check response:', response);
       
       if (response.loggedIn && response.user) {
         setUser(response.user);
         
-        // ЕСЛИ ПОЛЬЗОВАТЕЛЬ МОДЕРАТОР - НЕ ГРУЗИМ ДАННЫЕ КОМАНДЫ
         if (response.user.role === 'moderator') {
-          console.log('User is moderator, skipping team data load');
           setTeamData({
             team: null,
             activeChallenge: null,
@@ -38,15 +34,10 @@ export const AuthProvider = ({ children }) => {
           return;
         }
         
-        // ДЛЯ КАПИТАНОВ - ГРУЗИМ ДАННЫЕ КОМАНДЫ
         try {
-          console.log('Loading team data for captain...');
           const teamResponse = await api.getMyTeam();
-          console.log('Team data response:', teamResponse);
           setTeamData(teamResponse);
         } catch (teamError) {
-          console.error('Team data load error (non-critical):', teamError);
-          // НЕ БЛОКИРУЕМ АВТОРИЗАЦИЮ ИЗ-ЗА ОШИБКИ ДАННЫХ КОМАНДЫ
           setTeamData({
             team: null,
             activeChallenge: null,
@@ -59,7 +50,6 @@ export const AuthProvider = ({ children }) => {
         setTeamData(null);
       }
     } catch (error) {
-      console.error('Auth check error:', error);
       setUser(null);
       setTeamData(null);
     } finally {
@@ -75,7 +65,6 @@ export const AuthProvider = ({ children }) => {
       if (response.success && response.user) {
         setUser(response.user);
         
-        // ЕСЛИ ПОЛЬЗОВАТЕЛЬ МОДЕРАТОР - НЕ ГРУЗИМ ДАННЫЕ КОМАНДЫ
         if (response.user.role === 'moderator') {
           setTeamData({
             team: null,
@@ -87,12 +76,10 @@ export const AuthProvider = ({ children }) => {
           return response;
         }
         
-        // ДЛЯ КАПИТАНОВ - ГРУЗИМ ДАННЫЕ КОМАНДЫ
         try {
           const teamResponse = await api.getMyTeam();
           setTeamData(teamResponse);
         } catch (teamError) {
-          console.error('Team data load error after login:', teamError);
           setTeamData({
             team: null,
             activeChallenge: null,
@@ -106,7 +93,6 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Login failed');
       }
     } catch (error) {
-      console.error('Login error:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -124,9 +110,36 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Функция для принудительного обновления данных команды
+  const refreshTeamData = async () => {
+    if (!user?.token || user?.role === 'moderator') return;
+    
+    try {
+      const teamResponse = await api.getMyTeam();
+      setTeamData(teamResponse);
+      return teamResponse;
+    } catch (error) {
+      console.error('Team data refresh error:', error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // Интервал для автоматического обновления данных команды
+  useEffect(() => {
+    if (!user?.token || user?.role === 'moderator') return;
+
+    const interval = setInterval(() => {
+      refreshTeamData();
+    }, 3000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [user?.token, user?.role]);
 
   const value = {
     user,
@@ -134,7 +147,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
-    checkAuth
+    checkAuth,
+    refreshTeamData
   };
 
   return (

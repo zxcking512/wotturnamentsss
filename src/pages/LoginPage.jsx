@@ -57,7 +57,7 @@ const LoginPage = () => {
         if (data.user.role === 'moderator') {
           window.location.href = '/moderator';
         } else {
-          window.location.href = '/';
+          window.location.href = '/main'; // ИЗМЕНИЛ С '/' НА '/main'
         }
         
       } else {

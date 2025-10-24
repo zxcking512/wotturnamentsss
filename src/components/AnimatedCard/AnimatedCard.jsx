@@ -6,11 +6,18 @@ const AnimatedCard = ({
   onSelect, 
   canSelect = true,
   isReplacing = false,
-  onReplaceComplete
+  onReplaceComplete,
+  teams = [],
+  onTeamSelect,
+  isMischiefCompleted = false,
+  isTaskAccepted = false,
+  isBlocked = false,
+  onCardOpen
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [mouseRotate, setMouseRotate] = useState({ x: 0, y: 0 });
   const [isExiting, setIsExiting] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState('');
   
   const cardRef = useRef(null);
   const boomVideoRef = useRef(null);
@@ -21,7 +28,9 @@ const AnimatedCard = ({
   const [hasSpecialRarity, setHasSpecialRarity] = useState(false);
   const [showPermanentGlow, setShowPermanentGlow] = useState(false);
 
-  // Функция для получения изображения карточки
+  // НОВАЯ ЛОГИКА: проверяем можно ли открыть карточку
+  const canOpenCard = !isBlocked && !isFlipped && !isExiting && !isMischiefCompleted && !isTaskAccepted && canSelect;
+
   const getCardImage = () => {
     const { rarity } = challenge;
     
@@ -62,13 +71,60 @@ const AnimatedCard = ({
     }
   };
 
+  const getTopBadgeSVG = (rarity) => {
+    switch(rarity) {
+      case 'epic':
+        return (
+          <svg width="160" height="28" viewBox="0 0 190 32" fill="none" preserveAspectRatio="xMidYMid meet">
+            <path d="M0 0H190L181.038 32H8.96226L0 0Z" fill="#FF5000" fillOpacity="0.8"/>
+          </svg>
+        );
+      case 'troll':
+        return (
+          <svg width="160" height="28" viewBox="0 0 190 32" fill="none" preserveAspectRatio="xMidYMid meet">
+            <path d="M189.341 0.5L180.659 31.5H9.34082L0.65918 0.5H189.341Z" fill="#8733FE" fillOpacity="0.8" stroke="#8733FE"/>
+          </svg>
+        );
+      case 'common':
+      default:
+        return (
+          <svg width="160" height="28" viewBox="0 0 190 32" fill="none" preserveAspectRatio="xMidYMid meet">
+            <path d="M189.341 0.5L180.659 31.5H9.34082L0.65918 0.5H189.341Z" fill="#555555" fillOpacity="0.7" stroke="#565656"/>
+          </svg>
+        );
+    }
+  };
+
+  const getBottomBadgeSVG = (rarity) => {
+    switch(rarity) {
+      case 'epic':
+        return (
+          <svg width="200" height="38" viewBox="0 0 232 43" fill="none" preserveAspectRatio="xMidYMid meet">
+            <path d="M20 0H212L232 43H0L20 0Z" fill="#FF5000" fillOpacity="0.8"/>
+          </svg>
+        );
+      case 'troll':
+        return (
+          <svg width="200" height="38" viewBox="0 0 232 43" fill="none" preserveAspectRatio="xMidYMid meet">
+            <path d="M211.682 0.5L231.216 42.5H0.78418L20.3184 0.5H211.682Z" fill="#6A01FE" fillOpacity="0.8" stroke="#8733FE"/>
+          </svg>
+        );
+      case 'common':
+      default:
+        return (
+          <svg width="200" height="38" viewBox="0 0 232 43" fill="none" preserveAspectRatio="xMidYMid meet">
+            <path d="M211.682 0.5L231.216 42.5H0.78418L20.3184 0.5H211.682Z" fill="#555555" fillOpacity="0.7" stroke="#565656"/>
+          </svg>
+        );
+    }
+  };
+
   const videoSources = getVideoSources();
 
   useEffect(() => {
     setHasSpecialRarity(challenge.rarity === 'epic' || challenge.rarity === 'troll');
   }, [challenge.rarity]);
 
-  // Обработка анимации замены карточек
   useEffect(() => {
     if (isReplacing && !isExiting) {
       startExitAnimation();
@@ -86,38 +142,44 @@ const AnimatedCard = ({
   };
 
   const handleCardClick = useCallback((e) => {
-    if (!canSelect || isFlipped || isExiting) return;
+  if (!canOpenCard) return;
 
-    e.stopPropagation();
-    
-    if (isBoomPlaying) return;
+  e.stopPropagation();
+  
+  if (isBoomPlaying) return;
 
-    console.log('Card clicked, starting animations...');
-    
-    // СРАЗУ начинаем переворот карточки
+  console.log('Card clicked, starting animations...');
+  
+  // СНАЧАЛА запускаем взрыв, ПОТОМ переворот
+  setIsBoomPlaying(true);
+  if (boomVideoRef.current) {
+    boomVideoRef.current.currentTime = 0;
+    boomVideoRef.current.play().catch(err => {
+      console.error('Video play error:', err);
+    });
+  }
+
+  // Запускаем переворот с небольшой задержкой после начала взрыва
+  setTimeout(() => {
     setIsFlipped(true);
-    
-    // И запускаем взрыв одновременно с переворотом
-    setIsBoomPlaying(true);
-    if (boomVideoRef.current) {
-      boomVideoRef.current.currentTime = 0;
-      boomVideoRef.current.play().catch(err => {
-        console.error('Video play error:', err);
+    // ВЫЗЫВАЕМ КОЛБЕК ПОСЛЕ ПЕРЕВОРОТА с ID карточки
+    if (onCardOpen) {
+      onCardOpen(challenge.uniqueKey, challenge.rarity);
+    }
+  }, 150);
+
+  // Запускаем постоянное свечение после взрыва
+  setTimeout(() => {
+    if (hasSpecialRarity && videoSources.permanent && permanentGlowRef.current) {
+      setShowPermanentGlow(true);
+      permanentGlowRef.current.currentTime = 0;
+      permanentGlowRef.current.play().catch(err => {
+        console.error('Permanent glow video error:', err);
       });
     }
+  }, 700);
 
-    // Через 400ms (середина переворота) запускаем постоянное свечение
-    setTimeout(() => {
-      if (hasSpecialRarity && permanentGlowRef.current) {
-        setShowPermanentGlow(true);
-        permanentGlowRef.current.currentTime = 0;
-        permanentGlowRef.current.play().catch(err => {
-          console.error('Permanent glow video error:', err);
-        });
-      }
-    }, 400);
-
-  }, [canSelect, isBoomPlaying, isFlipped, isExiting, hasSpecialRarity]);
+}, [canOpenCard, isBoomPlaying, hasSpecialRarity, videoSources.permanent, onCardOpen, challenge.uniqueKey, challenge.rarity]);
 
   const handleBoomEnded = useCallback(() => {
     console.log('Boom animation ended');
@@ -125,7 +187,7 @@ const AnimatedCard = ({
   }, []);
 
   const handleMouseMove = useCallback((e) => {
-    if (!cardRef.current || !isFlipped || isExiting) return;
+    if (!cardRef.current || isExiting || isMischiefCompleted || isTaskAccepted || isBlocked) return;
     
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -133,11 +195,15 @@ const AnimatedCard = ({
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
     
-    const rotateX = (y - centerY) / centerY * -8;
-    const rotateY = (x - centerX) / centerX * 8;
+    const baseRotateX = (y - centerY) / centerY * 6;
+    const baseRotateY = (x - centerX) / centerX * -10;
     
-    setMouseRotate({ x: rotateX, y: rotateY });
-  }, [isFlipped, isExiting]);
+    if (!isFlipped) {
+      setMouseRotate({ x: -baseRotateX, y: -baseRotateY });
+    } else {
+      setMouseRotate({ x: baseRotateX, y: baseRotateY });
+    }
+  }, [isFlipped, isExiting, isMischiefCompleted, isTaskAccepted, isBlocked]);
 
   const handleMouseLeave = useCallback(() => {
     setMouseRotate({ x: 0, y: 0 });
@@ -145,15 +211,26 @@ const AnimatedCard = ({
 
   const handleTakeTask = (e) => {
     e.stopPropagation();
-    onSelect && onSelect(challenge);
+    
+    if (challenge.rarity === 'troll' && !selectedTeam) {
+      alert('Пожалуйста, выберите команду для пакости!');
+      return;
+    }
+    
+    onSelect && onSelect(challenge, selectedTeam);
+  };
+
+  const handleTeamSelect = (e) => {
+    const teamId = e.target.value;
+    setSelectedTeam(teamId);
+    onTeamSelect && onTeamSelect(challenge, teamId);
   };
 
   const getRarityName = (rarity) => {
     switch (rarity) {
-      case 'epic': return 'ЭПИЧЕСКОЕ БЕЗУМСТВО';
-      case 'rare': return 'ДЕРЗКИЙ ВЫЗОВ';
+      case 'epic': return 'ЭПИЧЕСКОЕ БЕЗУМСТВИЕ';
       case 'common': return 'ПРОСТАЯ ШАЛОСТЬ';
-      case 'troll': return 'ПАКОСТЬ';
+      case 'troll': return 'ОСОБАЯ СПОСОБНОСТЬ';
       default: return rarity;
     }
   };
@@ -167,10 +244,31 @@ const AnimatedCard = ({
     return '0 РУБ.';
   };
 
+  const getMischiefDescription = () => {
+    return "Выберите команду, баланс которой уменьшится на стоимость карты";
+  };
+
   const cardImage = getCardImage();
 
-  const wrapperClassName = `animated-card-wrapper ${isExiting ? 'card-exit' : ''}`;
-  const cardClassName = `animated-card ${challenge.rarity} ${isFlipped ? 'flipped' : ''} ${!canSelect ? 'disabled' : ''}`;
+  const wrapperClassName = `animated-card-wrapper ${isExiting ? 'card-exit' : ''} ${isBlocked ? 'card-blocked' : ''}`;
+  const cardClassName = `animated-card ${challenge.rarity} ${isFlipped ? 'flipped' : ''} ${!canSelect ? 'disabled' : ''} ${isMischiefCompleted ? 'mischief-completed' : ''} ${isTaskAccepted ? 'task-accepted' : ''} ${isBlocked ? 'blocked' : ''} with-parallax`;
+
+  const getTransformStyle = () => {
+    let transform = '';
+    
+    if (isFlipped) {
+      transform = `rotateY(180deg) rotateX(${mouseRotate.x}deg) rotateY(${mouseRotate.y}deg)`;
+    } else {
+      transform = `rotateX(${mouseRotate.x}deg) rotateY(${mouseRotate.y}deg)`;
+    }
+    
+    if (cardRef.current) {
+      cardRef.current.style.setProperty('--mouse-x', `${mouseRotate.x}deg`);
+      cardRef.current.style.setProperty('--mouse-y', `${mouseRotate.y}deg`);
+    }
+    
+    return transform;
+  };
 
   return (
     <div 
@@ -178,8 +276,7 @@ const AnimatedCard = ({
       className={wrapperClassName}
       style={{ animationDelay: `${(challenge.id % 3) * 0.1}s` }}
     >
-      {/* Контейнер для свечения */}
-      {hasSpecialRarity && videoSources.permanent && (
+      {(hasSpecialRarity && videoSources.permanent) && (
         <div className="glow-container">
           <video
             ref={permanentGlowRef}
@@ -192,89 +289,132 @@ const AnimatedCard = ({
         </div>
       )}
       
-      {/* Основная карточка */}
+      {videoSources.boom && (
+        <div className="boom-video-container">
+          <video
+            ref={boomVideoRef}
+            className={`boom-video ${isBoomPlaying ? 'is-visible' : ''}`}
+            playsInline
+            muted
+            onEnded={handleBoomEnded}
+            onError={(e) => {
+              console.error('Boom video error:', e);
+            }}
+            src={videoSources.boom}
+          />
+        </div>
+      )}
+      
       <div 
         ref={cardRef}
         className={cardClassName}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="card-3d-container">
+        <div 
+          className="card-3d-container"
+          style={{ transform: getTransformStyle() }}
+        >
           
-          {/* Лицевая сторона (рубашка) */}
           <div className="card-front">
-            {/* Видео взрыва */}
-            {videoSources.boom && (
-              <video
-                ref={boomVideoRef}
-                className={`boom-video ${isBoomPlaying ? 'is-visible' : ''}`}
-                playsInline
-                muted
-                onEnded={handleBoomEnded}
-                onError={(e) => {
-                  console.error('Boom video error:', e);
-                }}
-                src={videoSources.boom}
-              />
-            )}
+            {/* Рубашка карточки */}
           </div>
 
-          {/* Оборотная сторона по новому макету */}
           <div className="card-back">
-            {/* Фон рубашки для всей карточки */}
             <div className="card-back-background"></div>
             
-            {/* Верхний блок с изображением */}
-            <div 
-              className="card-image-section"
-              style={{ backgroundImage: `url(${cardImage})` }}
-            >
-              {/* Верхний оранжевый блок с текстом редкости */}
-              <div className="card-rarity-badge">
-                <div className="card-rarity-text">{getRarityName(challenge.rarity)}</div>
+            <div className="card-back-content">
+              <div 
+                className="card-image-section"
+                style={{ backgroundImage: `url(${cardImage})` }}
+              >
+                <div className="card-rarity-badge">
+                  <div className="rarity-svg">
+                    {getTopBadgeSVG(challenge.rarity)}
+                  </div>
+                  <div className="rarity-text">{getRarityName(challenge.rarity)}</div>
+                </div>
+
+                <div className="card-reward-badge">
+                  <div className="reward-svg">
+                    {getBottomBadgeSVG(challenge.rarity)}
+                    <div className="reward-text">{formatReward(challenge.reward)}</div>
+                  </div>
+                </div>
               </div>
 
-              {/* Нижний оранжевый блок с наградой */}
-              <div className="card-reward-badge">
-                <svg className="reward-svg" width="232" height="43" viewBox="0 0 232 43" fill="none">
-                  <path d="M20 0H212L232 43H0L20 0Z" fill="#FF5000" fillOpacity="0.8"/>
-                </svg>
-                <div className="reward-text">{formatReward(challenge.reward)}</div>
+              <div className="card-content-section">
+                <h3 className="card-title">{challenge.title}</h3>
+                
+                <div className="card-description">
+                  {challenge.rarity === 'troll' ? getMischiefDescription() : challenge.description}
+                </div>
+
+                {challenge.rarity === 'troll' && (
+                  <div className="team-select-container">
+                    <select 
+                      value={selectedTeam} 
+                      onChange={handleTeamSelect}
+                      className="team-select"
+                      disabled={!canSelect || isExiting || isMischiefCompleted || isTaskAccepted || isBlocked}
+                    >
+                      <option value="">Выберите команду</option>
+                      {teams.map(team => (
+                        <option key={team.id} value={team.id}>
+                          {team.name} ({team.balance?.toLocaleString('ru-RU')} руб.)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Нижний блок с контентом */}
-            <div className="card-content-section">
-              <div 
-                className="card-back-content"
-                style={{
-                  transform: `rotateX(${mouseRotate.x}deg) rotateY(${mouseRotate.y}deg)`
-                }}
+            <div className="card-button-container">
+              <button
+                onClick={handleTakeTask}
+                className={`take-task-btn ${challenge.rarity === 'troll' ? 'mischief-btn' : ''}`}
+                disabled={!canSelect || isExiting || (challenge.rarity === 'troll' && !selectedTeam) || isMischiefCompleted || isTaskAccepted || isBlocked}
               >
-                {/* Название карточки */}
-                <h3 className="card-title">{challenge.title}</h3>
-                
-                {/* Описание карточки */}
-                <div className="card-description">
-                  {challenge.description}
-                </div>
-                
-                {/* Кнопка принять задание */}
-                <button
-                  onClick={handleTakeTask}
-                  className={`take-task-btn ${challenge.rarity === 'troll' ? 'mischief-btn' : ''}`}
-                  disabled={!canSelect || isExiting}
-                >
-                  {challenge.rarity === 'troll' ? 'СДЕЛАТЬ ПАКОСТЬ' : 'ПРИНЯТЬ ЗАДАНИЕ'}
-                </button>
-              </div>
+                {challenge.rarity === 'troll' ? 'Сделать пакость' : 'Принять задание'}
+              </button>
             </div>
           </div>
 
         </div>
         
-        {/* Кликабельная область для карточки */}
-        {!isFlipped && !isExiting && (
+        {isMischiefCompleted && !isBlocked && (
+          <div className="mischief-completed-overlay">
+            <div className="mischief-success-title">
+              ПАКОСТЬ<br />УДАЛАСЬ!
+            </div>
+            <div className="mischief-success-message">
+              Команда противника получила -10 000 руб. к балансу. Вы можете открыть другую карту.
+            </div>
+          </div>
+        )}
+        
+        {isTaskAccepted && (
+          <div className="task-accepted-overlay">
+            <div className="task-accepted-title">
+              ЗАДАНИЕ<br />ПРИНЯТО!
+            </div>
+            <div className="task-accepted-message">
+              Отметить как выполненное или отменить текущее задание вы можете на странице "Моя команда"
+            </div>
+          </div>
+        )}
+        
+        {/* УБИРАЕМ СООБЩЕНИЕ О БЛОКИРОВКЕ - ОСТАВЛЯЕМ ТОЛЬКО ЗАТЕМНЕНИЕ */}
+        {isBlocked && !isFlipped && (
+          <div className="card-blocked-overlay">
+            <div className="blocked-message">
+              {/* Сообщение скрыто через CSS */}
+            </div>
+          </div>
+        )}
+        
+        {canOpenCard && (
           <div 
             className="card-click-area"
             onClick={handleCardClick}
